@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Alumno; // tu modelo Alumno
+use Illuminate\Support\Facades\Auth;
+use App\Models\Alumno;
 
 class AuthController extends Controller
 {

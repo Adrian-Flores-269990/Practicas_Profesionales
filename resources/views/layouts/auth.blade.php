@@ -3,26 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@yield('title','Sistema de Prácticas Profesionales')</title>
+  <title>@yield('title','Acceso')</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/login.css') }}">
   @stack('styles')
 </head>
-<body>
-
-  @include('partials.header')
-  <div class="light-blue-line"></div>
-
-  {{-- submenú por rol (admin/alumno) --}}
-  @yield('subheader')
-
-  <main class="pt-0 pb-4 container-fluid">
+<body class="d-flex min-vh-100 align-items-center justify-content-center">
+  <div class="container" style="max-width: 750px;">
     @yield('content')
-  </main>
-
-  <div class="light-blue-line"></div>
-  @include('partials.footer')
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   @stack('scripts')

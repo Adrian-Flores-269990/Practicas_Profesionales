@@ -81,11 +81,16 @@
     <div class="p-4">
       <h6 class="text-center mb-4">SISTEMA DE CONTROL DE PRÁCTICAS PROFESIONALES</h6>
 
-      <form class="mx-auto" style="max-width: 500px;">
+      <form method="POST" action="{{ route('login') }}" class="mx-auto" style="max-width: 500px;">
+        @csrf <!-- Token de seguridad obligatorio en Laravel -->
         <div class="row mb-3 align-items-center">
           <label for="cuenta" class="col-form-label label-fixed text-start">Cuenta UASLP</label>
           <div class="col">
             <input type="text" class="form-control" id="cuenta" name="cuenta" placeholder="Correo UASLP / RPE / 'A' + Clave única" required>
+            <!-- Aquí se muestra el error si las credenciales son incorrectas -->
+            @if($errors->has('cuenta'))
+                <small class="text-danger">{{ $errors->first('cuenta') }}</small>
+            @endif
           </div>
         </div>
 
@@ -93,7 +98,11 @@
             <label for="password" class="col-form-label label-fixed text-start">Contraseña</label>
             <div class="col">
                 <input type="password" class="form-control" id="password" name="password" placeholder="********" required>
-            </div>
+                <!-- También puedes mostrar el mismo error debajo de la contraseña si quieres -->
+                @if($errors->has('password'))
+                    <small class="text-danger">{{ $errors->first('password') }}</small>
+                @endif
+              </div>
         </div>
 
         <button type="submit" class="btn btn-primary w-100" style="background-color: #005ecb;">Ingresar</button>

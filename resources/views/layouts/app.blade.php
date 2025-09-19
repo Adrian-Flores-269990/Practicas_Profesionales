@@ -22,7 +22,12 @@
   </main>
 
   <div class="light-blue-line"></div>
-  @include('partials.footer')
+{{-- Footer (permite override por vista) --}}
+@hasSection('footer_custom')
+  @yield('footer_custom')    {{-- la vista puede poner su propio footer --}}
+@else
+  @include('partials.footer') {{-- footer global por defecto --}}
+@endif
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   @stack('scripts')

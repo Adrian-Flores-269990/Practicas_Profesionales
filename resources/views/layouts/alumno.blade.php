@@ -6,6 +6,5 @@
 
 @section('subheader')
   @include('partials.nav.alumno')
+
 @endsection
-
-

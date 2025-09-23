@@ -25,6 +25,7 @@ Route::get('/secretaria/home', fn () => view('secretaria.home'))->name('secretar
 
 // SECRETARIA HOME
 Route::get('/encargado/home', fn () => view('encargado.home'))->name('encargado.home');
+Route::get('/encargado/solicitudes_alumnos', fn () => view('encargado.solicitudes_alumnos'))->name('encargado.solicitudes_alumnos');
 
 // SECRETARIA HOME
 Route::get('/dsspp/home', fn () => view('dsspp.home'))->name('dsspp.home');

@@ -26,6 +26,8 @@ Route::get('/secretaria/home', fn () => view('secretaria.home'))->name('secretar
 // SECRETARIA HOME
 Route::get('/encargado/home', fn () => view('encargado.home'))->name('encargado.home');
 Route::get('/encargado/solicitudes_alumnos', fn () => view('encargado.solicitudes_alumnos'))->name('encargado.solicitudes_alumnos');
+Route::get('/encargado/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
+Route::get('/encargado/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
 
 // SECRETARIA HOME
 Route::get('/dsspp/home', fn () => view('dsspp.home'))->name('dsspp.home');

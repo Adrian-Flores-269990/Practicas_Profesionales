@@ -6,13 +6,13 @@
           Prácticas Profesionales
         </a>
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
-          <li><a class="dropdown-item" href="#">Consultar Alumno</a></li>
-          <li><a class="dropdown-item" href="#">Solicitudes Pendientes</a></li>
-          <li><a class="dropdown-item" href="#">Alumnos en Proceso de Prácticas</a></li>
-          <li><a class="dropdown-item" href="#">Alumnos que Finalizaron Prácticas</a></li>
-          <li><a class="dropdown-item" href="#">Estadísticas de la Empresa</a></li>
-          <li><a class="dropdown-item" href="#">Registrar Nueva Empresa</a></li>
-          <li><a class="dropdown-item" href="#">Consultar Reportes por Área</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.home') }}">Consultar alumno</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.solicitudes_alumnos') }}">Solicitudes pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en proceso de prácticas</a></li>
+          <li><a class="dropdown-item" href="#">Alumnos que finalizaron prácticas</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de las empresas</a></li>
+          <li><a class="dropdown-item" href="#">Registrar nueva empresa</a></li>
+          <li><a class="dropdown-item" href="#">Consultar reportes por área</a></li>
         </ul>
       </li>
 

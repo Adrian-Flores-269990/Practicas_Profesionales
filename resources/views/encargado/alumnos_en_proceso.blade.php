@@ -1,5 +1,5 @@
 @extends('layouts.encargado')
-@section('title','Solicitudes de prácticas')
+@section('title','Alumnos en proceso de prácticas')
 
 @section('content')
 
@@ -15,35 +15,12 @@
         background-color: #004A98;
       }
     </style>
-    <nav class="navbar navbar-expand-lg" style="background-color: #00499884;">
-      <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link text-white" href="#">Estado</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-white" href="#">Solicitud</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-white" href="#">Reportes</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-white" href="#">Evaluación</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
 
     {{-- Segunda navbar --}}
     <nav class="navbar" style="background-color: #000066;">
       <div class="container-fluid justify-content-center">
         <span class="navbar-text text-white mx-auto" style="font-weight: 500;">
-          Lista de alumnos que solicitan prácticas profesionales
+          Lista de alumnos en proceso de prácticas profesionales
         </span>
       </div>
     </nav>

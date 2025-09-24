@@ -1,0 +1,4 @@
+.dsspp-navbar{background-color:#f3f4f6;margin:0 !important;}
+.dsspp-navbar .nav{display:flex;justify-content:space-around;width:100%}
+.dsspp-navbar .nav-link{color:rgba(0, 0, 0, 0.5)}
+.dsspp-navbar .nav-link:hover{background-color:#e5e7eb;color:rgba(0, 0, 0, 1)}

@@ -2,7 +2,6 @@
 @section('title','Inicio Alumno')
 
 @section('content')
-  {{-- Bloque de información del alumno (sin estilos embebidos) --}}
   <div class="container-fluid info-alumno-wrapper">
     <div class="bloque-datos">
       <div><img src="{{ asset('images/perfil.webp') }}" alt="Foto del alumno" class="foto-alumno"></div>

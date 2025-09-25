@@ -2,40 +2,62 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReciboController;
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');
 
-// ADMIN HOME
-Route::get('/admin/home', fn () => view('administrador.home'))->name('admin.home');
+// ADMIN
+Route::prefix('admin')->group(function () {
+    Route::get('/home', fn () => view('administrador.home'))->name('admin.home');
+});
 
 // ALUMNO
 Route::prefix('alumno')->group(function () {
     Route::get('/home', fn () => view('alumno.inicio'))->name('alumno.home');
-    Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
 
+    Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
     Route::get('/solicitud', fn () => view('alumno.solicitud'))->name('alumno.solicitud');
     Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
-    
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
+
     Route::get('/expediente/cartaAceptacion', fn () => view('alumno.expediente.cartaAceptacion'))->name('alumno.expediente.cartaAceptacion');
     Route::get('/expediente/desglosePercepciones', fn () => view('alumno.expediente.desglosePercepciones'))->name('alumno.expediente.desglosePercepciones');
     Route::get('/expediente/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
+    Route::get('/expediente/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
+
+    Route::view('/faq',  'alumno.faq')->name('dev.alumno.faq');
+    Route::view('/detalles',  'alumno.detalles')->name('dev.alumno.detalles');
+    Route::view('/diagrama',  'alumno.diagrama')->name('dev.alumno.diagrama');
+    Route::view('/proceso',  'alumno.proceso')->name('dev.alumno.proceso');
 });
 
-// SECRETARIA HOME
-Route::get('/secretaria/home', fn () => view('secretaria.home'))->name('secretaria.home');
+// SECRETARIA
+Route::prefix('secretaria')->group(function () {
+    Route::get('/home', fn () => view('secretaria.home'))->name('secretaria.home');
+});
 
-// SECRETARIA HOME
-Route::get('/encargado/home', fn () => view('encargado.home'))->name('encargado.home');
+// ENCARGADO
+Route::prefix('encargado')->group(function () {
+    Route::get('/home', fn () => view('encargado.home'))->name('encargado.home');
+    Route::get('/solicitudes_alumnos', fn () => view('encargado.solicitudes_alumnos'))->name('encargado.solicitudes_alumnos');
+    Route::get('/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
+    Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
+});
 
-// SECRETARIA HOME
-Route::get('/dsspp/home', fn () => view('dsspp.home'))->name('dsspp.home');
+// DSSPP
+Route::prefix('dsspp')->group(function () {
+    Route::get('/home', fn () => view('dsspp.home'))->name('dsspp.home');
+});
+
 
 // LOGINS
 Route::view('/alumno/login', 'auth.login')->name('alumno.login');
 Route::view('/empleado/login', 'auth.loginEmpleado')->name('empleado.login');
+
+// PDFs
+Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
 
 // POST login
 Route::post('/', [AuthController::class, 'login'])->name('login');

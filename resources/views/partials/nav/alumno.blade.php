@@ -1,3 +1,5 @@
+@include('partials.modals')
+
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
   <div class="container justify-content-center">
     <ul class="nav">
@@ -26,7 +28,7 @@
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.cartaAceptacion') }}">Carta de Aceptación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.desglosePercepciones') }}">Carta de Desglose de Percepciones</a></li>
-          <li><a class="dropdown-item" href="#">Solicitud de Recibo para Ayuda Económica</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">Solicitud de Recibo para Ayuda Económica</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">Recibo de Pago</a></li>
           <li><a class="dropdown-item" href="#">Reportes Parciales</a></li>
           <li><a class="dropdown-item" href="#">Reporte Final</a></li>
@@ -41,12 +43,12 @@
           Proceso
         </a>
         <ul class="dropdown-menu" aria-labelledby="procesoDropdown">
-          <li><a class="dropdown-item" href="#">Diagrama de Proceso</a></li>
-          <li><a class="dropdown-item" href="#">Proceso Prácticas Profesionales</a></li>
-          <li><a class="dropdown-item" href="#">Formato de Reporte (anexo 1)</a></li>
-          <li><a class="dropdown-item" href="#">Detalles</a></li>
-          <li><a class="dropdown-item" href="#">FAQs</a></li>
-          <li><a class="dropdown-item" href="#">Estadísticas de Empresas</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#diagrama">Diagrama de Proceso</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#proceso">Proceso Prácticas Profesionales</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal">Formato de Reporte (anexo 1)</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detalles">Detalles</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#faq">FAQs</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#miModal">Estadísticas de Empresas</a></li>
         </ul>
       </li>
 

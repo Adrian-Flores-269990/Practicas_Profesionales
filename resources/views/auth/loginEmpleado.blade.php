@@ -26,7 +26,7 @@
 
       <div class="links">
         <a href="{{ route('alumno.login') }}">¿Eres alumno? Ir al login de alumnos</a>
-        <a href="{{ route('home') }}">Volver al inicio</a>
+        <a href="{{ route('welcome') }}">Volver al inicio</a>
       </div>
     </div>
   </div>

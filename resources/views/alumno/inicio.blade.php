@@ -1,25 +1,87 @@
 @extends('layouts.alumno')
 @section('title','Inicio Alumno')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
+@endpush
+
 @section('content')
-  <div class="container-fluid info-alumno-wrapper">
-    <div class="bloque-datos">
-      <div><img src="{{ asset('images/perfil.webp') }}" alt="Foto del alumno" class="foto-alumno"></div>
-      <div class="datos-izquierda">
-        <div class="campo-pareado"><div class="campo-label">Clave UASLP</div><div class="campo-valor">XXXXXX</div></div>
-        <div class="campo-pareado"><div class="campo-label">Clave Ingeniería</div><div class="campo-valor">XXXXXXXXXXXX</div></div>
-        <div class="campo-pareado"><div class="campo-label">Nombre</div><div class="campo-valor">NOMBRE DEL ALUMNO</div></div>
-        <div class="campo-pareado"><div class="campo-label">Carrera</div><div class="campo-valor">NOMBRE DE LA CARRERA</div></div>
-        <div class="campo-pareado"><div class="campo-label">Asesor</div><div class="campo-valor">NOMBRE DEL ASESOR</div></div>
-        <div class="campo-pareado"><div class="campo-label">Ciclo escolar</div><div class="campo-valor">CICLO ESCOLAR</div></div>
-        <div class="campo-pareado"><div class="campo-label">Semestre</div><div class="campo-valor">SEMESTRE</div></div>
+<div class="container-xxl alumno-home my-3">
+  <div class="row g-3">
+
+    <!-- Columna principal -->
+    <div class="col-lg-8">
+      <div class="card profile-card">
+        <div class="card-body d-flex align-items-center gap-3">
+          <img class="avatar" src="{{ asset('images/perfil.webp') }}" alt="Foto del alumno">
+          <div class="flex-grow-1">
+            <h3 class="mb-1 nombre">ABARCA CÁRCAMO ALAN YAHIR </h3>
+
+            <div class="kv">
+              <div class="kv-label">Clave UASLP</div>
+              <div class="kv-value">326769</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Carrera</div>
+              <div class="kv-value">INGENIERÍA EN SISTEMAS INTELIGENTES</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-body pt-0">
+          <div class="kv-grid">
+
+            <div class="kv">
+              <div class="kv-label">Clave Ingeniería</div>
+              <div class="kv-value">202102300073</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Asesor</div>
+              <div class="kv-value"> HERNANDEZ CASTRO FROYLAN ELOY	</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Ciclo escolar</div>
+              <div class="kv-value"> 2025-2026	</div>
+            </div>
+
+              <div class="kv">
+              <div class="kv-label">Semestre</div>
+              <div class="kv-value"> 2025-2026/I	</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="datos-derecha">
-      <div class="campo-extra"><div class="label">Fecha</div><div class="valor">25/02/2025</div></div>
-      <div class="campo-extra"><div class="label">Condición</div><div class="valor">REGULAR</div></div>
-      <div class="campo-extra"><div class="label">Situación</div><div class="valor">INSCRITO</div></div>
+    <!-- Columna lateral (estatus + accesos) -->
+    <div class="col-lg-4">
+      <div class="card status-card mb-3">
+
+        <div class="card-body status-grid">
+          <div class="kv kv-status">
+            <div class="kv-label">Fecha</div>
+            <div class="kv-value">25/09/2025</div>
+          </div>
+
+          <div class="kv kv-status">
+            <div class="kv-label">Condición</div>
+            <div class="kv-value">REGULAR</div>
+          </div>
+
+          <div class="kv kv-status">
+            <div class="kv-label">Situación</div>
+            <div class="kv-value">INSCRITO</div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
   </div>
+</div>
 @endsection

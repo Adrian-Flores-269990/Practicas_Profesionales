@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 // HOME (raíz)
-Route::view('/', 'welcome')->name('home');
+Route::view('/', 'welcome')->name('welcome');
 
 // ADMIN HOME
 Route::get('/admin/home', fn () => view('administrador.home'))->name('admin.home');
@@ -13,6 +13,10 @@ Route::get('/admin/home', fn () => view('administrador.home'))->name('admin.home
 Route::prefix('alumno')->group(function () {
     Route::get('/home', fn () => view('alumno.inicio'))->name('alumno.home');
     Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
+
+    Route::get('/solicitud', fn () => view('alumno.solicitud'))->name('alumno.solicitud');
+    Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
+    
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
     Route::get('/expediente/cartaAceptacion', fn () => view('alumno.expediente.cartaAceptacion'))->name('alumno.expediente.cartaAceptacion');

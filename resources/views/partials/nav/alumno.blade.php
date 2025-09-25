@@ -1,6 +1,11 @@
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
   <div class="container justify-content-center">
     <ul class="nav">
+
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('alumno.home') }}">Inicio</a>
+      </li>
+
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="registrarseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Registrarse
@@ -50,7 +55,7 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#">Cerrar Sesión</a>
+        <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>
     </ul>
   </div>

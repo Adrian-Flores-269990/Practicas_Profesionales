@@ -5,10 +5,10 @@
                 <a class="nav-link {{ request()->routeIs('alumno.estado') ? 'active' : '' }}" href="{{ route('alumno.estado') }}">Estado</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.solicitud') ? 'active' : '' }}" href="#">Solicitud</a>
+                <a class="nav-link {{ request()->routeIs('alumno.solicitud') ? 'active' : '' }}" href="{{ route('alumno.solicitud') }}">Solicitud</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.registro') ? 'active' : '' }}" href="#">Registro</a>
+                <a class="nav-link {{ request()->routeIs('alumno.registro') ? 'active' : '' }}" href="{{ route('alumno.registro') }}">Registro</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('alumno.reporte') ? 'active' : '' }}" href="{{ route('alumno.reporte') }}">Nuevo Reporte</a>

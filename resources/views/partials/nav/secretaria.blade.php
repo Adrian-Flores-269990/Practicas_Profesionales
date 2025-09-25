@@ -1,3 +1,5 @@
+@include('partials.modals')
+
 <nav class="secretaria-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">

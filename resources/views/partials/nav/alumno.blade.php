@@ -1,3 +1,5 @@
+@include('partials.modals')
+
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
   <div class="container justify-content-center">
     <ul class="nav">
@@ -36,12 +38,12 @@
           Proceso
         </a>
         <ul class="dropdown-menu" aria-labelledby="procesoDropdown">
-          <li><a class="dropdown-item" href="#">Diagrama de Proceso</a></li>
-          <li><a class="dropdown-item" href="#">Proceso Prácticas Profesionales</a></li>
-          <li><a class="dropdown-item" href="#">Formato de Reporte (anexo 1)</a></li>
-          <li><a class="dropdown-item" href="#">Detalles</a></li>
-          <li><a class="dropdown-item" href="#">FAQs</a></li>
-          <li><a class="dropdown-item" href="#">Estadísticas de Empresas</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#diagrama">Diagrama de Proceso</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#proceso">Proceso Prácticas Profesionales</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal">Formato de Reporte (anexo 1)</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detalles">Detalles</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#faq">FAQs</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#miModal">Estadísticas de Empresas</a></li>
         </ul>
       </li>
 

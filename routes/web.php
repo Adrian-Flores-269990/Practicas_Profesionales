@@ -20,6 +20,12 @@ Route::prefix('alumno')->group(function () {
     Route::get('/expediente/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
 });
 
+# Cambios
+Route::view('/alumno/faq',  'alumno.faq')->name('dev.alumno.faq');
+Route::view('/alumno/detalles',  'alumno.detalles')->name('dev.alumno.detalles');
+Route::view('/alumno/diagrama',  'alumno.diagrama')->name('dev.alumno.diagrama');
+Route::view('/alumno/proceso',  'alumno.proceso')->name('dev.alumno.proceso');
+
 // SECRETARIA HOME
 Route::get('/secretaria/home', fn () => view('secretaria.home'))->name('secretaria.home');
 

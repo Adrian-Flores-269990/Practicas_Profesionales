@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EncargadoController;
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('home');
@@ -29,7 +30,6 @@ Route::get('/encargado/solicitudes_alumnos', fn () => view('encargado.solicitude
 Route::get('/encargado/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
 Route::get('/encargado/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
 
-// SECRETARIA HOME
 Route::get('/dsspp/home', fn () => view('dsspp.home'))->name('dsspp.home');
 
 // LOGINS
@@ -38,3 +38,5 @@ Route::view('/empleado/login', 'auth.loginEmpleado')->name('empleado.login');
 
 // POST login
 Route::post('/', [AuthController::class, 'login'])->name('login');
+
+Route::post('/empleado/login', [EncargadoController::class, 'login'])->name('empleado.login.post');

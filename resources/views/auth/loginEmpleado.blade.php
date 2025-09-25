@@ -8,17 +8,17 @@
       <h1>Acceso Empleados</h1>
 
       {{-- Si luego usas un controlador/guard distinto, cambia el action --}}
-      <form method="POST" action="#">
+      <form method="POST" action="{{ route('empleado.login.post') }}">
         @csrf
 
         <div class="field">
-          <label for="email">Correo institucional</label>
-          <input id="email" type="email" name="email" required autofocus>
+          <label for="rpe">RPE</label>
+          <input id="rpe" type="number" name="rpe" required autofocus>
         </div>
 
         <div class="field">
-          <label for="password">Contraseña</label>
-          <input id="password" type="password" name="password" required>
+          <label for="contrasena">Contraseña</label>
+          <input id="contrasena" type="password" name="contrasena" required>
         </div>
 
         <button type="submit">Ingresar</button>

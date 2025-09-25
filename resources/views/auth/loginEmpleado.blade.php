@@ -7,8 +7,7 @@
     <div class="card-auth">
       <h1>Acceso Empleados</h1>
 
-      {{-- Si luego usas un controlador/guard distinto, cambia el action --}}
-      <form method="POST" action="#">
+      <form method="POST" action="{{ route('login') }}" class="mx-auto" style="max-width: 500px;">
         @csrf
 
         <div class="field">

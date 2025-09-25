@@ -3,7 +3,6 @@
   <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 @endpush
 
-
 @section('title','Login')
 
 @section('content')

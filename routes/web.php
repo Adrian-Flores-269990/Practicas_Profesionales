@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\EncargadoController;
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');
@@ -61,3 +62,6 @@ Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('
 
 // POST login
 Route::post('/', [AuthController::class, 'login'])->name('login');
+
+// POST login Empleado
+Route::post('/empleado/login', [EncargadoController::class, 'login'])->name('empleado.login.post');

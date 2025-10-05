@@ -22,7 +22,7 @@
         <div class="row mb-3 align-items-center">
           <label for="cuenta" class="col-form-label label-fixed text-start">Cuenta UASLP</label>
           <div class="col">
-            <input type="text" class="form-control" id="cuenta" name="cuenta" placeholder="Correo UASLP / 'A' + Clave única" required>
+            <input type="text" class="form-control" id="cuenta" name="cuenta" placeholder="Clave única" required>
             @if($errors->has('cuenta'))
               <small class="text-danger">{{ $errors->first('cuenta') }}</small>
             @endif

@@ -7,7 +7,6 @@
     <div class="card-auth">
       <h1>Acceso Empleados</h1>
 
-      {{-- Si luego usas un controlador/guard distinto, cambia el action --}}
       <form method="POST" action="{{ route('empleado.login.post') }}">
         @csrf
 

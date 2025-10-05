@@ -6,6 +6,10 @@
 @endpush
 
 @section('content')
+@php
+  $alumno = session('alumno');
+@endphp
+
 <div class="container-xxl alumno-home my-3">
   <div class="row g-3">
 
@@ -13,20 +17,32 @@
     <div class="col-lg-8">
       <div class="card profile-card">
         <div class="card-body d-flex align-items-center gap-3">
-          <img class="avatar" src="{{ asset('images/perfil.webp') }}" alt="Foto del alumno">
+          @php
+        $foto = $alumno['url_foto'] ?? null;
+        if ($foto && !str_contains($foto, '.jpg') && !str_contains($foto, '.png')) {
+            $foto .= '.jpg';
+        }
+        @endphp
+
+        <img class="avatar"
+            src="{{ $foto ?? asset('images/perfil.webp') }}"
+            alt="Foto del alumno"
+            onerror="this.src='{{ asset('images/perfil.webp') }}'">
+
           <div class="flex-grow-1">
-            <h3 class="mb-1 nombre">ABARCA CÁRCAMO ALAN YAHIR </h3>
+            <h3 class="mb-1 nombre">
+              {{ $alumno['nombres'] ?? '' }} {{ $alumno['paterno'] ?? '' }} {{ $alumno['materno'] ?? '' }}
+            </h3>
 
             <div class="kv">
               <div class="kv-label">Clave UASLP</div>
-              <div class="kv-value">326769</div>
+              <div class="kv-value">{{ $alumno['cve_uaslp'] ?? '-' }}</div>
             </div>
 
             <div class="kv">
               <div class="kv-label">Carrera</div>
-              <div class="kv-value">INGENIERÍA EN SISTEMAS INTELIGENTES</div>
+              <div class="kv-value">{{ $alumno['carrera'] ?? '-' }}</div>
             </div>
-
           </div>
         </div>
 
@@ -34,24 +50,35 @@
           <div class="kv-grid">
 
             <div class="kv">
-              <div class="kv-label">Clave Ingeniería</div>
-              <div class="kv-value">202102300073</div>
+              <div class="kv-label">Clave de carrera</div>
+              <div class="kv-value">{{ $alumno['clave_carrera'] ?? '-' }}</div>
             </div>
 
             <div class="kv">
-              <div class="kv-label">Asesor</div>
-              <div class="kv-value"> HERNANDEZ CASTRO FROYLAN ELOY	</div>
+              <div class="kv-label">Área</div>
+              <div class="kv-value">{{ $alumno['area'] ?? '-' }}</div>
             </div>
 
             <div class="kv">
-              <div class="kv-label">Ciclo escolar</div>
-              <div class="kv-value"> 2025-2026	</div>
-            </div>
-
-              <div class="kv">
               <div class="kv-label">Semestre</div>
-              <div class="kv-value"> 2025-2026/I	</div>
+              <div class="kv-value">{{ $alumno['semestre'] ?? '-' }}</div>
             </div>
+
+            <div class="kv">
+              <div class="kv-label">Créditos</div>
+              <div class="kv-value">{{ $alumno['creditos'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Correo electrónico</div>
+              <div class="kv-value">{{ $alumno['correo_electronico'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Teléfono celular</div>
+              <div class="kv-value">{{ $alumno['telefono_celular'] ?? '-' }}</div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -60,11 +87,10 @@
     <!-- Columna lateral (estatus + accesos) -->
     <div class="col-lg-4">
       <div class="card status-card mb-3">
-
         <div class="card-body status-grid">
           <div class="kv kv-status">
             <div class="kv-label">Fecha</div>
-            <div class="kv-value">25/09/2025</div>
+            <div class="kv-value">{{ now()->format('d/m/Y') }}</div>
           </div>
 
           <div class="kv kv-status">
@@ -76,12 +102,10 @@
             <div class="kv-label">Situación</div>
             <div class="kv-value">INSCRITO</div>
           </div>
-
         </div>
-
       </div>
-
     </div>
+
   </div>
 </div>
 @endsection

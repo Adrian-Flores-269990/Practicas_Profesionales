@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
-use App\Http\Controllers\EncargadoController;
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');
@@ -61,7 +60,7 @@ Route::view('/empleado/login', 'auth.loginEmpleado')->name('empleado.login');
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
 
 // POST login
-Route::post('/', [AuthController::class, 'login'])->name('login');
+Route::post('/', [LoginController::class, 'login'])->name('login');
 
 // POST login Empleado
-Route::post('/empleado/login', [EncargadoController::class, 'login'])->name('empleado.login.post');
+Route::post('/empleado/login', [LoginController::class, 'loginEmpleado'])->name('empleado.login.post');

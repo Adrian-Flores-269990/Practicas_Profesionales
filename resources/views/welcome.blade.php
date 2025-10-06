@@ -2,11 +2,9 @@
 @push('styles')
   <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 @endpush
-@section('title','Secretaría Académica')
+@section('title','Prácticas Profesionales')
 
 @section('content')
-  {{-- Oculta la franja cian de esta vista y fija alturas para evitar scroll --}}
-
   <div class="home-wrap">
     <div class="dropdown" style="margin:8px 0 12px">
       <button class="dropbtn">PRACTICAS PROFESIONALES</button>

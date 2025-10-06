@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\SolicitudController;
+
+Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');

@@ -292,7 +292,7 @@
               
                 <div class="col-12 d-flex gap-2 justify-content-end mt-2">
                   <button type="button" class="btn btn-secondary" disabled>Guardar cambios</button>
-                  <a href="{{ route('alumno.home') }}" class="btn btn-danger">Cancelar</a>
+                  <a href="{{ route('alumno.inicio') }}" class="btn btn-danger">Cancelar</a>
                   <button type="submit" class="btn btn-success">Enviar</button>
                 </div>
 

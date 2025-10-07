@@ -207,6 +207,7 @@
             </div>
           </div>
 
+<<<<<<< HEAD
           {{-- 6. Horario --}}
           <div class="accordion-item soli-card mt-3">
             <h2 class="accordion-header" id="h-horario">
@@ -225,6 +226,25 @@
                         <option value="2">Mixto</option>
                     </select>
                   </div>
+=======
+        {{-- 7. Créditos / Apoyo --}}
+        <div class="accordion-item soli-card mt-3 mb-3">
+          <h2 class="accordion-header" id="h-creditos">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-creditos">
+              Créditos / Apoyo económico
+            </button>
+          </h2>
+          <div id="sec-creditos" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-creditos">
+            <div class="accordion-body">
+              <form id="f-creditos" class="row g-3">
+                <div class="col-md-4"><label class="form-label">Créditos a solicitar</label><input type="number" class="form-control"></div>
+                <div class="col-md-4"><label class="form-label">Apoyo económico</label><input type="text" class="form-control" placeholder="$"></div>
+              
+                <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+                  <button type="button" class="btn btn-secondary" disabled>Guardar cambios</button>
+                  <a href="{{ route('alumno.inicio') }}" class="btn btn-danger">Cancelar</a>
+                  <button type="submit" class="btn btn-success">Enviar</button>
+>>>>>>> encabezados-usuarios
                 </div>
               </div>
             </div>

@@ -3,8 +3,12 @@
 <nav class="secretaria-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">
+
+
+
+    
       <li class="nav-item">
-          <a class="nav-link" href="{{ route('secretaria.home') }}">Inicio</a>
+          <a class="nav-link" href="{{ route('secretaria.inicio') }}">Inicio</a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="practicasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">

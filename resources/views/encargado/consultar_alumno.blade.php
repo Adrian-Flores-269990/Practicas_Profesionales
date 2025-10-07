@@ -23,3 +23,6 @@
     </div>
   </div> {{-- contenido principal encargado --}}
 @endsection
+
+
+

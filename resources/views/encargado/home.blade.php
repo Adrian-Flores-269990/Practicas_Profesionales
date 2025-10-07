@@ -1,3 +1,4 @@
+
 @extends('layouts.encargado')
 @section('title','Consultar alumno por clave')
 
@@ -23,3 +24,6 @@
     </div>
   </div> {{-- contenido principal encargado --}}
 @endsection
+
+
+

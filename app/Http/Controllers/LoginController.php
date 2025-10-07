@@ -34,11 +34,19 @@ class LoginController extends Controller
         }
 
         $datosResponse = $this->uaslpApi->obtenerDatos($clave, 'alumno');
+
         if (!isset($datosResponse['correcto']) || !$datosResponse['correcto']) {
             return back()->withErrors(['cuenta' => 'No se pudieron obtener los datos del alumno']);
         }
 
-        $alumno = $datosResponse['datos'][0];
+        // decodificamos la cadena JSON que viene en "datos"
+        $datos = json_decode($datosResponse['datos'], true);
+
+        if (empty($datos) || !is_array($datos)) {
+            return back()->withErrors(['cuenta' => 'Error al procesar los datos del alumno']);
+        }
+
+        $alumno = $datos[0];
 
         // Guardar en sesión
         Session::put('alumno', $alumno);
@@ -83,7 +91,13 @@ class LoginController extends Controller
             return back()->withErrors(['rpe' => 'No se pudieron obtener los datos del empleado']);
         }
 
-        $empleado = $datosResponse['datos'][0];
+        $datos = json_decode($datosResponse['datos'], true);
+
+        if (empty($datos) || !is_array($datos)) {
+            return back()->withErrors(['rpe' => 'Error al procesar los datos del empleado']);
+        }
+
+        $empleado = $datos[0];
         session(['empleado' => $empleado]);
 
         return redirect()->route('encargado.home');

@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
 
+
+
+
+
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');
 

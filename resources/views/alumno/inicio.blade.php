@@ -6,9 +6,25 @@
 @endpush
 
 @section('content')
+
+
+
 @php
   $alumno = session('alumno');
+  
+  // Normaliza URL de foto
+  $foto = $alumno['url_foto'] ?? null;
+  if ($foto) {
+      $foto = trim($foto);
+
+      // Si termina con "jpg" o "png" pero SIN punto (…/12345jpg), inserta el punto
+      if (preg_match('/(jpg|png)$/i', $foto) && !preg_match('/\.(jpg|png)$/i', $foto)) {
+          $foto = preg_replace('/(jpg|png)$/i', '.$1', $foto);
+      }
+
+  }
 @endphp
+
 
 <div class="container-xxl alumno-home my-3">
   <div class="row g-3">
@@ -17,17 +33,13 @@
     <div class="col-lg-8">
       <div class="card profile-card">
         <div class="card-body d-flex align-items-center gap-3">
-          @php
-        $foto = $alumno['url_foto'] ?? null;
-        if ($foto && !str_contains($foto, '.jpg') && !str_contains($foto, '.png')) {
-            $foto .= '.jpg';
-        }
-        @endphp
+
 
         <img class="avatar"
             src="{{ $foto ?? asset('images/perfil.webp') }}"
             alt="Foto del alumno"
-            onerror="this.src='{{ asset('images/perfil.webp') }}'">
+            data-fallback="{{ asset('images/perfil.webp') }}"
+            onerror="this.onerror=null;this.src=this.dataset.fallback">
 
           <div class="flex-grow-1">
             <h3 class="mb-1 nombre">

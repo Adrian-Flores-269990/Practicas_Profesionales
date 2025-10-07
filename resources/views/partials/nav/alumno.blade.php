@@ -5,7 +5,7 @@
     <ul class="nav">
 
       <li class="nav-item">
-        <a class="nav-link" href="{{ route('alumno.home') }}">Inicio</a>
+        <a class="nav-link" href="{{ route('alumno.inicio') }}">Inicio</a>
       </li>
 
       <li class="nav-item dropdown">

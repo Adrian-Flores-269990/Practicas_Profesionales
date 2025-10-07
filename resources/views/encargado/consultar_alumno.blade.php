@@ -1,4 +1,3 @@
-
 @extends('layouts.encargado')
 @section('title','Consultar alumno por clave')
 

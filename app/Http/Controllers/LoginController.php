@@ -6,6 +6,8 @@ use App\Services\UaslpApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
+
+ 
 class LoginController extends Controller
 {
     protected $uaslpApi;
@@ -51,8 +53,10 @@ class LoginController extends Controller
         // Guardar en sesión
         Session::put('alumno', $alumno);
 
-        return redirect()->intended('/alumno/home');
+        return redirect()->intended('/alumno/inicio');
     }
+
+
 
     // --- LOGIN EMPLEADO ---
     public function loginEmpleado(Request $request)
@@ -65,19 +69,65 @@ class LoginController extends Controller
         $rpe = $request->input('rpe');
         $password = $request->input('contrasena');
 
-        // Simulación para pruebas sin API
-        if ($rpe == 12345 && $password == 'test') {
+
+
+        // Simulación para pruebas sin API PARA ENCARGADO
+        if ($rpe == 123 && $password == 'test') {
             $empleado = [
                 'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
                 'rpe' => $rpe,
-                'puesto' => 'ASESOR ACADÉMICO',
-                'dependencia' => 'FACULTAD DE INGENIERÍA',
-                'foto' => 'https://estudiantes.ing.uaslp.mx/escolar/segest/segind/images/0342962jpg'
+                'rol' => 'ENCARGADO PRACTICAS PROFESIONALES',
+                'dependencia' => 'FACULTAD DE INGENIERÍA'            
             ];
             session(['empleado' => $empleado]);
-            return redirect()->route('encargado.home');
+            return redirect()->route('encargado.inicio');
         }
 
+
+        // Simulación para pruebas sin API PARA ADMINISTRADOR
+        if ($rpe == 456 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
+                'rpe' => $rpe,
+                'rol' => 'ADMINISTRADOR',
+                'dependencia' => 'FACULTAD DE INGENIERÍA'            
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('administrador.inicio');
+        }
+        
+
+        // Simulación para pruebas sin API PARA SECRETARIA
+        if ($rpe == 789 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
+                'rpe' => $rpe,
+                'rol' => 'SECRETARÍA',
+                'dependencia' => 'FACULTAD DE INGENIERÍA'            
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('secretaria.inicio');
+        }
+
+
+
+        // Simulación para pruebas sin API PARA DSSPP
+        if ($rpe == 987 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'EDGAR IVAN AVALOS TORRES',
+                'rpe' => $rpe,
+                'rol' => 'DEPARTAMENTO DE SERVICIOS ESCOLARES Y PRÁCTICAS PROFESIONALES',
+                'dependencia' => 'FACULTAD DE INGENIERÍA'       
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('dsspp.inicio');
+        }
+
+
+
+
+
+        
         // Lógica real
         $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
 
@@ -100,6 +150,6 @@ class LoginController extends Controller
         $empleado = $datos[0];
         session(['empleado' => $empleado]);
 
-        return redirect()->route('encargado.home');
+        return redirect()->route('encargado.inicio');
     }
 }

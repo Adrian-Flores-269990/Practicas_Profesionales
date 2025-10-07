@@ -1,7 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+<<<<<<< Updated upstream
 use App\Http\Controllers\AuthController;
+=======
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ReciboController;
+use App\Http\Controllers\SolicitudController;
+
+Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
+//Route::post('/solicitud', [SolicitudController::class, 'store'])->name('solicitud.store');
+
+>>>>>>> Stashed changes
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('home');

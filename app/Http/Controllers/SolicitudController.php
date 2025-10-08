@@ -20,41 +20,50 @@ class SolicitudController extends Controller
         try {
             
             DB::transaction(function() use ($request) {
+ 
+                $diasSeleccionados = $request->input('dias_asistencia', []);
+                $diasString = implode('', $diasSeleccionados);
+                $turno = $request->turno === 'M' ? 'M' : 'V';
+ 
                 // Crear solicitud
                 $solicitud = SolicitudFPP01::create([
-                    'Fecha_Solicitud' => now(),
-                    'Numero_Creditos' => $request->creditos,
-                    'Induccion_Platicas' => 1,
+                    //0 no
+                    //1 si
+                    'Fecha_Solicitud' => now(), //No lo he checado
+                    'Numero_Creditos' => 1, //Nos falta este dato del web service
+                    'Induccion_Platicas' => $request->induccionpp === 'si' ? 1 : 0,
                     'Clave_Alumno' => auth()->clave_alumno ?? 1,
-                    'Tipo_Seguro' => 1,
-                    'NSF' => 'nfnf',
-                    'Situacion_Alumno_Pasante' => 1,
-                    'Estadistica_General' => 1,
-                    'Constancia_Vig_Der' => 1,
-                    'Carta_Pasante' => 1,
-                    'Egresado_Sit_Esp' => 1,
-                    'Archivo_CVD' => 1,
-                    'Fecha_Inicio' => $request->fecha_inicio,
-                    'Fecha_Termino' => $request->fecha_termino,
-                    'Clave_Encargado' => 1,
-                    'Clave_Asesor_Externo' => 1,
-                    'Datos_Asesor_Externo' => 1,
-                    'Productos_Servicios_Emp' => 'dsdsd',
-                    'Datos_Empresa' => 1,
-                    'Nombre_Proyecto' => $request->titulo_proyecto,
-                    'Actividades' => $request->actividades ?? '',
-                    'Horario_Mat_Ves' => 'M',
-                    'Horario_Entrada' => now(),
-                    'Horario_Salida' => now(),
-                    'Dias_Semana' => '1',
-                    'Validacion_Creditos' => 1,
-                    'Apoyo_Economico' => $request->apoyo_economico ?? 0,
-                    'Extension_Practicas' => 1,
-                    'Expedicion_Recibos' => 1,
+                    'Tipo_Seguro' => $request->has('tipo_seguro') ? 1 : 0,
+                    'NSF' => $request->nsf,
+                    //1 - Alumno
+                    //2 - Pasante
+                    'Situacion_Alumno_Pasante' => $request->estado === 'alumno' ? 1 : 2,
+                    'Estadistica_General' => $request->estadistica_general === 'si' ? 1 : 0,
+                    'Constancia_Vig_Der' => $request->constancia_derechos === 'si' ? 1 : 0,
+                    'Carta_Pasante' => $request->has('cartapasante') ? 1 : 0,
+                    'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
+                    'Archivo_CVD' => $request->constancia_derechos === 'si' ? 1 : 0,
+                    'Fecha_Inicio' => $request->fecha_inicio, //No lo he checado
+                    'Fecha_Termino' => $request->fecha_termino, //No lo he checado
+                    'Clave_Encargado' => 1, //Nos falta este dato del web service
+                    'Clave_Asesor_Externo' => 1, //Nos falta este dato (No se como manejarlo)
+                    'Datos_Asesor_Externo' => 1, //Nos falta este dato (No se como manejarlo)
+                    'Productos_Servicios_Emp' => 'No se', //Nos falta este dato (No se como manejarlo)
+                    'Datos_Empresa' => 1, //Nos falta este dato (No se como manejarlo)
+                    'Nombre_Proyecto' => $request->mombre_proyecto,
+                    'Actividades' => $request->actividades,
+                    'Horario_Mat_Ves' => $turno,
+                    'Horario_Entrada' => $request->horario_entrada,  // HH:MM
+                    'Horario_Salida' => $request->horario_salida,   // HH:MM
+                    'Dias_Semana' => $diasString,
+                    'Validacion_Creditos' => $request->val_creditos === 'si' ? 1 : 0,
+                    'Apoyo_Economico' => $request->apoyoeco === 'si' ? 1 : 0,
+                    'Extension_Practicas' => $request->extension === 'si' ? 1 : 0,
+                    'Expedicion_Recibos' => $request->expe_rec === 'si' ? 1 : 0,
                     'Autorizacion' => false,
-                    'Propuso_Empresa' => 1,
-                    'Evaluacion' => 1,
-                    'Cancelar' => 1,
+                    'Propuso_Empresa' => 0, //Nos falta este dato (No se como manejarlo)
+                    'Evaluacion' => 0, //Nos falta este dato (No se como manejarlo)
+                    'Cancelar' => 0, //Nos falta este dato (No se como manejarlo)
                 ]);
 
                 // Crear empresa (con datos básicos o default)
@@ -64,7 +73,7 @@ class SolicitudController extends Controller
                     'Calle' => $request->calle ?? '',
                     'Numero' => $request->numero ?? '',
                     'Colonia' => $request->colonia ?? '',
-                    'Cp' => $request->cp ?? '',
+                    'Cp' => $request->cp ?? 1,
                     'Estado' => $request->estado ?? '',
                     'Municipio' => $request->municipio ?? '',
                     'Telefono' => '333',

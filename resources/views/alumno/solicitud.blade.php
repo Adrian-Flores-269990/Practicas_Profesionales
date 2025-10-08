@@ -55,8 +55,8 @@
               <input type="text" name="nombre" class="form-control" required>
             </div>
             <div class="col-md-6">
-              <label class="form-label">NSS</label>
-              <input type="text" name="nss" class="form-control" required>
+              <label class="form-label">NSF</label>
+              <input type="text" name="nsf" class="form-control" required>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Teléfono Local o Celular</label>
@@ -104,12 +104,12 @@
               <label class="form-label d-block mb-2">Constancia de Vigencia de Derechos</label>
               <div class="d-flex align-items-center">
                 <div class="form-check me-4">
-                  <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_si" value="si">
-                  <label class="form-check-label" for="estadistica_si">Sí</label>
+                  <input class="form-check-input" type="radio" name="constancia_derechos" id="constancia_derechos_si" value="si">
+                  <label class="form-check-label" for="constancia_derechos_si">Sí</label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_no" value="no">
-                  <label class="form-check-label" for="estadistica_no">No</label>
+                  <input class="form-check-input" type="radio" name="constancia_derechos_general" id="constancia_derechos_no" value="no">
+                  <label class="form-check-label" for="constancia_derechos_no">No</label>
                 </div>
               </div>
             </div>
@@ -172,34 +172,26 @@
                   <label class="form-label">Area o Departamento</label>
                   <input type="text" class="form-control" name="area_depto_priv">
                 </div>
-                <div class="mb-2">
-                  <label class="form-label">Número de Trabajadores</label>
-                  <input type="text" class="form-control" name="num_trabajadores">
+                <div class="col-md-6">
+                  <label class="form-label">Número de trabajadores</label>
+                  <select name="num_trabajadores" class="form-select">
+                      <option value="">Seleccione...</option>
+                      <option value="1">Micro (1–30)</option>
+                      <option value="2">Pequeña (31–100)</option>
+                      <option value="3">Mediana (101–250)</option>
+                      <option value="4">Grande (+250)</option>
+                  </select>
                 </div>
-                <div class="mb-3">
-                  <label class="form-label d-block mb-2">Actividad o Giro</label>
-                  <div class="d-flex align-items-center">
-                    <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="1">
-                      <label class="form-check-label" for="estadistica_si">Extractiva</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="2">
-                      <label class="form-check-label" for="estadistica_no">Manufacturera</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="3">
-                      <label class="form-check-label" for="estadistica_no">Comercial</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="4">
-                      <label class="form-check-label" for="estadistica_no">Comisionista</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="5">
-                      <label class="form-check-label" for="estadistica_no">Servicio</label>
-                    </div>
-                  </div>
+                <div class="col-md-6">
+                <label class="form-label">Actividad o giro</label>
+                <select name="actividad_giro" class="form-select">
+                    <option value="">Seleccione...</option>
+                    <option value="1">Extractiva</option>
+                    <option value="2">Manufacturera</option>
+                    <option value="3">Comercial</option>
+                    <option value="4">Comisionista</option>
+                    <option value="5">Servicio</option>
+                </select>
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Razón Social</label>
@@ -322,10 +314,10 @@
                     <label class="form-label">Nombre de la empresa</label>
                     <input type="text" name="nombre_empresa" class="form-control" required>
                   </div>
-                  <div class="col-md-6">
+                  <!--<div class="col-md-6">
                     <label class="form-label">Razón social</label>
                     <input type="text" name="razon_social" class="form-control" required>
-                  </div>
+                  </div>-->
                   <div class="col-md-6">
                     <label class="form-label">RFC</label>
                     <input type="text" name="rfc" class="form-control" required>
@@ -357,6 +349,10 @@
                   <div class="col-12">
                     <label class="form-label">Descripción</label>
                     <textarea name="descripcion_empresa" class="form-control" rows="3" required></textarea>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Principales productos que realiza o servicios</label>
+                    <textarea name="principales_productos" class="form-control" rows="3" required></textarea>
                   </div>
                 </div>
               </div>
@@ -418,28 +414,17 @@
                   <div class="col-md-3">
                     <label class="form-label">Turno</label>
                     <select name="turno" class="form-select" required>
-                        <option value="1">Matutino</option>
-                        <option value="0">Vespertino</option>
-                        <option value="2">Mixto</option>
+                        <option value="M">Matutino</option>
+                        <option value="V">Vespertino</option>
                     </select>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Hora de entrada</label>
-                    <select name="horario_entrada" class="form-select" required>
-                      @for ($h = 6; $h <= 22; $h++)
-                        <option value="{{ sprintf('%02d:00', $h) }}">{{ sprintf('%02d:00', $h) }}</option>
-                        <option value="{{ sprintf('%02d:30', $h) }}">{{ sprintf('%02d:30', $h) }}</option>
-                      @endfor
-                    </select>
+                    <input type="time" name="horario_entrada" class="form-control" required>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Hora de salida</label>
-                    <select name="horario_salida" class="form-select" required>
-                      @for ($h = 6; $h <= 22; $h++)
-                        <option value="{{ sprintf('%02d:00', $h) }}">{{ sprintf('%02d:00', $h) }}</option>
-                        <option value="{{ sprintf('%02d:30', $h) }}">{{ sprintf('%02d:30', $h) }}</option>
-                      @endfor
-                    </select>
+                    <input type="time" name="horario_salida" class="form-control" required>
                   </div>
                   <div class="col-12">
                     <label class="form-label">Días de asistencia</label>

@@ -10,30 +10,35 @@ use App\Models\SectorPrivado;
 use App\Models\SectorPublico;
 use App\Models\SectorUaslp;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class SolicitudController extends Controller
 {
-    public function store(StoreSolicitudRequest $request)
+    //public function store(StoreSolicitudRequest $request)
+    public function store(Request $request)
     {
         try {
-            DB::transaction(function() use ($request) {
-                // Crear solicitud
+            DB::transaction(function () use ($request) {
+
+                // === 1. CREAR SOLICITUD ===
                 $solicitud = SolicitudFPP01::create([
                     'Fecha_Solicitud' => now(),
-                    'Numero_Creditos' => $request->creditos,
-                    'Induccion_Placticas' => false,
-                    'Clave_Alumno' => auth()->clave_alumno ?? '000000',
-                    'Tipo_Seguro' => 'No definido',
+                    'Numero_Creditos' => (int) $request->creditos,
+                    'Induccion_Placticas' => 0,
+                    'Clave_Alumno' => auth('alumno')->check()
+                        ? auth('alumno')->user()->Clave_Alumno
+                        : '000000',
+                    'Tipo_Seguro' => 0,
                     'NSF' => '',
-                    'Situacion_Alunmno_Pasante' => '',
-                    'Estadistica_General' => '',
-                    'Constancia_Vig_Der' => '',
-                    'Carta_Pasante' => '',
-                    'Egresado_Sit_Esp' => '',
-                    'Archivo_CVD' => '',
+                    'Situacion_Alunmno_Pasante' => 0,
+                    'Estadistica_General' => 0,
+                    'Constancia_Vig_Der' => 0,
+                    'Carta_Pasante' => 0,
+                    'Egresado_Sit_Esp' => 0,
+                    'Archivo_CVD' => 0,
                     'Fecha_Inicio' => $request->fecha_inicio,
                     'Fecha_Termino' => $request->fecha_termino,
-                    'Clave_Encargado' => '',
+                    'Clave_Encargado' => 0,
                     'Clave_Asesor_Externo' => null,
                     'Datos_Asesor_Externo' => '',
                     'Productos_Servicios_Emp' => '',
@@ -41,69 +46,77 @@ class SolicitudController extends Controller
                     'Nombre_Proyecto' => $request->titulo_proyecto,
                     'Actividades' => $request->actividades ?? '',
                     'Horario_Mat_Ves' => $request->turno ?? '',
-                    'Horario_Entrada' => '',
-                    'Horario_Salida' => '',
+                    'Horario_Entrada' => '00:00:00',
+                    'Horario_Salida' => '00:00:00',
                     'Dias_Semana' => '',
-                    'Validacion_Creditos' => false,
-                    'Apoyo_Economico' => $request->apoyo_economico ?? 0,
-                    'Extension_Practicas' => '',
-                    'Expedicion_Recibos' => '',
-                    'Autorizacion' => false,
-                    'Propuso_Empresa' => false,
-                    'Evaluacion' => '',
-                    'Cancelar' => false,
+                    'Validacion_Creditos' => 0,
+                    'Apoyo_Economico' => (float) ($request->apoyo_economico ?? 0),
+                    'Extension_Practicas' => 0,
+                    'Expedicion_Recibos' => 0,
+                    'Autorizacion' => 0,
+                    'Propuso_Empresa' => 0,
+                    'Evaluacion' => 0,
+                    'Cancelar' => 0,
                 ]);
 
-                // Crear empresa (con datos básicos o default)
+                // === 2. CREAR EMPRESA ===
                 $empresa = DependenciaEmpresa::create([
-                    'Nombre_Depn_Emp' => $request->nombre_dependencia ?? '',
+                    'Nombre_Depn_Emp' => $request->dependencia ?? '',
                     'Calle' => $request->calle ?? '',
                     'Numero' => $request->numero ?? '',
                     'Colonia' => $request->colonia ?? '',
-                    'Cp' => $request->cp ?? '',
+                    'Cp' => (int) ($request->cp ?? 0),
                     'Estado' => $request->estado ?? '',
                     'Municipio' => $request->municipio ?? '',
                     'RFC_Empresa' => $request->rfc ?? '',
                     'Razon_Social' => $request->razon_social ?? '',
                 ]);
 
-                // DependenciaEmpresaSolicitud y sector (igual con defaults)
-                $sectorId = null;
-                $sectorTipo = $request->sector ?? 'privado';
+                // === 3. CREAR SECTOR SEGÚN TIPO ===
+                $sectorTipo = $request->sector;
+                $sectorId = [];
 
-                if ($sectorTipo == 'privado') {
+                if ($sectorTipo === 'privado') {
                     $sector = SectorPrivado::create([
                         'Area_Depto' => $request->area ?? '',
-                        'Num_Trabajadores' => $request->num_trabajadores ?? 0,
-                        'Actividad_Giro' => $request->actividad_giro ?? '',
+                        'Num_Trabajadores' => (int) ($request->num_trabajadores ?? 0),
+                        'Actividad_Giro' => (int) ($request->actividad_giro ?? 0),
                         'Razon_Social' => $request->razon_social ?? '',
+                        'Emp_Outsourcing' => 0,
+                        'Razon_Social_Outsourcing' => null,
                     ]);
                     $sectorId = ['Id_Privado' => $sector->Id_Privado];
-                } elseif ($sectorTipo == 'publico') {
+                } elseif ($sectorTipo === 'publico') {
                     $sector = SectorPublico::create([
                         'Area_Depto' => $request->area ?? '',
-                        'Ambito' => $request->ambito ?? '',
+                        'Ambito' => (int) ($request->ambito ?? 0),
                     ]);
                     $sectorId = ['Id_Publico' => $sector->Id_Publico];
-                } elseif ($sectorTipo == 'uaslp') {
+                } elseif ($sectorTipo === 'uaslp') {
                     $sector = SectorUaslp::create([
                         'Area_Depto' => $request->area ?? '',
-                        'Tipo_Entidad' => $request->tipo_entidad ?? '',
-                        'Id_Entidad_Academica' => $request->entidad_academica ?? null,
+                        'Tipo_Entidad' => (int) ($request->tipo_entidad ?? 0),
+                        'Entidad_Academica' => $request->entidad_academica ?? null,
                     ]);
                     $sectorId = ['Id_UASLP' => $sector->Id_UASLP];
                 }
 
+                // === 4. RELACIÓN ENTRE SOLICITUD Y EMPRESA ===
                 DependenciaEmpresaSolicitud::create(array_merge([
                     'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01,
                     'Id_Depend_Emp' => $empresa->Id_Depn_Emp,
-                    'Porcentaje' => 100
-                ], $sectorId ?? []));
+                    'Porcentaje' => 100.00,
+                ], $sectorId));
             });
 
-            return redirect()->route('alumno.home')->with('success', 'Solicitud guardada correctamente.');
+            return redirect()
+            ->route('alumno.home')
+            ->with('success', 'Solicitud guardada correctamente.')
+            ->with('solicitud_enviada', true);
+
         } catch (\Exception $e) {
-            dd('Error guardando solicitud: '.$e->getMessage());
+            // Muestra error exacto para debug
+            return back()->withErrors(['error' => 'Error guardando solicitud: ' . $e->getMessage()]);
         }
     }
 }

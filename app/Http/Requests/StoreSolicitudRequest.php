@@ -21,23 +21,26 @@ class StoreSolicitudRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Campos de solicitud_fpp01
             'Fecha_Solicitud' => 'required|date',
             'Numero_Creditos' => 'required|integer|min:1',
-            'Clave_Alumno' => 'required|exists:alumnos,Clave_Alumno', // asumiendo que hay tabla alumnos
+            'Clave_Alumno' => 'required|integer|exists:alumnos,Clave_Alumno',
             'Fecha_Inicio' => 'required|date|after_or_equal:Fecha_Solicitud',
             'Fecha_Termino' => 'required|date|after:Fecha_Inicio',
-            'Nombre_Proyecto' => 'required|string|max:255',
-            'Actividades' => 'nullable|string',
-
-            // Campos del asesor externo / encargado
+            'Nombre_Proyecto' => 'required|string|max:100',
+            'Actividades' => 'nullable|string|max:500',
             'encargado_nombre' => 'required|string|max:100',
-            'encargado_apellido_paterno' => 'nullable|string|max:100',
-            'encargado_apellido_materno' => 'nullable|string|max:100',
-            'area' => 'nullable|string|max:100',
             'encargado_puesto' => 'required|string|max:100',
             'encargado_correo' => 'required|email|max:150',
             'encargado_telefono' => 'nullable|string|max:20',
+            'creditos' => 'required|integer|min:1',
+            'apoyo_economico' => 'nullable|numeric|min:0',
+            'cp' => 'nullable|integer|digits:5',
+            'rfc' => 'nullable|string|max:13',
+            'area' => 'nullable|string|max:50',
+            'actividad_giro' => 'nullable|integer',
+            'ambito' => 'nullable|integer',
+            'tipo_entidad' => 'nullable|integer',
+            'entidad_academica' => 'nullable|integer',
         ];
     }
 

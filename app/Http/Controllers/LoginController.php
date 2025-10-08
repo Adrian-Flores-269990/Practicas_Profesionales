@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 
- 
+
 class LoginController extends Controller
 {
     protected $uaslpApi;
@@ -17,44 +17,68 @@ class LoginController extends Controller
         $this->uaslpApi = $uaslpApi;
     }
 
-    // --- LOGIN ALUMNO ---
-    public function login(Request $request)
-    {
-        $request->validate([
-            'cuenta' => 'required|string',
-            'password' => 'required|string',
-        ]);
 
-        $tipo = 'a'; // alumnos
-        $clave = $request->input('cuenta');
-        $password = $request->input('password');
 
-        $loginResponse = $this->uaslpApi->login($clave, $password, $tipo);
-
-        if (!isset($loginResponse['correcto']) || !$loginResponse['correcto']) {
-            return back()->withErrors(['cuenta' => 'Credenciales incorrectas']);
-        }
-
-        $datosResponse = $this->uaslpApi->obtenerDatos($clave, 'alumno');
-
-        if (!isset($datosResponse['correcto']) || !$datosResponse['correcto']) {
-            return back()->withErrors(['cuenta' => 'No se pudieron obtener los datos del alumno']);
-        }
-
-        // decodificamos la cadena JSON que viene en "datos"
-        $datos = json_decode($datosResponse['datos'], true);
-
-        if (empty($datos) || !is_array($datos)) {
-            return back()->withErrors(['cuenta' => 'Error al procesar los datos del alumno']);
-        }
-
-        $alumno = $datos[0];
-
-        // Guardar en sesión
-        Session::put('alumno', $alumno);
-
-        return redirect()->intended('/alumno/inicio');
+    // arriba de la clase o como método privado
+    private function datosArray($response) {
+    $datos = $response['datos'] ?? null;
+    if (is_null($datos)) return null;
+    if (is_string($datos)) {
+        $datos = json_decode($datos, true);
     }
+    return $datos;
+}
+
+
+
+
+
+    // --- LOGIN ALUMNO ---
+public function login(Request $request)
+{
+    $request->validate([
+        'cuenta' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    $clave = $request->input('cuenta');
+    $password = $request->input('password');
+
+    // Antes forzabas $tipo = 'a'; ahora lo puede inferir del WS
+    $loginResponse = $this->uaslpApi->login($clave, $password, 'a');
+
+    if (!($loginResponse['correcto'] ?? false)) {
+        return back()->withErrors(['cuenta' => 'Credenciales incorrectas']);
+    }
+
+    // Extrae 'user' y remueve prefijo a/u si viene
+    $loginDatos = $this->datosArray($loginResponse) ?? [];
+    $userRaw = $loginDatos[0]['user'] ?? null;
+    if (!$userRaw) {
+        return back()->withErrors(['cuenta' => 'Respuesta de login inválida']);
+    }
+
+    $tipoChar = strtolower($userRaw[0]);          // 'a' o 'u'
+    $claveReal = preg_replace('/^[au]/i', '', $userRaw); // '326769'
+
+    // Obtener datos del alumno
+    $datosResponse = $this->uaslpApi->obtenerDatos($claveReal, 'alumno');
+
+    if (!($datosResponse['correcto'] ?? false)) {
+        return back()->withErrors(['cuenta' => 'No se pudieron obtener los datos del alumno']);
+    }
+
+    $datos = $this->datosArray($datosResponse);
+    if (empty($datos) || !is_array($datos)) {
+        return back()->withErrors(['cuenta' => 'Error al procesar los datos del alumno']);
+    }
+
+    $alumno = $datos[0];
+
+    // Guarda sesión y redirige
+    session(['alumno' => $alumno]);
+    return redirect()->intended('/alumno/inicio');
+}
 
 
 
@@ -77,7 +101,7 @@ class LoginController extends Controller
                 'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
                 'rpe' => $rpe,
                 'rol' => 'ENCARGADO PRACTICAS PROFESIONALES',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'            
+                'dependencia' => 'FACULTAD DE INGENIERÍA'
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('encargado.inicio');
@@ -90,12 +114,12 @@ class LoginController extends Controller
                 'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
                 'rpe' => $rpe,
                 'rol' => 'ADMINISTRADOR',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'            
+                'dependencia' => 'FACULTAD DE INGENIERÍA'
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('administrador.inicio');
         }
-        
+
 
         // Simulación para pruebas sin API PARA SECRETARIA
         if ($rpe == 789 && $password == 'test') {
@@ -103,7 +127,7 @@ class LoginController extends Controller
                 'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
                 'rpe' => $rpe,
                 'rol' => 'SECRETARÍA',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'            
+                'dependencia' => 'FACULTAD DE INGENIERÍA'
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('secretaria.inicio');
@@ -117,7 +141,7 @@ class LoginController extends Controller
                 'nombre' => 'EDGAR IVAN AVALOS TORRES',
                 'rpe' => $rpe,
                 'rol' => 'DEPARTAMENTO DE SERVICIOS ESCOLARES Y PRÁCTICAS PROFESIONALES',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'       
+                'dependencia' => 'FACULTAD DE INGENIERÍA'
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('dsspp.inicio');
@@ -127,7 +151,7 @@ class LoginController extends Controller
 
 
 
-        
+
         // Lógica real
         $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
 

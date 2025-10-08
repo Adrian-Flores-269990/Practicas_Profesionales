@@ -14,7 +14,18 @@ class DependenciaEmpresa extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'Nombre_Depn_Emp', 'Calle', 'Numero', 'Colonia', 'Cp',
-        'Estado', 'Municipio', 'RFC_Empresa', 'Razon_Social'
+        'Nombre_Depn_Emp',
+        'Clasificacion',
+        'Calle',
+        'Numero',
+        'Colonia',
+        'Cp',
+        'Estado',
+        'Municipio',
+        'Teléfono',
+        'Ramo',
+        'RFC_Empresa', 
+        'Comentario_Encargado',
+        'Autorizada'
     ];
 }

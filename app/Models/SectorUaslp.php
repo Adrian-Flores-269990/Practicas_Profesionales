@@ -14,6 +14,8 @@ class SectorUaslp extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'Area_Depto', 'Tipo_Entidad', 'Id_Entidad_Academica'
+        'Area_Depto',
+        'Tipo_Entidad',
+        'Id_Entidad_Academica'
     ];
 }

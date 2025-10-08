@@ -30,6 +30,8 @@ class StoreSolicitudRequest extends FormRequest
             'Nombre_Proyecto' => 'required|string|max:255',
             'Actividades' => 'nullable|string',
 
+            
+
             // Campos del asesor externo / encargado
             'encargado_nombre' => 'required|string|max:100',
             'encargado_apellido_paterno' => 'nullable|string|max:100',

@@ -39,6 +39,79 @@
                   </div>
 
                   <div class="col-md-6">
+                    <label class="form-label">Teléfono Local o Celular</label>
+                    <input type="text" name="matricula" class="form-control" required>
+                  </div>
+
+                  
+
+<div class="col-md-6 d-flex align-items-center">
+  <label for="tipo_seguro" class="form-label me-2 mb-0">Tipo de seguro: IMSS</label>
+  <input class="form-check-input" type="checkbox" name="tipo_seguro" id="tipo_seguro" value="1">
+</div>
+
+<div class="mb-3">
+  <div class="d-flex align-items-center">
+    <div class="form-check me-4">
+      <input class="form-check-input" type="radio" name="tipo_seguro" id="tipo_seguro_alumno" value="alumno">
+      <label class="form-check-label" for="tipo_seguro_alumno">Alumno</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="tipo_seguro" id="tipo_seguro_pasante" value="pasante">
+      <label class="form-check-label" for="tipo_seguro_pasante">Pasante</label>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label d-block mb-2">Estadística general</label>
+  <div class="d-flex align-items-center">
+    <div class="form-check me-4">
+      <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_si" value="si">
+      <label class="form-check-label" for="estadistica_si">Sí</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_no" value="no">
+      <label class="form-check-label" for="estadistica_no">No</label>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <label class="form-label">Fecha de Nacimiento</label>
+  <input type="text" name="matricula" class="form-control" required>
+</div>
+
+<div class="mb-3">
+  <label class="form-label d-block mb-2">Constancia de Vigencia de Derechos</label>
+  <div class="d-flex align-items-center">
+    <div class="form-check me-4">
+      <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_si" value="si">
+      <label class="form-check-label" for="estadistica_si">Sí</label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_no" value="no">
+      <label class="form-check-label" for="estadistica_no">No</label>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-6 d-flex align-items-center">
+  <label for="tipo_seguro" class="form-label me-2 mb-0">Carta Pasante</label>
+  <input class="form-check-input" type="checkbox" name="tipo_seguro" id="tipo_seguro" value="1">
+</div>
+
+<div class="col-md-6 d-flex align-items-center">
+  <label for="tipo_seguro" class="form-label me-2 mb-0">Egresado Situación Especial</label>
+  <input class="form-check-input" type="checkbox" name="tipo_seguro" id="tipo_seguro" value="1">
+</div>
+
+<div class="col-md-6 d-flex align-items-center">
+  <label for="tipo_seguro" class="form-label me-2 mb-0">Extensión Seguro Fac</label>
+  <input class="form-check-input" type="checkbox" name="tipo_seguro" id="tipo_seguro" value="1">
+</div>
+
+                  <div class="col-md-6">
                     <label class="form-label">Nombre completo</label>
                     <input type="text" name="nombre" class="form-control" required>
                   </div>
@@ -62,87 +135,184 @@
             </div>
           </div>
 
-          {{-- 2. Prácticas profesionales --}}
-          <div class="accordion-item soli-card mt-3">
-            <h2 class="accordion-header" id="h-practicas">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-practicas">
-                Prácticas profesionales – Sector público/privado/UASLP
-              </button>
-            </h2>
-            <div id="sec-practicas" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-practicas">
-              <div class="accordion-body">
-                <div class="row g-3">
-                  <div class="col-md-3">
-                    <label class="form-label">Fecha de inicio</label>
-                    <input type="date" name="fecha_inicio" class="form-control mt-1" required>
-                  </div>
+{{-- 2. Prácticas profesionales --}}
+<div class="accordion-item soli-card mt-3">
+  <h2 class="accordion-header" id="h-practicas">
+    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-practicas">
+      Prácticas profesionales – Sector público/privado/UASLP
+    </button>
+  </h2>
+  <div id="sec-practicas" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-practicas">
+    <div class="accordion-body">
+      <div class="row g-3">
 
-                  <div class="col-md-3">
-                    <label class="form-label">Fecha de término</label>
-                    <input type="date" name="fecha_termino" class="form-control mt-1" required>
-                  </div>
+        <div class="col-md-3">
+          <label class="form-label">Fecha de inicio</label>
+          <input type="date" name="fecha_inicio" class="form-control mt-1" required>
+        </div>
 
-                  <div class="col-12">
-                    <span class="form-label">Tipo de sector</span>
-                    <div class="d-inline-flex align-items-center gap-3 ms-2" required>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="sector" value="municipal">
-                        <label class="form-check-label">Municipal</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="sector" value="estatal">
-                        <label class="form-check-label">Estatal</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="sector" value="federal">
-                        <label class="form-check-label">Federal</label>
-                      </div>
-                    </div>
-                  </div>
+        <div class="col-md-3">
+          <label class="form-label">Fecha de término</label>
+          <input type="date" name="fecha_termino" class="form-control mt-1" required>
+        </div>
 
-                  <div class="col-12">
-                    <label class="form-label">Nombre de la dependencia</label>
-                    <input type="text" name="dependencia" class="form-control mt-1" required>
-                  </div>
+        <!-- AQUI -->
+            
+        <!-- Tipo de sector -->
+        <div class="col-md-4">
+          <label class="form-label">Tipo de sector</label>
+          <select name="sector" id="sector" class="form-select mt-1" required>
+            <option value="">Seleccione...</option>
+            <option value="privado">Privado</option>
+            <option value="publico">Público</option>
+            <option value="uaslp">UASLP</option>
+          </select>
+        </div>
 
-                  <div class="col-md-4">
-                    <label class="form-label">Calle</label>
-                    <input type="text" name="calle" class="form-control mt-1" required>
-                  </div>
+        <!-- Campos que se abren -->
 
-                  <div class="col-md-2">
-                    <label class="form-label">No.</label>
-                    <input type="text" name="numero" class="form-control mt-1" required>
-                  </div>
-
-                  <div class="col-md-3">
-                    <label class="form-label">Colonia</label>
-                    <input type="text" name="colonia" class="form-control mt-1" required>
-                  </div>
-
-                  <div class="col-md-3">
-                    <label class="form-label">Código Postal</label>
-                    <input type="text" name="cp" class="form-control mt-1" required>
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label">Estado</label>
-                    <input type="text" name="estado" class="form-control mt-1" required>
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label">Municipio</label>
-                    <input type="text" name="municipio" class="form-control mt-1" required>
-                  </div>
-
-                  <div class="col-md-4">
-                    <label class="form-label">Área o Departamento</label>
-                    <input type="text" name="area" class="form-control mt-1" required>
-                  </div>
-                </div>
+        <!-- Sector privado -->
+        <div id="sectorPrivado" class="mt-3" style="display: none;">
+          <h5 class="mb-2">Datos del sector privado</h5>
+          <div class="mb-2">
+            <label class="form-label">Area o Departamento</label>
+            <input type="text" class="form-control" name="area_depto_priv">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Número de Trabajadores</label>
+            <input type="text" class="form-control" name="num_trabajadores">
+          </div>
+          <div class="mb-3">
+            <label class="form-label d-block mb-2">Actividad o Giro</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check me-4">
+                <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="1">
+                <label class="form-check-label" for="estadistica_si">Extractiva</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="2">
+                <label class="form-check-label" for="estadistica_no">Manufacturera</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="3">
+                <label class="form-check-label" for="estadistica_no">Comercial</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="4">
+                <label class="form-check-label" for="estadistica_no">Comisionista</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="5">
+                <label class="form-check-label" for="estadistica_no">Servicio</label>
               </div>
             </div>
           </div>
+          <div class="mb-2">
+            <label class="form-label">Razón Social</label>
+            <input type="text" class="form-control" name="razon_social">
+          </div>
+          <div class="mb-3">
+            <label class="form-label d-block mb-2">Empresa Outsourcing</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check me-4">
+                <input class="form-check-input" type="radio" name="empresa_outsourcing" id="estadistica_si" value="si">
+                <label class="form-check-label" for="estadistica_si">Sí</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="empresa_outsourcing" id="estadistica_no" value="no">
+                <label class="form-check-label" for="estadistica_no">No</label>
+              </div>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Razón Social Outsourcing</label>
+            <input type="text" class="form-control" name="razon_social_outsourcing">
+          </div>
+        </div>
+
+        <!-- Sector público -->
+        <div id="sectorPublico" class="mt-3" style="display: none;">
+          <h5 class="mb-2">Datos del sector público</h5>
+          <div class="mb-2">
+            <label class="form-label">Área o Departamento</label>
+            <input type="text" class="form-control" name="area_depto_public">
+          </div>
+          <div class="mb-2">
+            <label class="form-label d-block mb-2">Ámbito</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check me-4">
+                <input class="form-check-input" type="radio" name="ambito" id="ambito" value="1">
+                <label class="form-check-label" for="ambito">Municipal</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="ambito" id="ambito" value="2">
+                <label class="form-check-label" for="ambito">Estatal</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="ambito" id="ambito" value="3">
+                <label class="form-check-label" for="ambito">Federal</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sector UASLP -->
+        <div id="sectorUaslp" class="mt-3" style="display: none;">
+          <h5 class="mb-2">Datos del sector UASLP</h5>
+          <div class="mb-2">
+            <label class="form-label">Área o Departamento</label>
+            <input type="text" class="form-control" name="area_depto_uaslp">
+          </div>
+          <div class="mb-2">
+            <label class="form-label d-block mb-2">Tipo de Entidad</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check me-4">
+                <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_entidad" value="1">
+                <label class="form-check-label" for="tipo_entidad">Instituto</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_entidad" value="2">
+                <label class="form-check-label" for="tipo_entidad">Centro de Investigación</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3"><label class="form-label">Entidad Académica</label>
+            <select name="entidad_academica" class="form-select" required>
+                <option value="1">Entidad1</option>
+                <option value="0">Entidad2</option>
+                <option value="2">Entidad3</option>
+            </select>
+          </div>
+        </div>
+
+        <script>
+          document.getElementById('sector').addEventListener('change', function() {
+            const privado = document.getElementById('sectorPrivado');
+            const publico = document.getElementById('sectorPublico');
+            const uaslp = document.getElementById('sectorUaslp');
+
+            // Ocultar todos
+            privado.style.display = 'none';
+            publico.style.display = 'none';
+            uaslp.style.display = 'none';
+
+            // Mostrar el correspondiente
+            if (this.value === 'privado') {
+              privado.style.display = 'block';
+            } else if (this.value === 'publico') {
+              publico.style.display = 'block';
+            } else if (this.value === 'uaslp') {
+              uaslp.style.display = 'block';
+            }
+          });
+        </script>
+
+              <!---->
+
+      </div>
+    </div>
+  </div>
+</div>
 
           {{-- 3. Empresa --}}
           <div class="accordion-item soli-card mt-3">

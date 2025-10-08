@@ -19,7 +19,7 @@ Route::prefix('admin')->group(function () {
 
 // ALUMNO
 Route::prefix('alumno')->group(function () {
-    Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
+    Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.home');
 
     Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
     Route::get('/solicitud', fn () => view('alumno.solicitud'))->name('alumno.solicitud');

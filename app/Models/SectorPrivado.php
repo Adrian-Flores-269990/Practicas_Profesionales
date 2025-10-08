@@ -14,7 +14,11 @@ class SectorPrivado extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'Area_Depto', 'Num_Trabajadores', 'Actividad_Giro',
-        'Razon_Social', 'Emp_Outsourcing', 'Razon_Social_Outsourcing'
+        'Area_Depto',
+        'Num_Trabajadores',
+        'Actividad_Giro',
+        'Razon_Social',
+        'Emp_Outsourcing',
+        'Razon_Social_Outsourcing'
     ];
 }

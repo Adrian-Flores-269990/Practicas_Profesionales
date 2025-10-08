@@ -11,21 +11,22 @@ class Alumno extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre_alumno',
-        'apellidop_alumno',
-        'apellidom_alumno',
-        'semestre',
-        'carrera',
-        'telfono_celular',
-        'correo_electronico',
-        'password',
-        'cve_alumno',
-        'rpe'
+        'Clave_Alumno',
+        'Nombre',
+        'ApellidoP_Alumno',
+        'ApellidoM_Alumno',
+        'Semestre',
+        'Carrera',
+        'TelefonoCelular',
+        'CorreoElectronico',
+        'Clave_Materia',
+        'Clave_Carrera',
+        'Clave_Area'
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    // protected $hidden = [
+    //     'password',
+    // ];
 
     // Esto asegura que Auth use el campo correcto como contraseña
     public function getAuthPassword()

@@ -14,6 +14,7 @@ class SectorPublico extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'Area_Depto', 'Ambito'
+        'Area_Depto',
+        'Ambito'
     ];
 }

@@ -51,6 +51,6 @@ class SolicitudFPP01 extends Model
 
     public function dependenciaEmpresas()
     {
-        return $this->hasMany(DependenciaEmpresaSolicitud::class, 'Id_Solicitud_FPP01');
+        return $this->hasMany(DependenciaMercadoSolicitud::class, 'Id_Solicitud_FPP01');
     }
 }

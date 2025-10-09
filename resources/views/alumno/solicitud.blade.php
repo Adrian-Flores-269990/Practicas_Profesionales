@@ -29,46 +29,30 @@
         </h2>
         <div id="sec-solicitante" class="accordion-collapse collapse show" data-bs-parent="#soliAccordion">
           <div class="accordion-body row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Matrícula</label>
-              <input type="text" name="matricula" class="form-control" required>
-            </div>
             <div class="col-12">
-                <label class="form-label">Inducción Platica Informativa PP</label>
-                <div class="d-inline-flex align-items-center gap-3 ms-2">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="induccionpp" id="ind-s" value="si">
-                    <label class="form-check-label" for="ind-s">SI</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="induccionpp" id="ind-n" value="no">
-                    <label class="form-check-label" for="ind-n">NO</label>
-                  </div>
+              <label class="form-label">Inducción Platica Informativa PP</label>
+              <div class="d-inline-flex align-items-center gap-3 ms-2">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="induccionpp" id="ind-s" value="si">
+                  <label class="form-check-label" for="ind-s">SI</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="induccionpp" id="ind-n" value="no">
+                  <label class="form-check-label" for="ind-n">NO</label>
                 </div>
               </div>
+            </div>
             <div class="col-md-6 d-flex align-items-center">
               <label for="tipo_seguro" class="form-label me-2 mb-0">Tipo de seguro: IMSS</label>
               <input class="form-check-input" type="checkbox" name="tipo_seguro" id="tipo_seguro" value="1">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Nombre completo</label>
-              <input type="text" name="nombre" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">NSS</label>
-              <input type="text" name="nss" class="form-control" required>
+              <label class="form-label">NSF</label>
+              <input type="text" name="nsf" class="form-control" required>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Teléfono Local o Celular</label>
                 <input type="text" name="telefono" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Programa</label>
-              <input type="text" name="programa" class="form-control" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Semestre</label>
-              <input type="number" name="semestre" min="1" max="12" class="form-control" required>
             </div>
             <div class="mb-3">
               <label class="form-label d-block mb-2">Estado</label>
@@ -104,11 +88,11 @@
               <label class="form-label d-block mb-2">Constancia de Vigencia de Derechos</label>
               <div class="d-flex align-items-center">
                 <div class="form-check me-4">
-                  <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_si" value="si">
+                  <input class="form-check-input" type="radio" name="constancia_derechos" id="estadistica_si" value="si">
                   <label class="form-check-label" for="estadistica_si">Sí</label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="estadistica_general" id="estadistica_no" value="no">
+                  <input class="form-check-input" type="radio" name="constancia_derechos" id="estadistica_no" value="no">
                   <label class="form-check-label" for="estadistica_no">No</label>
                 </div>
               </div>
@@ -133,7 +117,7 @@
         <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-practicas">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-practicas">
-            Prácticas profesionales – Sector público/privado/UASLP
+            Datos generales de las Prácticas Profesionales
           </button>
         </h2>
         <div id="sec-practicas" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-practicas">
@@ -167,14 +151,75 @@
       
               <!-- Sector privado -->
               <div id="sectorPrivado" class="mt-3" style="display: none;">
-                <h5 class="mb-2">Datos del sector privado</h5>
-                <div class="mb-2">
-                  <label class="form-label">Area o Departamento</label>
-                  <input type="text" class="form-control" name="area_depto_priv">
+                <div class="row g-3">
+                  <div class="col-md-6 position-relative">
+                    <label class="form-label">Nombre de la empresa</label>
+                    <input type="text" name="nombre_empresa_privado" id="nombre_empresa_privado" class="form-control" autocomplete="off" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Razón Social</label>
+                    <input type="text" name="razon_social" class="form-control" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">RFC</label>
+                    <input type="text" name="rfc_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-6 mt-3">
+                    <label class="form-label">Ramo</label>
+                    <select name="ramo_privado" id="ramo_privado" class="form-select mt-1" required>
+                      <option value="">Seleccione un ramo...</option>
+                      <option value="1">Agricultura, ganadería y caza</option>
+                      <option value="2">Transporte y comunicaciones</option>
+                      <option value="3">Industria manufacturera</option>
+                      <option value="4">Restaurantes y hoteles</option>
+                      <option value="5">Servicios profesionales y técnicos especializados</option>
+                      <option value="6">Servicios de reparación y mantenimiento</option>
+                      <option value="7">Servicios educativos</option>
+                      <option value="8">Construcción</option>
+                      <option value="9">Otro</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Calle</label>
+                    <input type="text" name="calle_empresa_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Número</label>
+                    <input type="text" name="numero_empresa_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Colonia</label>
+                    <input type="text" name="colonia_empresa_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">C.P.</label>
+                    <input type="text" name="cp_empresa_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <input type="text" name="estado_empresa_privado" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Municipio</label>
+                    <input type="text" name="municipio_empresa_privado" class="form-control" required>
+                  </div>
                 </div>
                 <div class="mb-2">
+                  <label class="form-label">Teléfono</label>
+                  <input type="text" class="form-control" name="telefono_privado">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Área o Departamento</label>
+                  <input type="text" class="form-control" name="area_depto_privado">
+                </div>      
+                <div class="mb-2">
                   <label class="form-label">Número de Trabajadores</label>
-                  <input type="text" class="form-control" name="num_trabajadores">
+                  <select class="form-control" name="num_trabajadores">
+                    <option value="1">Micro (1 - 30)</option>
+                    <option value="2">Pequeña (31 - 100)</option>
+                    <option value="3">Mediana (101 - 250)</option>
+                    <option value="4">Grande (más de 250)</option>
+                  </select>
                 </div>
                 <div class="mb-3">
                   <label class="form-label d-block mb-2">Actividad o Giro</label>
@@ -201,10 +246,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="mb-2">
-                  <label class="form-label">Razón Social</label>
-                  <input type="text" class="form-control" name="razon_social">
-                </div>
                 <div class="mb-3">
                   <label class="form-label d-block mb-2">Empresa Outsourcing</label>
                   <div class="d-flex align-items-center">
@@ -226,10 +267,62 @@
       
               <!-- Sector público -->
               <div id="sectorPublico" class="mt-3" style="display: none;">
-                <h5 class="mb-2">Datos del sector público</h5>
+                <div class="row g-3">
+                  <div class="col-md-6 position-relative">
+                    <label class="form-label">Nombre de la empresa</label>
+                    <input type="text" name="nombre_empresa_publico" id="nombre_empresa_privado" class="form-control" autocomplete="off" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">RFC</label>
+                    <input type="text" name="rfc_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-6 mt-3">
+                    <label class="form-label">Ramo</label>
+                    <select name="ramo_publico" id="ramo_publico" class="form-select mt-1" required>
+                      <option value="">Seleccione un ramo...</option>
+                      <option value="1">Agricultura, ganadería y caza</option>
+                      <option value="2">Transporte y comunicaciones</option>
+                      <option value="3">Industria manufacturera</option>
+                      <option value="4">Restaurantes y hoteles</option>
+                      <option value="5">Servicios profesionales y técnicos especializados</option>
+                      <option value="6">Servicios de reparación y mantenimiento</option>
+                      <option value="7">Servicios educativos</option>
+                      <option value="8">Construcción</option>
+                      <option value="9">Otro</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Calle</label>
+                    <input type="text" name="calle_empresa_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Número</label>
+                    <input type="text" name="numero_empresa_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Colonia</label>
+                    <input type="text" name="colonia_empresa_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">C.P.</label>
+                    <input type="text" name="cp_empresa_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <input type="text" name="estado_empresa_publico" class="form-control" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Municipio</label>
+                    <input type="text" name="municipio_empresa_publico" class="form-control" required>
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Teléfono</label>
+                  <input type="text" class="form-control" name="telefono_publico">
+                </div>
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento</label>
-                  <input type="text" class="form-control" name="area_depto_public">
+                  <input type="text" class="form-control" name="area_depto_publico">
                 </div>
                 <div class="mb-2">
                   <label class="form-label d-block mb-2">Ámbito</label>
@@ -252,7 +345,6 @@
       
               <!-- Sector UASLP -->
               <div id="sectorUaslp" class="mt-3" style="display: none;">
-                <h5 class="mb-2">Datos del sector UASLP</h5>
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento</label>
                   <input type="text" class="form-control" name="area_depto_uaslp">
@@ -307,61 +399,6 @@
           </div>
         </div>
       </div>
-
-      {{-- 3. Empresa --}}
-          <div class="accordion-item soli-card mt-3">
-            <h2 class="accordion-header" id="h-empresa">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-empresa">
-                Perfil de la empresa
-              </button>
-            </h2>
-            <div id="sec-empresa" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-empresa">
-              <div class="accordion-body">
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label">Nombre de la empresa</label>
-                    <input type="text" name="nombre_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Razón social</label>
-                    <input type="text" name="razon_social" class="form-control" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">RFC</label>
-                    <input type="text" name="rfc" class="form-control" required>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label">Calle</label>
-                    <input type="text" name="calle_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label">Número</label>
-                    <input type="text" name="numero_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Colonia</label>
-                    <input type="text" name="colonia_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label">C.P.</label>
-                    <input type="text" name="cp_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Municipio</label>
-                    <input type="text" name="municipio_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Estado</label>
-                    <input type="text" name="estado_empresa" class="form-control" required>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">Descripción</label>
-                    <textarea name="descripcion_empresa" class="form-control" rows="3" required></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {{-- 4. Encargado --}}
           <div class="accordion-item soli-card mt-3">
@@ -418,28 +455,17 @@
                   <div class="col-md-3">
                     <label class="form-label">Turno</label>
                     <select name="turno" class="form-select" required>
-                        <option value="1">Matutino</option>
-                        <option value="0">Vespertino</option>
-                        <option value="2">Mixto</option>
+                        <option value="M">Matutino</option>
+                        <option value="V">Vespertino</option>
                     </select>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Hora de entrada</label>
-                    <select name="horario_entrada" class="form-select" required>
-                      @for ($h = 6; $h <= 22; $h++)
-                        <option value="{{ sprintf('%02d:00', $h) }}">{{ sprintf('%02d:00', $h) }}</option>
-                        <option value="{{ sprintf('%02d:30', $h) }}">{{ sprintf('%02d:30', $h) }}</option>
-                      @endfor
-                    </select>
+                    <input type="time" name="horario_entrada" class="form-control" required>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Hora de salida</label>
-                    <select name="horario_salida" class="form-select" required>
-                      @for ($h = 6; $h <= 22; $h++)
-                        <option value="{{ sprintf('%02d:00', $h) }}">{{ sprintf('%02d:00', $h) }}</option>
-                        <option value="{{ sprintf('%02d:30', $h) }}">{{ sprintf('%02d:30', $h) }}</option>
-                      @endfor
-                    </select>
+                    <input type="time" name="horario_salida" class="form-control" required>
                   </div>
                   <div class="col-12">
                     <label class="form-label">Días de asistencia</label>

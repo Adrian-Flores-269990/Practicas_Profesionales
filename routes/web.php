@@ -10,7 +10,9 @@ use App\Http\Controllers\AlumnoController;
 Route::get('/alumno/crear', [AlumnoController::class, 'create'])->name('alumno.create');
 Route::post('/alumno/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 
+// SOLICITUD
 Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
+
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');

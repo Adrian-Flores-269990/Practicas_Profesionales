@@ -221,30 +221,16 @@
                     <option value="4">Grande (más de 250)</option>
                   </select>
                 </div>
-                <div class="mb-3">
-                  <label class="form-label d-block mb-2">Actividad o Giro</label>
-                  <div class="d-flex align-items-center">
-                    <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="1">
-                      <label class="form-check-label" for="estadistica_si">Extractiva</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="2">
-                      <label class="form-check-label" for="estadistica_no">Manufacturera</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="3">
-                      <label class="form-check-label" for="estadistica_no">Comercial</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="4">
-                      <label class="form-check-label" for="estadistica_no">Comisionista</label>
-                    </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="radio" name="actividad_giro" id="actividad_giro" value="5">
-                      <label class="form-check-label" for="estadistica_no">Servicio</label>
-                    </div>
-                  </div>
+                <div class="col-md-6">
+                <label class="form-label">Actividad o giro</label>
+                <select name="actividad_giro" class="form-select">
+                    <option value="">Seleccione...</option>
+                    <option value="1">Extractiva</option>
+                    <option value="2">Manufacturera</option>
+                    <option value="3">Comercial</option>
+                    <option value="4">Comisionista</option>
+                    <option value="5">Servicio</option>
+                </select>
                 </div>
                 <div class="mb-3">
                   <label class="form-label d-block mb-2">Empresa Outsourcing</label>

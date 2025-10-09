@@ -23,7 +23,6 @@ class SolicitudController extends Controller
                 $diasSeleccionados = $request->input('dias_asistencia', []);
                 $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
-
                 // Crear solicitud
                 $solicitud = SolicitudFPP01::create([
                     //0 no

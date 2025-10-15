@@ -4,15 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\SolicitudController;
-
+use App\Http\Controllers\EncargadoController;
 use App\Http\Controllers\AlumnoController;
 
 Route::get('/alumno/crear', [AlumnoController::class, 'create'])->name('alumno.create');
 Route::post('/alumno/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 
+Route::get('/encargado/solicitudes', [EncargadoController::class, 'index'])->name('encargado.solicitudes');
+Route::get('/encargado/solicitud/{id}', [EncargadoController::class, 'verSolicitud'])->name('encargado.verSolicitud');
+Route::put('/encargado/solicitud/{id}/autorizar', [EncargadoController::class, 'autorizarSolicitud'])->name('encargado.autorizar');
+
 // SOLICITUD
 Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
-
 
 // HOME (raíz)
 Route::view('/', 'welcome')->name('welcome');
@@ -37,15 +40,12 @@ Route::prefix('alumno')->group(function () {
     Route::get('/expediente/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
     Route::get('/expediente/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
 
-    
     Route::get('/expediente/solicitudFPP01', [SolicitudController::class, 'create'])->name('alumno.expediente.solicitudFPP01');
     Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
-
 
     Route::get('/expediente/registroFPP02', fn () => view('alumno.expediente.registroFPP02'))->name('alumno.expediente.registroFPP02');
     Route::get('/expediente/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
     Route::get('/expediente/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
-
 
     Route::view('/faq',  'alumno.faq')->name('dev.alumno.faq');
     Route::view('/detalles',  'alumno.detalles')->name('dev.alumno.detalles');
@@ -62,7 +62,7 @@ Route::prefix('secretaria')->group(function () {
 Route::prefix('encargado')->group(function () {
     Route::get('/inicio', fn () => view('encargado.inicio'))->name('encargado.inicio');
     Route::get('/consultar_alumno', fn () => view('encargado.consultar_alumno'))->name('encargado.consultar_alumno');
-    Route::get('/solicitudes_alumnos', fn () => view('encargado.solicitudes_alumnos'))->name('encargado.solicitudes_alumnos');
+    Route::get('/solicitudes_alumnos', [EncargadoController::class, 'index'])->name('encargado.solicitudes_alumnos');
     Route::get('/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
     Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
 });
@@ -71,7 +71,6 @@ Route::prefix('encargado')->group(function () {
 Route::prefix('dsspp')->group(function () {
     Route::get('/inicio', fn () => view('dsspp.inicio'))->name('dsspp.inicio');
 });
-
 
 // LOGINS
 Route::view('/alumno/login', 'auth.login')->name('alumno.login');

@@ -33,40 +33,41 @@
 
         <div id="sec-solicitante" class="accordion-collapse collapse show" data-bs-parent="#soliAccordion">
           <div class="accordion-body">
-            
+
             {{-- Sección de datos automáticos del alumno --}}
             <div class="row g-3 mb-3 ">
               <div class="col-md-6">
                 <label class="form-label">Fecha de Solicitud</label>
                 <input type="date" name="fecha_solicitud" class="form-control" value="{{ date('Y-m-d') }}" readonly>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label">Nombre del Alumno</label>
                 <input type="text" name="nombre_alumno" class="form-control" value="{{ $alumno['nombres'] ?? '' }} {{ $alumno['paterno'] ?? '' }} {{ $alumno['materno'] ?? '' }}" readonly>
               </div>
 
-              
+
               <div class="col-md-4">
                 <label class="form-label">Clave</label>
                 <input type="text" name="clave" class="form-control" value="{{ $alumno['cve_uaslp'] ?? '-' }}" readonly>
-              </div>
-              
+                <input type="hidden" name="clave_hidden" value="{{ $alumno['cve_uaslp'] ?? '' }}">
+            </div>
+
               <div class="col-md-4">
                 <label class="form-label">Semestre</label>
                 <input type="text" name="semestre" class="form-control" value="{{ $alumno['semestre'] ?? '-' }}" readonly>
               </div>
-              
+
               <div class="col-md-4">
                 <label class="form-label">Número de Créditos</label>
                 <input type="text" name="numero_creditos" class="form-control" value="{{ $alumno['creditos'] ?? '-' }}" readonly>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label">Carrera</label>
                 <input type="text" name="carrera" class="form-control" value="{{ $alumno['carrera'] ?? '-' }}" readonly>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label">Correo Electrónico</label>
                 <input type="email" name="correo_electronico" class="form-control" value="{{ $alumno['correo_electronico'] ?? '-' }}" readonly>
@@ -89,7 +90,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label d-block">Tipo de seguro</label>
                 <div class="form-check mt-2">
@@ -105,7 +106,7 @@
                 <label class="form-label">NSF <span class="text-danger">*</span></label>
                 <input type="text" name="nsf" class="form-control" placeholder="Número de Seguro Social" required>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label">Teléfono Local o Celular <span class="text-danger">*</span></label>
                 <input type="tel" name="telefono" class="form-control" placeholder="Ej: 4441234567" required>
@@ -118,7 +119,7 @@
                 <label class="form-label">Fecha de Nacimiento <span class="text-danger">*</span></label>
                 <input type="date" name="fechanacimiento" class="form-control" required>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label d-block">Estado <span class="text-danger">*</span></label>
                 <div class="d-flex gap-3 mt-2">
@@ -149,7 +150,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="col-md-6">
                 <label class="form-label d-block">Constancia de Vigencia de Derechos <span class="text-danger">*</span></label>
                 <div class="d-flex gap-3 mt-2">
@@ -185,14 +186,14 @@
                   <label class="form-check-label" for="cartapasante">Carta Pasante</label>
                 </div>
               </div>
-              
+
               <div class="col-md-4">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" name="egresadosit" id="egresadosit" value="1">
                   <label class="form-check-label" for="egresadosit">Egresado Situación Especial</label>
                 </div>
               </div>
-              
+
               <div class="col-md-4">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" name="extensionSF" id="extensionSF" value="1">
@@ -217,17 +218,17 @@
         <div id="sec-practicas" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-practicas">
           <div class="accordion-body">
             <div class="row g-3">
-      
+
               <div class="col-md-3">
                 <label class="form-label">Fecha de inicio <span class="text-danger">*</span></label>
                 <input type="date" name="fecha_inicio" class="form-control mt-1" required>
               </div>
-      
+
               <div class="col-md-3">
                 <label class="form-label">Fecha de término <span class="text-danger">*</span></label>
                 <input type="date" name="fecha_termino" class="form-control mt-1" required>
               </div>
-      
+
               <!-- Tipo de sector -->
               <div class="col-md-4">
                 <label class="form-label">Tipo de sector <span class="text-danger">*</span></label>
@@ -238,9 +239,9 @@
                   <option value="uaslp">UASLP</option>
                 </select>
               </div>
-      
+
               <!-- Campos que se abren -->
-      
+
               <!-- Sector privado -->
               <div id="sectorPrivado" class="mt-3" style="display: none;">
                 <div class="row g-3">
@@ -303,7 +304,7 @@
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" name="area_depto_privado">
-                </div>      
+                </div>
                 <div class="mb-2">
                   <label class="form-label">Número de Trabajadores <span class="text-danger">*</span></label>
                   <select class="form-control" name="num_trabajadores">
@@ -342,7 +343,7 @@
                   <input type="text" class="form-control" name="razon_social_outsourcing">
                 </div>
               </div>
-      
+
               <!-- Sector público -->
               <div id="sectorPublico" class="mt-3" style="display: none;">
                 <div class="row g-3">
@@ -420,7 +421,7 @@
                   </div>
                 </div>
               </div>
-      
+
               <!-- Sector UASLP -->
               <div id="sectorUaslp" class="mt-3" style="display: none;">
                 <div class="mb-2">
@@ -618,7 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const accordionItems = document.querySelectorAll('.accordion-item');
   const form = document.querySelector('form');
   const sectorSelect = document.getElementById('sector');
-  
+
   // Script para mostrar/ocultar upload de constancia
   const constanciaSi = document.getElementById('constancia_si');
   const constanciaNo = document.getElementById('constancia_no');
@@ -663,13 +664,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Colorear secciones completas
   function checkSection(section) {
     let completed = true;
-    
+
     // Validar inputs normales (text, date, email, etc.)
     const normalInputs = section.querySelectorAll('input[required]:not([type="radio"]):not([type="checkbox"]), select[required], textarea[required]');
     normalInputs.forEach(input => {
       if (!input.value) completed = false;
     });
-    
+
     // Validar radio buttons (verificar que al menos uno esté seleccionado por grupo)
     const radioGroups = {};
     const radioInputs = section.querySelectorAll('input[type="radio"][required]');
@@ -681,12 +682,12 @@ document.addEventListener('DOMContentLoaded', function() {
         radioGroups[radio.name] = true;
       }
     });
-    
+
     // Si algún grupo de radio no tiene selección, no está completo
     Object.values(radioGroups).forEach(isChecked => {
       if (!isChecked) completed = false;
     });
-    
+
     const header = section.querySelector('.accordion-header button');
     header.style.backgroundColor = completed ? '#4583B7' : '';
     header.style.color = completed ? 'white' : '';

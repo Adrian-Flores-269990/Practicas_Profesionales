@@ -49,6 +49,11 @@ class SolicitudFPP01 extends Model
         'Cancelar'
     ];
 
+    public function alumno()
+    {
+        return $this->belongsTo(\App\Models\Alumno::class, 'Clave_Alumno', 'Clave_Alumno');
+    }
+
     public function dependenciaEmpresas()
     {
         return $this->hasMany(DependenciaMercadoSolicitud::class, 'Id_Solicitud_FPP01');

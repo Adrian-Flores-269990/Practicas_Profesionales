@@ -23,15 +23,15 @@
           Expediente del Alumno
         </a>
         <ul class="dropdown-menu" aria-labelledby="expedienteDropdown">
-          <li><a class="dropdown-item" href="#">Solicitud de Prácticas Profesionales (FPP01)</a></li>
-          <li><a class="dropdown-item" href="#">Registro de Solicitud de Autorización (FPP02)</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudFPP01') }}">Solicitud de Prácticas Profesionales (FPP01)</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.registroFPP02') }}">Registro de Solicitud de Autorización (FPP02)</a></li>
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.cartaAceptacion') }}">Carta de Aceptación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.desglosePercepciones') }}">Carta de Desglose de Percepciones</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">Solicitud de Recibo para Ayuda Económica</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">Recibo de Pago</a></li>
-          <li><a class="dropdown-item" href="#">Reportes Parciales</a></li>
-          <li><a class="dropdown-item" href="#">Reporte Final</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.reportesParciales') }}">Reportes Parciales</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">Reporte Final</a></li>
           <li><a class="dropdown-item" href="#">Carta de Término</a></li>
           <li><a class="dropdown-item" href="#">Constancia de Validación de Prácticas Profesionles</a></li>
           <li><a class="dropdown-item" href="#">Otros Archivos</a></li>

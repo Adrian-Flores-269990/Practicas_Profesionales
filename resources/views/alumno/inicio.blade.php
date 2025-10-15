@@ -56,6 +56,7 @@
               <div class="kv-value">{{ $alumno['carrera'] ?? '-' }}</div>
             </div>
           </div>
+          
         </div>
 
         <div class="card-body pt-0">
@@ -107,12 +108,12 @@
 
           <div class="kv kv-status">
             <div class="kv-label">Condición</div>
-            <div class="kv-value">REGULAR</div>
+            <div class="kv-value">{{ $alumno['condicion'] ?? '-' }}</div>
           </div>
 
           <div class="kv kv-status">
             <div class="kv-label">Situación</div>
-            <div class="kv-value">INSCRITO</div>
+            <div class="kv-value">{{ $alumno['situacion'] ?? '-' }}</div>
           </div>
         </div>
       </div>

@@ -132,3 +132,30 @@
   .arrow-right::after{border-top:40px solid transparent;border-bottom:40px solid transparent;border-left-width:20px;border-right-width:20px;right:-20px}
   .arrow-left::after{border-top:40px solid transparent;border-bottom:40px solid transparent;border-left-width:20px;border-right-width:20px;left:-20px}
 }
+
+
+
+
+
+/* ==============================
+   SOLICITUD Y REGISTRO DE ALUMNOS
+   ============================== */
+  .form-label { 
+    font-weight: 700; 
+  }
+
+  .text-danger {
+    color: #dc3545 !important;
+  }
+
+  .section-title {
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+
+   .form-label { font-weight: 700; font-size: .95rem; }  /* tamaño de letra y negrita */
+  .accordion-button { background:#f8fafc; color:#063; } /* color de los acordiones o secciones */
+  .soli-card { box-shadow: 0 1px 0 rgba(0,0,0,.03); }

@@ -37,6 +37,16 @@ Route::prefix('alumno')->group(function () {
     Route::get('/expediente/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
     Route::get('/expediente/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
 
+    
+    Route::get('/expediente/solicitudFPP01', [SolicitudController::class, 'create'])->name('alumno.expediente.solicitudFPP01');
+    Route::post('/solicitud/store', [SolicitudController::class, 'store'])->name('solicitud.store');
+
+
+    Route::get('/expediente/registroFPP02', fn () => view('alumno.expediente.registroFPP02'))->name('alumno.expediente.registroFPP02');
+    Route::get('/expediente/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
+    Route::get('/expediente/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
+
+
     Route::view('/faq',  'alumno.faq')->name('dev.alumno.faq');
     Route::view('/detalles',  'alumno.detalles')->name('dev.alumno.detalles');
     Route::view('/diagrama',  'alumno.diagrama')->name('dev.alumno.diagrama');

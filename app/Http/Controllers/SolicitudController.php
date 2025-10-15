@@ -14,7 +14,26 @@ use Illuminate\Http\Request;
 
 class SolicitudController extends Controller
 {
-    //public function store(StoreSolicitudRequest $request)
+    /**
+     * Mostrar el formulario de solicitud
+     */
+    public function create()
+    {
+        // Obtener datos del alumno desde la sesión
+        $alumno = session('alumno');
+        
+        // Si no hay alumno en sesión, redirigir al login
+        if (!$alumno) {
+            return redirect()->route('login')->withErrors(['error' => 'Debes iniciar sesión primero']);
+        }
+        
+        // Pasar los datos del alumno a la vista
+        return view('alumno.expediente.solicitudFPP01', compact('alumno'));
+    }
+
+    /**
+     * Guardar la solicitud
+     */
     public function store(Request $request)
     {
         try {

@@ -13,7 +13,7 @@
 @section('content')
 @include('partials.nav.registro')
 
-<div class="container-fluid py-3">
+<div class="container-fluid my-0 p-0">
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     SOLICITUD DE REGISTRO DEL ALUMNO
   </h4>
@@ -54,7 +54,7 @@
               
               <div class="col-md-4">
                 <label class="form-label">Semestre</label>
-                <input type="text" name="semestre" class="form-control" value="{{ $alumno->semestre ?? '' }}" readonly>
+                <input type="text" name="semestre" class="form-control" value="{{ $alumno['semestre'] ?? '-' }}" readonly>
               </div>
               
               <div class="col-md-4">

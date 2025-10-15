@@ -14,11 +14,11 @@
 @section('content')
 @include('partials.nav.registro')
 
-<div class="container-fluid py-3">
-  <!-- Cabecera -->
-  <h4 class="text-center fw-bold text-white py-3 mb-4" style="background-color: #000066;">
+<div class="container-fluid my-0 p-0">
+  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     SOLICITUD DE REGISTRO
   </h4>
+  
 
   <div class="row">
     <section class="col-12">
@@ -44,7 +44,7 @@
 
                 <div class="col-12 col-md-6">
                   <label for="nivel_plan" class="form-label">Nivel de plan de estudios aprobado a la fecha <span class="text-danger">*</span></label>
-                  <input id="nivel_plan" name="nivel_plan" type="text" class="form-control" placeholder="Ej. 7mo semestre">
+                  <input type="text" name="semestre" class="form-control" value="{{ $alumno['semestre'] ?? '-' }}" readonly>
                 </div>
 
                 <!-- Fila 2: Créditos otros espacios / Total con PP I / Asignación DSSPP -->

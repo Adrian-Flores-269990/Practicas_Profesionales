@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\SolicitudController;
+use App\Http\Controllers\PdfController;
 
 use App\Http\Controllers\AlumnoController;
 
@@ -79,6 +80,9 @@ Route::view('/empleado/login', 'auth.loginEmpleado')->name('empleado.login');
 
 // PDFs
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
+
+Route::post('/alumno/carta-aceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('alumno.carta-aceptacion.upload');
+Route::post('/alumno/desglose-percepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('alumno.desglose-percepciones.upload');
 
 // POST login
 Route::post('/', [LoginController::class, 'login'])->name('login');

@@ -11,7 +11,8 @@
   </h4>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
-    <form>
+    <form method="POST" action="{{ route('alumno.desglose-percepciones.upload') }}" enctype="multipart/form-data" id="form-reporte">
+      @csrf
         {{-- Área de envío de archivo --}}
       <div class="mb-4 border rounded p-3 bg-light">
         <h6 class="fw-bold mb-3">
@@ -28,7 +29,7 @@
             <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
           </div>
 
-          <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf">
+          <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
 
           <div id="archivoPreview" class="mt-3 d-none">
             <div class="card border-primary shadow-sm">
@@ -52,6 +53,22 @@
         <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
         <button type="submit" class="btn btn-success">Enviar</button>
       </div>
+
+      {{-- Mensajes de éxito --}}
+      @if(session('success'))
+        <div class="alert alert-success mt-3">{{ session('success') }}</div>
+      @endif
+
+      {{-- Mensajes de error --}}
+      @if($errors->any())
+        <div class="alert alert-danger mt-3">
+          <ul class="mb-0">
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
     </form>
   </div>
 </div>

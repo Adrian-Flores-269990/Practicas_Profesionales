@@ -23,7 +23,7 @@
           Expediente del Alumno
         </a>
         <ul class="dropdown-menu" aria-labelledby="expedienteDropdown">
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudFPP01') }}">Solicitud de Prácticas Profesionales (FPP01)</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">Solicitud de Prácticas Profesionales (FPP01)</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.registroFPP02') }}">Registro de Solicitud de Autorización (FPP02)</a></li>
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.cartaAceptacion') }}">Carta de Aceptación</a></li>

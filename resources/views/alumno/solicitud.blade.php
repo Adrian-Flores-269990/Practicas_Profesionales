@@ -50,8 +50,7 @@
               <div class="col-md-4">
                 <label class="form-label">Clave</label>
                 <input type="text" name="clave" class="form-control" value="{{ $alumno['cve_uaslp'] ?? '-' }}" readonly>
-                <input type="hidden" name="clave_hidden" value="{{ $alumno['cve_uaslp'] ?? '' }}">
-            </div>
+              </div>
 
               <div class="col-md-4">
                 <label class="form-label">Semestre</label>
@@ -247,19 +246,19 @@
                 <div class="row g-3">
                   <div class="col-md-6 position-relative">
                     <label class="form-label">Nombre de la empresa <span class="text-danger">*</span></label>
-                    <input type="text" name="nombre_empresa_privado" id="nombre_empresa_privado" class="form-control" autocomplete="off" required>
+                    <input type="text" name="nombre_empresa_privado" id="nombre_empresa_privado" class="form-control" autocomplete="off" data-require="true">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Razón Social <span class="text-danger">*</span></label>
-                    <input type="text" name="razon_social" class="form-control" required>
+                    <input type="text" name="razon_social" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">RFC <span class="text-danger">*</span></label>
-                    <input type="text" name="rfc_privado" class="form-control" required>
+                    <input type="text" name="rfc_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-6 mt-3">
                     <label class="form-label">Ramo <span class="text-danger">*</span></label>
-                    <select name="ramo_privado" id="ramo_privado" class="form-select mt-1" required>
+                    <select name="ramo_privado" id="ramo_privado" class="form-select mt-1" data-require="true">
                       <option value="">Seleccione un ramo...</option>
                       <option value="1">Agricultura, ganadería y caza</option>
                       <option value="2">Transporte y comunicaciones</option>
@@ -274,40 +273,40 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Calle <span class="text-danger">*</span></label>
-                    <input type="text" name="calle_empresa_privado" class="form-control" required>
+                    <input type="text" name="calle_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">Número <span class="text-danger">*</span></label>
-                    <input type="text" name="numero_empresa_privado" class="form-control" required>
+                    <input type="text" name="numero_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Colonia <span class="text-danger">*</span></label>
-                    <input type="text" name="colonia_empresa_privado" class="form-control" required>
+                    <input type="text" name="colonia_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">C.P. <span class="text-danger">*</span></label>
-                    <input type="text" name="cp_empresa_privado" class="form-control" required>
+                    <input type="text" name="cp_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Estado <span class="text-danger">*</span></label>
-                    <input type="text" name="estado_empresa_privado" class="form-control" required>
+                    <input type="text" name="estado_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Municipio <span class="text-danger">*</span></label>
-                    <input type="text" name="municipio_empresa_privado" class="form-control" required>
+                    <input type="text" name="municipio_empresa_privado" class="form-control" data-require="true">
                   </div>
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Teléfono <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="telefono_privado">
+                  <input type="text" name="telefono_privado" class="form-control" data-require="true">
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="area_depto_privado">
+                  <input type="text" name="area_depto_privado" class="form-control" data-require="true">
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Número de Trabajadores <span class="text-danger">*</span></label>
-                  <select class="form-control" name="num_trabajadores">
+                  <select name="num_trabajadores" class="form-control" data-require="true">
                     <option value="1">Micro (1 - 30)</option>
                     <option value="2">Pequeña (31 - 100)</option>
                     <option value="3">Mediana (101 - 250)</option>
@@ -316,7 +315,7 @@
                 </div>
                 <div class="col-md-6">
                 <label class="form-label">Actividad o giro <span class="text-danger">*</span></label>
-                <select name="actividad_giro" class="form-select">
+                <select name="actividad_giro" class="form-select" data-require="true">
                     <option value="">Seleccione...</option>
                     <option value="1">Extractiva</option>
                     <option value="2">Manufacturera</option>
@@ -329,18 +328,18 @@
                   <label class="form-label d-block mb-2">Empresa Outsourcing <span class="text-danger">*</span></label>
                   <div class="d-flex align-items-center">
                     <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="empresa_outsourcing" id="out_si" value="si">
+                      <input class="form-check-input" type="radio" name="empresa_outsourcing" id="out_si" value="si" data-require="true">
                       <label class="form-check-label" for="out_si">Sí</label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="empresa_outsourcing" id="out_no" value="no">
+                      <input class="form-check-input" type="radio" name="empresa_outsourcing" id="out_no" value="no" data-require="true">
                       <label class="form-check-label" for="out_no">No</label>
                     </div>
                   </div>
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Razón Social Outsourcing <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="razon_social_outsourcing">
+                  <input type="text" class="form-control" name="razon_social_outsourcing" data-require="true">
                 </div>
               </div>
 
@@ -349,15 +348,15 @@
                 <div class="row g-3">
                   <div class="col-md-6 position-relative">
                     <label class="form-label">Nombre de la empresa <span class="text-danger">*</span></label>
-                    <input type="text" name="nombre_empresa_publico" class="form-control" autocomplete="off" required>
+                    <input type="text" name="nombre_empresa_publico" class="form-control" autocomplete="off" data-require="true">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">RFC <span class="text-danger">*</span></label>
-                    <input type="text" name="rfc_publico" class="form-control" required>
+                    <input type="text" name="rfc_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-6 mt-3">
                     <label class="form-label">Ramo <span class="text-danger">*</span></label>
-                    <select name="ramo_publico" id="ramo_publico" class="form-select mt-1" required>
+                    <select name="ramo_publico" id="ramo_publico" class="form-select mt-1" data-require="true">
                       <option value="">Seleccione un ramo...</option>
                       <option value="1">Agricultura, ganadería y caza</option>
                       <option value="2">Transporte y comunicaciones</option>
@@ -372,50 +371,50 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Calle <span class="text-danger">*</span></label>
-                    <input type="text" name="calle_empresa_publico" class="form-control" required>
+                    <input type="text" name="calle_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">Número <span class="text-danger">*</span></label>
-                    <input type="text" name="numero_empresa_publico" class="form-control" required>
+                    <input type="text" name="numero_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Colonia <span class="text-danger">*</span></label>
-                    <input type="text" name="colonia_empresa_publico" class="form-control" required>
+                    <input type="text" name="colonia_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">C.P. <span class="text-danger">*</span></label>
-                    <input type="text" name="cp_empresa_publico" class="form-control" required>
+                    <input type="text" name="cp_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Estado <span class="text-danger">*</span></label>
-                    <input type="text" name="estado_empresa_publico" class="form-control" required>
+                    <input type="text" name="estado_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Municipio <span class="text-danger">*</span></label>
-                    <input type="text" name="municipio_empresa_publico" class="form-control" required>
+                    <input type="text" name="municipio_empresa_publico" class="form-control" data-require="true">
                   </div>
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Teléfono <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="telefono_publico">
+                  <input type="text" class="form-control" name="telefono_publico" data-require="true">
                 </div>
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="area_depto_publico">
+                  <input type="text" class="form-control" name="area_depto_publico" data-require="true">
                 </div>
                 <div class="mb-2">
                   <label class="form-label d-block mb-2">Ámbito <span class="text-danger">*</span></label>
                   <div class="d-flex align-items-center">
                     <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="ambito" id="ambito_mun" value="1">
+                      <input class="form-check-input" type="radio" name="ambito" id="ambito_mun" value="1" data-require="true">
                       <label class="form-check-label" for="ambito_mun">Municipal</label>
                     </div>
                     <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="ambito" id="ambito_est" value="2">
+                      <input class="form-check-input" type="radio" name="ambito" id="ambito_est" value="2" data-require="true">
                       <label class="form-check-label" for="ambito_est">Estatal</label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="ambito" id="ambito_fed" value="3">
+                      <input class="form-check-input" type="radio" name="ambito" id="ambito_fed" value="3" data-require="true">
                       <label class="form-check-label" for="ambito_fed">Federal</label>
                     </div>
                   </div>
@@ -426,26 +425,26 @@
               <div id="sectorUaslp" class="mt-3" style="display: none;">
                 <div class="mb-2">
                   <label class="form-label">Área o Departamento <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="area_depto_uaslp">
+                  <input type="text" class="form-control" name="area_depto_uaslp" data-require="true">
                 </div>
                 <div class="mb-2">
                   <label class="form-label d-block mb-2">Tipo de Entidad <span class="text-danger">*</span></label>
                   <div class="d-flex align-items-center">
                     <div class="form-check me-4">
-                      <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_inst" value="1">
+                      <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_inst" value="1" data-require="true">
                       <label class="form-check-label" for="tipo_inst">Instituto</label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_centro" value="2">
+                      <input class="form-check-input" type="radio" name="tipo_entidad" id="tipo_centro" value="2" data-require="true">
                       <label class="form-check-label" for="tipo_centro">Centro de Investigación <span class="text-danger">*</span></label>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-3"><label class="form-label">Entidad Académica <span class="text-danger">*</span></label>
-                  <select name="entidad_academica" class="form-select" required>
+                  <select name="entidad_academica" class="form-select" data-require="true">
                       <option value="1">Entidad1</option>
-                      <option value="0">Entidad2</option>
-                      <option value="2">Entidad3</option>
+                      <option value="2">Entidad2</option>
+                      <option value="3">Entidad3</option>
                   </select>
                 </div>
               </div>
@@ -641,23 +640,36 @@ document.addEventListener('DOMContentLoaded', function() {
   constanciaNo.addEventListener('change', toggleUpload);
 
   // Script para mostrar sectores
-  sectorSelect.addEventListener('change', function() {
+  sectorSelect.addEventListener('change', function () {
     const privado = document.getElementById('sectorPrivado');
     const publico = document.getElementById('sectorPublico');
     const uaslp = document.getElementById('sectorUaslp');
 
-    // Ocultar todos
-    privado.style.display = 'none';
-    publico.style.display = 'none';
-    uaslp.style.display = 'none';
+    const sectores = [privado, publico, uaslp];
 
-    // Mostrar el correspondiente
+    // Ocultar todos y quitar "required"
+    sectores.forEach(sector => {
+      sector.style.display = 'none';
+      sector.querySelectorAll('[required]').forEach(field => {
+        field.removeAttribute('required');
+      });
+    });
+
+    // Mostrar el correspondiente y agregar "required"
+    let activo;
     if (this.value === 'privado') {
-      privado.style.display = 'block';
+      activo = privado;
     } else if (this.value === 'publico') {
-      publico.style.display = 'block';
+      activo = publico;
     } else if (this.value === 'uaslp') {
-      uaslp.style.display = 'block';
+      activo = uaslp;
+    }
+
+    if (activo) {
+      activo.style.display = 'block';
+      activo.querySelectorAll('[data-require="true"]').forEach(field => {
+        field.setAttribute('required', 'required');
+      });
     }
   });
 

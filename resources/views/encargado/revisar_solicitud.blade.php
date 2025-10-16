@@ -90,6 +90,21 @@ $entidadOptions = [
 ];
 @endphp
 
+<style>
+  .dato-label {
+    font-weight: 600;
+    color: #002244;
+  }
+  .dato-valor {
+    color: #333;
+  }
+  .seccion-datos {
+    background-color: #f9fafc;
+    border-radius: 10px;
+    padding: 15px 20px;
+  }
+</style>
+
 @section('content')
 <div class="container py-4">
   <nav class="navbar" style="background-color: #000066;">
@@ -111,41 +126,137 @@ $entidadOptions = [
         <div class="accordion-item soli-card">
         <h2 class="accordion-header" id="h-solicitante">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sec-solicitante" aria-expanded="true">
-            Datos generales del solicitante
+            DATOS GENERALES DEL SOLICITANTE
             </button>
         </h2>
+
         <div id="sec-solicitante" class="accordion-collapse collapse show" aria-labelledby="h-solicitante">
-            <div class="accordion-body">
+            <div class="accordion-body seccion-datos">
             @php $alumno = $solicitud->alumno; @endphp
 
-            <p><strong>Nombre:</strong>
-                {{ $alumno->Nombre ?? 'No disponible' }}
-                {{ $alumno->ApellidoP_Alumno ?? '' }}
-                {{ $alumno->ApellidoM_Alumno ?? '' }}
-            </p>
+            {{-- Fecha de Solicitud y Nombre --}}
+            <div>
+                <div class="col-md-6">
+                    <span class="dato-label">Fecha de solicitud:</span>
+                    <span class="dato-valor">{{ \Carbon\Carbon::parse($solicitud->Fecha_Solicitud ?? now())->format('d/m/Y') }}</span>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Nombre del alumno:</span>
+                <span class="dato-valor">
+                    {{ $alumno->Nombre ?? 'No disponible' }}
+                    {{ $alumno->ApellidoP_Alumno ?? '' }}
+                    {{ $alumno->ApellidoM_Alumno ?? '' }}
+                </span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Clave UASLP:</span>
+                <span class="dato-valor">{{ $alumno->Clave_Alumno ?? 'No disponible' }}</span>
+                </div>
+            </div>
 
-            <p><strong>Clave UASLP:</strong> {{ $alumno->Clave_Alumno ?? 'No disponible' }}</p>
-            <p><strong>Carrera:</strong> {{ $alumno->Carrera ?? 'No disponible' }}</p>
-            <p><strong>Materia:</strong> {{ $alumno->Clave_Materia ?? 'No disponible' }}</p>
-            <p><strong>Semestre:</strong> {{ $alumno->Semestre ?? 'No disponible' }}</p>
-            <p><strong>Correo electrónico:</strong> {{ $alumno->CorreoElectronico ?? 'No disponible' }}</p>
-            <p><strong>Teléfono celular:</strong> {{ $alumno->TelefonoCelular ?? 'No disponible' }}</p>
+            {{-- Semestre, Créditos --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Semestre:</span>
+                <span class="dato-valor">{{ $alumno->Semestre ?? 'No disponible' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Número de créditos:</span>
+                <span class="dato-valor">{{ $alumno->Creditos ?? 'No disponible' }}</span>
+                </div>
+            </div>
+
+            {{-- Carrera, Correo --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Carrera:</span>
+                <span class="dato-valor">{{ $alumno->Carrera ?? 'No disponible' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Correo electrónico:</span>
+                <span class="dato-valor">{{ $alumno->CorreoElectronico ?? 'No disponible' }}</span>
+                </div>
+            </div>
 
             <hr>
 
-            <p><strong>Tipo de seguro:</strong> {{ $solicitud->Tipo_Seguro ? 'IMSS' : 'Otro' }}</p>
-            <p><strong>NSF:</strong> {{ $solicitud->NSF ?? 'No especificado' }}</p>
-            <p><strong>Constancia de derechos:</strong> {{ $solicitud->Constancia_Vig_Der ? 'Sí' : 'No' }}</p>
-            <p><strong>Estadística general:</strong> {{ $solicitud->Estadistica_General ? 'Sí' : 'No' }}</p>
-            <p><strong>Extensión de prácticas:</strong> {{ $solicitud->Extension_Practicas ? 'Sí' : 'No' }}</p>
-            <p><strong>Fecha de inicio:</strong> {{ $solicitud->Fecha_Inicio }}</p>
-            <p><strong>Fecha de término:</strong> {{ $solicitud->Fecha_Termino }}</p>
+            {{-- Inducción y Tipo de Seguro --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Inducción plática informativa PP:</span>
+                <span class="dato-valor">{{ $solicitud->Induccion_PP ? 'Sí' : 'No' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Tipo de seguro:</span>
+                <span class="dato-valor">{{ $solicitud->Tipo_Seguro ? 'IMSS' : 'Otro' }}</span>
+                </div>
+            </div>
 
-            <div class="mt-3 text-center">
+            {{-- NSF y Fecha de nacimiento --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">NSF:</span>
+                <span class="dato-valor">{{ $solicitud->NSF ?? 'No especificado' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Fecha de nacimiento:</span>
+                <span class="dato-valor">{{ \Carbon\Carbon::parse($alumno->Fecha_Nacimiento ?? '')->format('d/m/Y') ?? 'No disponible' }}</span>
+                </div>
+            </div>
+
+            {{-- Estado (Alumno o Pasante) --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Estado:</span>
+                <span class="dato-valor">{{ $solicitud->Estado_Alumno == 'P' ? 'Pasante' : 'Alumno' }}</span>
+                </div>
+            </div>
+
+            <hr>
+
+            {{-- Checkboxes finales --}}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Carta pasante:</span>
+                <span class="dato-valor">{{ $solicitud->Carta_Pasante ? 'Sí' : 'No' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Estadística general:</span>
+                @if(!empty($solicitud->Estadistica_General))
+                    <a href="{{ asset('storage/pdf_solicitudes/' . $solicitud->Estadistica_General) }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver PDF</a>
+                @else
+                    <span class="dato-valor">No disponible</span>
+                @endif
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">Egresado situación especial:</span>
+                <span class="dato-valor">{{ $solicitud->Egresado_Sit_Esp ? 'Sí' : 'No' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">Constancia de vigencia de derechos:</span>
+                @if(!empty($solicitud->Constancia_Vig_Der))
+                    <a href="{{ asset('storage/pdf_solicitudes/' . $solicitud->Constancia_Vig_Der) }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver PDF</a>
+                @else
+                    <span class="dato-valor">No disponible</span>
+                @endif
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-md-4">
+                <span class="dato-label">Extensión seguro facultativo:</span>
+                <span class="dato-valor">{{ $solicitud->Extension_SF ? 'Sí' : 'No' }}</span>
+                </div>
+            </div>
+            </div>
+            <div class="mt-3 text-end">
                 <button type="button" class="btn btn-success btn-accion" data-seccion="solicitante" data-valor="1">Aceptar</button>
                 <button type="button" class="btn btn-danger btn-accion" data-seccion="solicitante" data-valor="0">Rechazar</button>
                 <input type="hidden" name="seccion_solicitante" id="seccion_solicitante" value="">
-            </div>
             </div>
         </div>
         </div>
@@ -154,7 +265,7 @@ $entidadOptions = [
         <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-empresa">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-empresa">
-            Datos de la empresa y sector
+            DATOS GENERALES DE LAS PRÁCTICAS PROFESIONALES
             </button>
         </h2>
         <div id="sec-empresa" class="accordion-collapse collapse" aria-labelledby="h-empresa">
@@ -215,7 +326,7 @@ $entidadOptions = [
             <p>No se encontraron datos del sector.</p>
             @endif
 
-            <div class="mt-3 text-center">
+            <div class="mt-3 text-end">
                 <button type="button" class="btn btn-success btn-accion" data-seccion="empresa" data-valor="1">Aceptar</button>
                 <button type="button" class="btn btn-danger btn-accion" data-seccion="empresa" data-valor="0">Rechazar</button>
                 <input type="hidden" name="seccion_empresa" id="seccion_empresa" value="">
@@ -229,7 +340,7 @@ $entidadOptions = [
       <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-proyecto">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-proyecto" aria-expanded="false">
-            Proyecto y actividades
+            PROYECTO Y ACTIVIDADES
           </button>
         </h2>
         <div id="sec-proyecto" class="accordion-collapse collapse" aria-labelledby="h-proyecto">
@@ -240,7 +351,7 @@ $entidadOptions = [
               {!! nl2br(e($solicitud->Actividades)) !!}
             </div>
 
-            <div class="mt-3 text-center">
+            <div class="mt-3 text-end">
               <button type="button" class="btn btn-success btn-accion" data-seccion="proyecto" data-valor="1">Aceptar</button>
               <button type="button" class="btn btn-danger btn-accion" data-seccion="proyecto" data-valor="0">Rechazar</button>
               <input type="hidden" name="seccion_proyecto" id="seccion_proyecto" value="">
@@ -253,23 +364,36 @@ $entidadOptions = [
       <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-horario">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-horario" aria-expanded="false">
-            Horario y días de asistencia
+            HORARIO
           </button>
         </h2>
         <div id="sec-horario" class="accordion-collapse collapse" aria-labelledby="h-horario">
-          <div class="accordion-body">
-            <p><strong>Matutino o Vespertino:</strong> {{ $horario }}</p>
-            <p><strong>Hora de entrada:</strong> {{ $solicitud->Horario_Entrada }}</p>
-            <p><strong>Hora de salida:</strong> {{ $solicitud->Horario_Salida }}</p>
-            <p><strong>Días de asistencia:</strong>
-            {{ count($dias) ? implode(', ', $dias) : 'No especificado' }}
-            </p>
-
-            <div class="mt-3 text-center">
-              <button type="button" class="btn btn-success btn-accion" data-seccion="horario" data-valor="1">Aceptar</button>
-              <button type="button" class="btn btn-danger btn-accion" data-seccion="horario" data-valor="0">Rechazar</button>
-              <input type="hidden" name="seccion_horario" id="seccion_horario" value="">
-            </div>
+            <div class="accordion-body">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                    <span class="dato-label">Horario de Entrada: </span>
+                    <span class="dato-valor">{{ $solicitud->Horario_Entrada }}</span>
+                    </div>
+                    <div class="col-md-6">
+                    <span class="dato-label">Horario de salida: </span>
+                    <span class="dato-valor">{{ $solicitud->Horario_Salida }}</span>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                    <span class="dato-label">Matutino o Vespertino: </span>
+                    <span class="dato-valor">{{ $horario }}</span>
+                    </div>
+                    <div class="col-md-6">
+                    <span class="dato-label">Días de asistencia: </span>
+                    <span class="dato-valor">{{ count($dias) ? implode(', ', $dias) : 'No especificado' }}</span>
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                <button type="button" class="btn btn-success btn-accion" data-seccion="horario" data-valor="1">Aceptar</button>
+                <button type="button" class="btn btn-danger btn-accion" data-seccion="horario" data-valor="0">Rechazar</button>
+                <input type="hidden" name="seccion_horario" id="seccion_horario" value="">
+                </div>
           </div>
         </div>
       </div>
@@ -278,17 +402,32 @@ $entidadOptions = [
       <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-creditos">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-creditos" aria-expanded="false">
-            Créditos y apoyo económico
+            CRÉDITOS / APOYO ECONÓMICO
           </button>
         </h2>
         <div id="sec-creditos" class="accordion-collapse collapse" aria-labelledby="h-creditos">
           <div class="accordion-body">
-            <p><strong>¿Requiere créditos?</strong> {{ $solicitud->Validacion_Creditos ? 'Sí' : 'No' }}</p>
-            <p><strong>¿Es extensión de prácticas?</strong> {{ $solicitud->Extension_Practicas ? 'Sí' : 'No' }}</p>
-            <p><strong>¿Requiere expedición de recibos?</strong> {{ $solicitud->Expedicion_Recibos ? 'Sí' : 'No' }}</p>
-            <p><strong>¿Recibe apoyo económico?</strong> {{ $solicitud->Apoyo_Economico ? 'Sí' : 'No' }}</p>
-
-            <div class="mt-3 text-center">
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">¿Requiere créditos? </span>
+                <span class="dato-valor">{{ $solicitud->Validacion_Creditos ? 'Sí' : 'No' }}</span>
+            </div>
+                <div class="col-md-6">
+                <span class="dato-label">¿Es extensión de prácticas? </span>
+                <span class="dato-valor">{{ $solicitud->Extension_Practicas ? 'Sí' : 'No' }}</span>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-6">
+                <span class="dato-label">¿Recibe apoyo económico? </span>
+                <span class="dato-valor">{{ $solicitud->Expedicion_Recibos ? 'Sí' : 'No' }}</span>
+                </div>
+                <div class="col-md-6">
+                <span class="dato-label">¿Requiere expedición de recibos? </span>
+                <span class="dato-valor">{{ $solicitud->Expedicion_Recibos ? 'Sí' : 'No' }}</span>
+                </div>
+            </div>
+            <div class="mt-3 text-end">
               <button type="button" class="btn btn-success btn-accion" data-seccion="creditos" data-valor="1">Aceptar</button>
               <button type="button" class="btn btn-danger btn-accion" data-seccion="creditos" data-valor="0">Rechazar</button>
               <input type="hidden" name="seccion_creditos" id="seccion_creditos" value="">
@@ -362,6 +501,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
-
 @endsection

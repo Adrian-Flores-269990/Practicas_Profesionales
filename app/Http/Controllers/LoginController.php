@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\UaslpApiService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
 use App\Models\Alumno;
 
 class LoginController extends Controller

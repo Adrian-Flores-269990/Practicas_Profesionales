@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SolicitudFPP01;
 use App\Models\AutorizacionSolicitud;
-use Carbon\Carbon;
 
 class EncargadoController extends Controller
 {
@@ -23,10 +22,10 @@ class EncargadoController extends Controller
     public function revisar($id)
     {
         $solicitud = SolicitudFPP01::with([
-            'dependenciaEmpresaSolicitud.dependenciaEmpresa',
-            'dependenciaEmpresaSolicitud.sectorPrivado',
-            'dependenciaEmpresaSolicitud.sectorPublico',
-            'dependenciaEmpresaSolicitud.sectorUaslp'
+            'dependenciaMercadoSolicitud.dependenciaEmpresa',
+            'dependenciaMercadoSolicitud.sectorPrivado',
+            'dependenciaMercadoSolicitud.sectorPublico',
+            'dependenciaMercadoSolicitud.sectorUaslp'
         ])->findOrFail($id);
 
         return view('encargado.revision', compact('solicitud'));
@@ -38,37 +37,31 @@ class EncargadoController extends Controller
             'comentario_encargado' => 'nullable|string|max:500',
         ]);
 
-        // Recolectar decisiones
         $decisiones = [
-            $request->seccion_solicitante,
-            $request->seccion_empresa,
-            $request->seccion_asesor,
-            $request->seccion_proyecto,
-            $request->seccion_horario,
-            $request->seccion_creditos,
+            'seccion_solicitante' => $request->input('seccion_solicitante'),
+            'seccion_empresa'     => $request->input('seccion_empresa'),
+            'seccion_proyecto'    => $request->input('seccion_proyecto'),
+            'seccion_horario'     => $request->input('seccion_horario'),
+            'seccion_creditos'    => $request->input('seccion_creditos'),
         ];
 
-        // Verificar si todas las secciones fueron aceptadas
-        $todasAceptadas = !in_array('0', $decisiones) && !in_array('', $decisiones);
-
-        // Guardar en tabla autorizacion_solicitud
-        \App\Models\AutorizacionSolicitud::updateOrCreate(
+        // Guardar en autorizacion_solicitud
+        $autorizacion = AutorizacionSolicitud::updateOrCreate(
             ['Id_Solicitud_FPP01' => $id],
             [
-                'Autorizo_Empleado' => $todasAceptadas ? 1 : 0,
+                'Autorizo_Empleado' => collect($decisiones)->every(fn($v) => $v === '1') ? 1 : 0,
                 'Comentario_Encargado' => $request->comentario_encargado,
                 'Fecha_As' => now(),
             ]
         );
 
-        // Si todas aceptadas, actualizar campo "Autorizacion" en solicitud
-        if ($todasAceptadas) {
-            $solicitud = \App\Models\SolicitudFPP01::find($id);
-            $solicitud->Autorizacion = 1;
+        // Actualizar también el campo en solicitud
+        $solicitud = SolicitudFPP01::find($id);
+        if ($solicitud) {
+            $solicitud->Autorizacion = $autorizacion->Autorizo_Empleado; // 1 o 0 según decisión
             $solicitud->save();
         }
 
-        // Redirigir con mensaje
         return redirect()
             ->route('encargado.solicitudes_alumnos')
             ->with('success', 'Revisión guardada correctamente.');

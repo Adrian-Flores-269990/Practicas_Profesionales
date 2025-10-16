@@ -49,6 +49,11 @@ class SolicitudFPP01 extends Model
         'Cancelar'
     ];
 
+    public function autorizacion()
+    {
+        return $this->hasOne(\App\Models\AutorizacionSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+    }
+
     public function alumno()
     {
         return $this->belongsTo(\App\Models\Alumno::class, 'Clave_Alumno', 'Clave_Alumno');
@@ -57,5 +62,10 @@ class SolicitudFPP01 extends Model
     public function dependenciaEmpresas()
     {
         return $this->hasMany(DependenciaMercadoSolicitud::class, 'Id_Solicitud_FPP01');
+    }
+
+    public function dependenciaMercadoSolicitud()
+    {
+        return $this->hasOne(DependenciaMercadoSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
     }
 }

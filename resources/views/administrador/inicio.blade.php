@@ -1,7 +1,6 @@
 @extends('layouts.administrador')
 @section('title','Inicio Administrador')
 
-
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/administrador.css') }}?v={{ filemtime(public_path('css/administrador.css')) }}">
 @endpush
@@ -11,7 +10,6 @@
     $administrador = session('empleado');
 @endphp
 
-
 <div class="container-xxl administrador-home my-3">
   <div class="row g-3">
 
@@ -19,8 +17,6 @@
     <div class="col-lg-8">
       <div class="card profile-card">
         <div class="card-body d-flex align-items-center gap-3">
-
-
 
           <div class="flex-grow-1">
             <h3 class="mb-1 nombre">
@@ -47,14 +43,13 @@
               <div class="kv-value">{{ $administrador['dependencia'] ?? '-' }}</div>
             </div>
 
-
           </div>
         </div>
       </div>
     </div>
 
     <!-- Columna lateral (estatus + accesos) -->
-<div class="col-lg-4">
+    <div class="col-lg-4">
       <div class="card status-card mb-3">
         <div class="card-body status-grid">
           <div class="kv kv-status">

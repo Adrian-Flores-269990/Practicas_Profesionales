@@ -14,26 +14,7 @@ use Illuminate\Http\Request;
 
 class SolicitudController extends Controller
 {
-    /**
-     * Mostrar el formulario de solicitud
-     */
-    public function create()
-    {
-        // Obtener datos del alumno desde la sesión
-        $alumno = session('alumno');
-        
-        // Si no hay alumno en sesión, redirigir al login
-        if (!$alumno) {
-            return redirect()->route('login')->withErrors(['error' => 'Debes iniciar sesión primero']);
-        }
-        
-        // Pasar los datos del alumno a la vista
-        return view('alumno.expediente.solicitudFPP01', compact('alumno'));
-    }
-
-    /**
-     * Guardar la solicitud
-     */
+    //public function store(StoreSolicitudRequest $request)
     public function store(Request $request)
     {
         try {
@@ -83,9 +64,9 @@ class SolicitudController extends Controller
                     'Cancelar' => 0, //Nos falta este dato (No sabemos como manejarlo)
                 ]);
 
-                $sectorPrivado = 1; // Id de los sectores que no existen
-                $sectorPublico = 1; // Id de los sectores que no existen
-                $sectorUASLP = 1; // Id de los sectores que no existen
+                $sectorPrivado = NULL; // Id de los sectores que no existen
+                $sectorPublico = NULL; // Id de los sectores que no existen
+                $sectorUASLP = NULL; // Id de los sectores que no existen
                 if ($request->sector === 'privado') {
                     $nombreEmpresa = $request->nombre_empresa_privado;
                     $clasificacion = '1'; //Vamos a cambiar el tipo de dato a int, por ahora regresa un varchar
@@ -127,7 +108,7 @@ class SolicitudController extends Controller
                         'Area_Depto' => $request->area_depto_publico,
                         'Ambito' => $request->ambito
                     ]);
-                    $sectorPrivado = $sector->Id_Publico;
+                    $sectorPublico = $sector->Id_Publico;
                 } elseif ($request->sector === 'uaslp') {
                     $sector = SectorUaslp::create([
                         'Area_Depto' => $request->area_depto_uaslp,
@@ -137,7 +118,7 @@ class SolicitudController extends Controller
                     $sectorUASLP = $sector->Id_UASLP;
                 }
 
-                
+                $idEmpresa = NULL;
                 if ($request->sector === 'privado' || $request->sector === 'publico') {
                     // Crear empresa
                     $empresa = DependenciaEmpresa::create([
@@ -160,17 +141,18 @@ class SolicitudController extends Controller
                         //1 si
                         'Autorizada' => 0
                     ]);
-
-                    $mercado = DependenciaMercadoSolicitud::create([
-                        'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01,
-                        'Id_Depend_Emp' => $empresa->Id_Depn_Emp,
-                        'Id_Publico' => $sectorPublico,
-                        'Id_Privado' => $sectorPrivado,
-                        'Id_UASLP' => $sectorUASLP,
-                        'Id_Mercado' => 1, //Nos falta este dato (No sabemos como manejarlo)
-                        'Porcentaje' => 100 //Nos falta este dato (No sabemos como manejarlo)
-                    ]);
+                    $idEmpresa = $empresa->Id_Depn_Emp;
                 }
+
+                $mercado = DependenciaMercadoSolicitud::create([
+                    'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01,
+                    'Id_Depend_Emp' => $idEmpresa,
+                    'Id_Publico' => $sectorPublico,
+                    'Id_Privado' => $sectorPrivado,
+                    'Id_UASLP' => $sectorUASLP,
+                    'Id_Mercado' => 1, //Nos falta este dato (No sabemos como manejarlo)
+                    'Porcentaje' => 100 //Nos falta este dato (No sabemos como manejarlo)
+                ]);
             });
 
             return redirect()->route('alumno.inicio')->with('success', 'Solicitud guardada correctamente.');

@@ -14,9 +14,11 @@ class PdfController extends Controller
             'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
         ]);
 
-        $file = $request->file('archivo');
-        $nombreArchivo = 'carta_aceptacion_' . time() . '.' . $file->getClientOriginalExtension();
-        $ruta = 'expedientes/carta-aceptacion/' . $nombreArchivo;
+    $file = $request->file('archivo');
+    $alumno = session('alumno');
+    $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+    $nombreArchivo = $claveAlumno . '_carta_aceptacion_' . time() . '.' . $file->getClientOriginalExtension();
+    $ruta = 'expedientes/carta-aceptacion/' . $nombreArchivo;
 
         // Asegurarse de que el directorio existe en el disco public
         if (!Storage::disk('public')->exists('expedientes/carta-aceptacion')) {
@@ -46,9 +48,11 @@ class PdfController extends Controller
             'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
         ]);
 
-        $file = $request->file('archivo');
-        $nombreArchivo = 'desglose_percepciones_' . time() . '.' . $file->getClientOriginalExtension();
-        $ruta = 'expedientes/desglose-percepciones/' . $nombreArchivo;
+    $file = $request->file('archivo');
+    $alumno = session('alumno');
+    $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+    $nombreArchivo = $claveAlumno . '_desglose_percepciones_' . time() . '.' . $file->getClientOriginalExtension();
+    $ruta = 'expedientes/desglose-percepciones/' . $nombreArchivo;
 
         // Asegurarse de que el directorio existe en el disco public
         if (!\Storage::disk('public')->exists('expedientes/desglose-percepciones')) {

@@ -46,7 +46,9 @@ class SolicitudFPP01 extends Model
         'Autorizacion',
         'Propuso_Empresa',
         'Evaluacion',
-        'Cancelar'
+        'Cancelar',
+        'Estado_Encargado',
+        'Estado_Departamento'
     ];
 
     public function autorizacion()

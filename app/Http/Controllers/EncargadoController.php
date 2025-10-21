@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\SolicitudFPP01;
 use App\Models\AutorizacionSolicitud;
+use App\Models\EstadoProceso;
 
 class EncargadoController extends Controller
 {
@@ -45,21 +46,52 @@ class EncargadoController extends Controller
             'seccion_creditos'    => $request->input('seccion_creditos'),
         ];
 
-        // Guardar en autorizacion_solicitud
+        // Guardar decisión general
+        $autorizado = collect($decisiones)->every(fn($v) => $v === '1') ? 1 : 0;
+
+        // 🔹 Guardar en autorizacion_solicitud
         $autorizacion = AutorizacionSolicitud::updateOrCreate(
             ['Id_Solicitud_FPP01' => $id],
             [
-                'Autorizo_Empleado' => collect($decisiones)->every(fn($v) => $v === '1') ? 1 : 0,
+                'Autorizo_Empleado' => $autorizado,
                 'Comentario_Encargado' => $request->comentario_encargado,
                 'Fecha_As' => now(),
             ]
         );
 
-        // Actualizar también el campo en solicitud
+        // 🔹 Actualizar también la solicitud principal
         $solicitud = SolicitudFPP01::find($id);
         if ($solicitud) {
-            $solicitud->Autorizacion = $autorizacion->Autorizo_Empleado; // 1 o 0 según decisión
+            $solicitud->Autorizacion = $autorizado;
+            $solicitud->Estado_Encargado = $autorizado ? 'aprobado' : 'rechazado'; // ✅ actualiza el nuevo campo
             $solicitud->save();
+
+            $claveAlumno = $solicitud->Clave_Alumno;
+
+            if ($autorizado) {
+                // 1️⃣ Marca la etapa del encargado como completada (verde)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)')
+                    ->update(['estado' => 'realizado']);
+
+                // 2️⃣ Verifica si el DSSPP también ya aprobó
+                if ($solicitud->Estado_Departamento === 'aprobado') {
+                    EstadoProceso::where('clave_alumno', $claveAlumno)
+                        ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+                        ->update(['estado' => 'proceso']);
+                }
+
+            } else {
+                // 🔻 Si rechazó, marca su propia etapa en pendiente
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)')
+                    ->update(['estado' => 'pendiente']);
+
+                // 🟡 También regresa el registro de solicitud a "proceso" (porque se reinicia)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+                    ->update(['estado' => 'proceso']);
+            }
         }
 
         return redirect()

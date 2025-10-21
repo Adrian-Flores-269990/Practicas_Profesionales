@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\SolicitudFPP01;
+use App\Observers\SolicitudFPP01Observer;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        SolicitudFPP01::observe(SolicitudFPP01Observer::class);
     }
 }

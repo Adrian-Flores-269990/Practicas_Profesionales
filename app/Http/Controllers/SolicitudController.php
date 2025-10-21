@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use App\Models\EstadoProceso;
 
 class SolicitudController extends Controller
 {
@@ -47,6 +48,7 @@ class SolicitudController extends Controller
                     //1 - Alumno
                     //2 - Pasante
                     'Situacion_Alumno_Pasante' => $request->estado === 'alumno' ? 1 : 2,
+                    
                     'Estadistica_General' => $request->estadistica_general === 'si' ? 1 : 0,
                     'Constancia_Vig_Der' => $request->constancia_derechos === 'si' ? 1 : 0,
                     'Carta_Pasante' => $request->has('cartapasante') ? 1 : 0,
@@ -73,7 +75,56 @@ class SolicitudController extends Controller
                     'Propuso_Empresa' => 0, //Nos falta este dato (No sabemos como manejarlo)
                     'Evaluacion' => 0, //Nos falta este dato (No sabemos como manejarlo)
                     'Cancelar' => 0, //Nos falta este dato (No sabemos como manejarlo)
+                    'Estado_Encargado' => 'pendiente',
+                    'Estado_Departamento' => 'pendiente',
                 ]);
+
+                // 🔹 Verifica si el alumno ya tiene etapas en estado_proceso
+                if (EstadoProceso::where('clave_alumno', $claveAlumno)->count() == 0) {
+
+                    $etapas = [
+                        'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                        'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                        'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                        'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)',
+                        'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)',
+                        'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                        'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                        'CARTA DE PRESENTACIÓN (ALUMNO)',
+                        'CARTA DE ACEPTACIÓN (ALUMNO)',
+                        'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
+                        'CARTA DE DESGLOSE DE PERCEPCIONES',
+                        'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                        'RECIBO DE PAGO',
+                        'REPORTE PARCIAL NO. X',
+                        'REVISIÓN REPORTE PARCIAL NO. X',
+                        'REVISIÓN REPORTE FINAL',
+                        'REPORTE FINAL',
+                        'CORRECCIÓN REPORTE PARCIAL NO. X',
+                        'CORRECCIÓN REPORTE FINAL',
+                        'CALIFICACIÓN REPORTE FINAL',
+                        'CARTA DE TÉRMINO',
+                        'EVALUACIÓN DEL ALUMNO',
+                        'CALIFICACIÓN FINAL',
+                        'EVALUACIÓN DE LA EMPRESA',
+                        'LIBERACIÓN DEL ALUMNO',
+                        'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES',
+                        'DOCUMENTO EXTRA (EJEMPLO)',
+                    ];
+
+                    foreach ($etapas as $etapa) {
+                        EstadoProceso::create([
+                            'clave_alumno' => $claveAlumno,
+                            'etapa' => $etapa,
+                            'estado' => 'pendiente'
+                        ]);
+                    }
+                }
+
+                // 🔹 Luego de eso, marca la primera etapa como "proceso"
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
+                    ->update(['estado' => 'proceso']);
 
                 $sectorPrivado = NULL; // Id de los sectores que no existen
                 $sectorPublico = NULL; // Id de los sectores que no existen
@@ -262,4 +313,5 @@ class SolicitudController extends Controller
 
         return view('alumno.expediente.editarSolicitud', compact('solicitud'));
     }
+    
 }

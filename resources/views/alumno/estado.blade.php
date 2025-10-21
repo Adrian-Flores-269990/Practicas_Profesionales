@@ -1,70 +1,210 @@
 @extends('layouts.alumno')
 
-@section('title','Estado del Alumno')
+@section('title', 'Estado del Alumno')
 
 @section('content')
-  @include('partials.nav.registro')
+@include('partials.nav.registro')
+
+<style>
+/* 🎯 FLECHAS ALTERNADAS — 3 COLUMNAS FIJAS Y RESPONSIVAS SIN ROMPER FILAS */
+
+/* Contenedor principal */
+.arrow-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  margin-top: 40px;
+  padding: 30px 10px;
+}
+
+/* Cada fila */
+.arrow-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* siempre 3 columnas */
+  justify-items: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  gap: 0;
+}
+
+/* Flechas base */
+.arrow {
+  position: relative;
+  width: 90%; /* ocupa la mayor parte del espacio de su columna */
+  min-height: 90px;
+  padding: 20px 25px;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1.5px solid rgba(0, 0, 0, 0.3);
+  line-height: 1.4em;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.arrow:hover {
+  transform: scale(1.03);
+}
+
+/* Flechas direccionales */
+.arrow-right::after,
+.arrow-left::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 45px solid transparent;
+  border-bottom: 45px solid transparent;
+  z-index: 3;
+}
+
+/* Flecha derecha */
+.arrow-right::after {
+  right: -40px;
+  border-left: 40px solid;
+}
+
+/* Flecha izquierda */
+.arrow-left::before {
+  left: -45px;
+  border-right: 45px solid;
+}
+
+/* Compensación visual */
+.arrow-left { margin-left: 45px; }
+.arrow-right { margin-right: 45px; }
+
+/* Colores coherentes */
+.bg-success { background-color: #198754 !important; color: #fff; }
+.bg-warning { background-color: #ffc107 !important; color: #000; }
+.bg-danger  { background-color: #dc3545 !important; color: #fff; }
+
+.bg-success.arrow-right::after { border-left-color: #198754; }
+.bg-success.arrow-left::before { border-right-color: #198754; }
+
+.bg-warning.arrow-right::after { border-left-color: #ffc107; }
+.bg-warning.arrow-left::before { border-right-color: #ffc107; }
+
+.bg-danger.arrow-right::after  { border-left-color: #dc3545; }
+.bg-danger.arrow-left::before  { border-right-color: #dc3545; }
+
+/* 📱 Responsivo: mantener 3 columnas, pero reducir tamaño */
+@media (max-width: 1200px) {
+  .arrow {
+    width: 85%;
+    font-size: 12px;
+    min-height: 80px;
+    padding: 15px 20px;
+  }
+  .arrow-right::after,
+  .arrow-left::before {
+    border-top: 40px solid transparent;
+    border-bottom: 40px solid transparent;
+  }
+}
+
+@media (max-width: 992px) {
+  .arrow {
+    width: 80%;
+    font-size: 11px;
+    min-height: 70px;
+    padding: 12px 18px;
+  }
+  .arrow-right::after,
+  .arrow-left::before {
+    border-top: 35px solid transparent;
+    border-bottom: 35px solid transparent;
+  }
+}
+
+@media (max-width: 768px) {
+  .arrow {
+    width: 75%;
+    font-size: 10px;
+    min-height: 60px;
+    padding: 10px 15px;
+  }
+  .arrow-right::after,
+  .arrow-left::before {
+    border-top: 30px solid transparent;
+    border-bottom: 30px solid transparent;
+  }
+}
+
+/* 🔒 Evitar que se apilen o colapsen */
+@media (max-width: 500px) {
+  .arrow-row {
+    grid-template-columns: repeat(3, 1fr);
+    transform: scale(0.9);
+  }
+}
+
+/* Leyenda */
+.leyenda-cuadro {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  border: 1px solid black;
+}
+</style>
 
 <div class="container-fluid my-0 p-0">
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     ESTADO DEL ALUMNO DURANTE EL PROCESO DE PRÁCTICAS PROFESIONALES
   </h4>
-    <div class="bg-white p-4 rounded shadow-sm w-100">
-        <div class="container mb-3">
-            <div class="d-flex justify-content-center flex-wrap mt-4">
-                <div class="d-flex align-items-center gap-3 mx-4">
-                    <div class="leyenda-cuadro" style="background: green;"></div>
-                    <span>Actividad realizada</span>
-                </div>
-                <div class="d-flex align-items-center gap-3 mx-4">
-                    <div class="leyenda-cuadro" style="background: yellow;"></div>
-                    <span>Actividad en proceso</span>
-                </div>
-                <div class="d-flex align-items-center gap-3 mx-4">
-                    <div class="leyenda-cuadro" style="background: red;"></div>
-                    <span>Actividad pendiente</span>
-                </div>
-            </div>
-            <div class="arrow-grid">
-                <!-- Fila 1 -->
-                <div class="arrow arrow-right">REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES</div>
-                <div class="arrow arrow-right">AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)</div>
-                <div class="arrow arrow-right">AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)</div>
-                <!-- Fila 2 -->
-                <div class="arrow arrow-left">CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)</div>
-                <div class="arrow arrow-left">AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)</div>
-                <div class="arrow arrow-left">REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES</div>
-                <!-- Fila 3 -->
-                <div class="arrow arrow-right">CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)</div>
-                <div class="arrow arrow-right">CARTA DE PRESENTACIÓN (ALUMNO)</div>
-                <div class="arrow arrow-right">CARTA DE ACEPTACIÓN (ALUMNO)</div>
-                <!-- Fila 4 -->
-                <div class="arrow arrow-left">SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA</div>
-                <div class="arrow arrow-left">CARTA DE DESGLOSE DE PERCEPCIONES</div>
-                <div class="arrow arrow-left">CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)</div>
-                <!-- Fila 5 -->
-                <div class="arrow arrow-right">RECIBO DE PAGO</div>
-                <div class="arrow arrow-right">REPORTE PARCIAL NO. X</div>
-                <div class="arrow arrow-right">REVISIÓN REPORTE PARCIAL NO. X</div>
-                <!-- Fila 6 -->
-                <div class="arrow arrow-left">REVISIÓN REPORTE FINAL</div>
-                <div class="arrow arrow-left">REPORTE FINAL</div>
-                <div class="arrow arrow-left">CORRECCIÓN REPORTE PARCIAL NO. X</div>
-                <!-- Fila 7 -->
-                <div class="arrow arrow-right">CORRECCIÓN REPORTE FINAL</div>
-                <div class="arrow arrow-right">CALIFICACIÓN REPORTE FINAL</div>
-                <div class="arrow arrow-right">CARTA DE TÉRMINO</div>
-                <!-- Fila 8 -->
-                <div class="arrow arrow-left">EVALUACIÓN DEL ALUMNO</div>
-                <div class="arrow arrow-left">CALIFICACIÓN FINAL</div>
-                <div class="arrow arrow-left">EVALUACIÓN DE LA EMPRESA</div>
-                <!-- Fila 9 -->
-                <div class="arrow arrow-right">LIBERACIÓN DEL ALUMNO</div>
-                <div class="arrow arrow-right">CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES</div>
-                <div class="arrow arrow-right">DOCUMENTO EXTRA (EJEMPLO)</div>
-                </div>
-            </div>
+
+  <div class="bg-white p-4 rounded shadow-sm w-100">
+    <!-- Leyenda -->
+    <div class="container mb-3">
+      <div class="d-flex justify-content-center flex-wrap mt-4">
+        <div class="d-flex align-items-center gap-3 mx-4">
+          <div class="leyenda-cuadro" style="background: green;"></div>
+          <span>Actividad realizada</span>
         </div>
+        <div class="d-flex align-items-center gap-3 mx-4">
+          <div class="leyenda-cuadro" style="background: yellow;"></div>
+          <span>Actividad en proceso</span>
+        </div>
+        <div class="d-flex align-items-center gap-3 mx-4">
+          <div class="leyenda-cuadro" style="background: red;"></div>
+          <span>Actividad pendiente</span>
+        </div>
+      </div>
     </div>
+
+    <!-- FLECHAS POR FILAS -->
+    <div class="arrow-grid">
+      @foreach ($procesos->chunk(3) as $filaIndex => $fila)
+        @php
+          $directionClass = $filaIndex % 2 == 0 ? 'arrow-right' : 'arrow-left';
+        @endphp
+
+        <div class="arrow-row">
+          @foreach ($fila as $proceso)
+            @php
+              $colorClass = match($proceso->estado) {
+                  'realizado' => 'bg-success',
+                  'proceso' => 'bg-warning',
+                  default => 'bg-danger',
+              };
+            @endphp
+
+            <div class="arrow {{ $colorClass }} {{ $directionClass }}">
+              {{ strtoupper($proceso->etapa) }}
+            </div>
+          @endforeach
+        </div>
+      @endforeach
+    </div>
+  </div>
 </div>
 @endsection

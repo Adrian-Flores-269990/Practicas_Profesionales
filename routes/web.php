@@ -7,6 +7,7 @@ use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\EncargadoController;
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\DssppController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +41,8 @@ Route::prefix('admin')->group(function () {
 Route::prefix('alumno')->group(function () {
 
     Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
-    Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
+    //Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
+    Route::get('/estado', [AlumnoController::class, 'estadoAlumno'])->name('alumno.estado');
     Route::get('/solicitud', fn () => view('alumno.solicitud'))->name('alumno.solicitud');
     Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
@@ -114,9 +116,22 @@ Route::prefix('secretaria')->group(function () {
 | RUTAS DSSPP
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('dsspp')->group(function () {
+    //  Inicio
     Route::get('/inicio', fn () => view('dsspp.inicio'))->name('dsspp.inicio');
+
+    //  Consultar alumno (vista de búsqueda)
+    Route::get('/consultar-alumno', fn () => view('dsspp.consultar_alumno'))->name('dsspp.consultar_alumno');
+
+    //  Solicitudes pendientes
+    Route::get('/solicitudes', [DssppController::class, 'index'])->name('dsspp.solicitudes');
+
+    Route::get('/solicitud/{id}', [DssppController::class, 'verSolicitud'])->name('dsspp.verSolicitud');
+    Route::put('/solicitud/{id}/autorizar', [DssppController::class, 'autorizarSolicitud'])->name('dsspp.autorizarSolicitud');
+
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -124,3 +139,4 @@ Route::prefix('dsspp')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
+

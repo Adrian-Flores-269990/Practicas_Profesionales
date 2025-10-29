@@ -30,7 +30,16 @@
       <div class="mb-4">
         <h6 class="fw-bold">Documento subido:</h6>
         <iframe src="{{ asset('storage/' . $pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
-        <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn btn-outline-primary mt-2">Abrir PDF en nueva pestaña</a>
+        <div class="d-flex gap-2 mt-2">
+          <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
+          <form method="POST" action="{{ route('alumno.desglose-percepciones.eliminar') }}" style="display:inline;">
+            @csrf
+            <input type="hidden" name="archivo" value="{{ $pdfPath }}">
+            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento actual?')">
+              <i class="bi bi-trash"></i> Eliminar PDF
+            </button>
+          </form>
+        </div>
       </div>
     @endif
     <form method="POST" action="{{ route('alumno.desglose-percepciones.upload') }}" enctype="multipart/form-data" id="form-reporte">

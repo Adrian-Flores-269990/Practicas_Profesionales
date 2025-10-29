@@ -51,7 +51,14 @@
           <li><a class="dropdown-item" href="#">Ayuda Empleado</a></li>
         </ul>
       </li>
-
+      <li class="nav-item">
+        <a
+          class="nav-link {{ request()->routeIs('administrador.empleados') ? 'active' : '' }}"
+          href="{{ route('administrador.empleados') }}"
+        >
+          Modificar Roles
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>

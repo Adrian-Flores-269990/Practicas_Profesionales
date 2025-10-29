@@ -19,7 +19,6 @@ class SolicitudController extends Controller
     {
         try {
             DB::transaction(function() use ($request) {
-
                 // Primero obtener el alumno desde sesión o request
                 $alumno = session('alumno');
                 $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave') ?? $request->input('clave_hidden') ?? null;
@@ -29,6 +28,20 @@ class SolicitudController extends Controller
                     throw ValidationException::withMessages([
                         'clave_alumno' => 'No se encontró la clave del alumno. Asegúrate de haber iniciado sesión o de que el web service devuelva la información.'
                     ]);
+                }
+
+                // Guardar PDF de constancia de vigencia de derechos si corresponde
+                $nombreArchivoConstancia = null;
+                if ($request->constancia_derechos === 'si' && $request->hasFile('constancia_pdf')) {
+                    $file = $request->file('constancia_pdf');
+                    if ($file->isValid()) {
+                        $nombreArchivoConstancia = $claveAlumno . '_carta_vigencia_derechos_' . time() . '.' . $file->getClientOriginalExtension();
+                        $ruta = 'expedientes/carta-vigencia-derechos/' . $nombreArchivoConstancia;
+                        if (!\Storage::disk('public')->exists('expedientes/carta-vigencia-derechos')) {
+                            \Storage::disk('public')->makeDirectory('expedientes/carta-vigencia-derechos');
+                        }
+                        \Storage::disk('public')->putFileAs('expedientes/carta-vigencia-derechos', $file, $nombreArchivoConstancia);
+                    }
                 }
 
                 // Preparar variables de días y turno
@@ -51,7 +64,7 @@ class SolicitudController extends Controller
                     'Constancia_Vig_Der' => $request->constancia_derechos === 'si' ? 1 : 0,
                     'Carta_Pasante' => $request->has('cartapasante') ? 1 : 0,
                     'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
-                    'Archivo_CVD' => $request->constancia_derechos === 'si' ? 1 : 0,
+                    'Archivo_CVD' => $nombreArchivoConstancia ?? null,
                     'Fecha_Inicio' => $request->fecha_inicio, //No lo he checado
                     'Fecha_Termino' => $request->fecha_termino, //No lo he checado
                     'Clave_Encargado' => 1, //Nos falta este dato del web service

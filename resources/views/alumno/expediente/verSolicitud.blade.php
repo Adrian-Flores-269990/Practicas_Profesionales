@@ -8,6 +8,20 @@
 
 @section('content')
 <div class="container my-4">
+  {{-- Mostrar constancia de vigencia de derechos si existe --}}
+  @if (!empty($solicitud->Archivo_CVD))
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white fw-bold">Constancia de Vigencia de Derechos</div>
+      <div class="card-body">
+        <a href="{{ asset('storage/expedientes/carta-vigencia-derechos/' . $solicitud->Archivo_CVD) }}" target="_blank" class="btn btn-outline-primary mb-2">
+          <i class="bi bi-file-earmark-pdf"></i> Ver PDF
+        </a>
+        <div class="ratio ratio-16x9">
+          <iframe src="{{ asset('storage/expedientes/carta-vigencia-derechos/' . $solicitud->Archivo_CVD) }}" frameborder="0"></iframe>
+        </div>
+      </div>
+    </div>
+  @endif
 
   {{-- Encabezado --}}
   <h4 class="text-center fw-bold text-white py-3 mb-4" style="background-color:#000066;">

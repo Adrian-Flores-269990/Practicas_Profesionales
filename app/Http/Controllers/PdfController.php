@@ -75,4 +75,6 @@ class PdfController extends Controller
             return back()->withErrors(['No se pudo guardar el archivo.']);
         }
     }
+
+    // Método eliminado. La lógica de guardado de constancia_pdf se moverá a SolicitudController@store
 }

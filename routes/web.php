@@ -80,6 +80,8 @@ Route::prefix('alumno')->group(function () {
     Route::post('/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
 | RUTAS ENCARGADO
@@ -95,9 +97,111 @@ Route::prefix('encargado')->group(function () {
     Route::get('/solicitud/{id}', [EncargadoController::class, 'verSolicitud'])->name('encargado.verSolicitud');
     Route::put('/solicitud/{id}/autorizar', [EncargadoController::class, 'autorizarSolicitud'])->name('encargado.autorizar');
 
-    Route::get('/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
+    //Route::get('/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
+
+    Route::get('/solicitudes-alumnos', [EncargadoController::class, 'index'])
+        ->name('encargado.solicitudes_alumnos');
+
     Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
+
+    Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])
+    ->name('encargado.consultar_alumno');
+
+    Route::get('/alumnos_en_proceso', [EncargadoController::class, 'alumnosEnProceso'])
+        ->name('encargado.alumnos_en_proceso');
+
+    Route::get('/alumnos_finalizados', [EncargadoController::class, 'alumnosFinalizados'])
+        ->name('encargado.alumnos_finalizados');
+
+    Route::get('/registrar-empresa', function() {
+        return view('encargado.registrar_empresa');
+    })->name('encargado.registrar_empresa');
+
+    // Ruta para guardar (puedes implementarla después)
+    Route::post('/guardar-empresa', function() {
+        // TODO: Implementar guardado en base de datos
+
+        // Por ahora solo simular
+        return redirect()->route('encargado.inicio')->with('success', '✅ Empresa registrada exitosamente');
+    })->name('encargado.guardar_empresa');
+
 });
+
+// SECRETARIA
+Route::prefix('secretaria')->group(function () {
+    Route::get('/inicio', fn () => view('secretaria.inicio'))->name('secretaria.inicio');
+
+    // Generar Constancias
+    Route::get('/generar-constancias', function() {
+        $alumnos = [
+            [
+                'clave' => '194659',
+                'nombre' => 'Juan Carlos García López',
+                'correo' => 'juan.garcia@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. en Software',
+                'fecha_termino' => '2024-12-15',
+                'constancia_generada' => false
+            ],
+            [
+                'clave' => '195432',
+                'nombre' => 'María Fernanda Martínez Sánchez',
+                'correo' => 'maria.martinez@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. Civil',
+                'fecha_termino' => '2024-11-20',
+                'constancia_generada' => true
+            ],
+            [
+                'clave' => '196543',
+                'nombre' => 'Pedro Alberto Ramírez Torres',
+                'correo' => 'pedro.ramirez@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. Industrial',
+                'fecha_termino' => '2024-10-30',
+                'constancia_generada' => false
+            ],
+        ];
+
+        return view('secretaria.generar_constancia', compact('alumnos'));
+    })->name('secretaria.generar_constancia');
+
+
+
+    // Consultar Constancias
+    Route::get('/consultar-constancias', function() {
+        $constancias = [
+            [
+                'folio' => 'CONST-2024-001',
+                'clave' => '195432',
+                'nombre' => 'María Fernanda Martínez Sánchez',
+                'correo' => 'maria.martinez@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. Civil',
+                'fecha_generacion' => '2024-11-25'
+            ],
+            [
+                'folio' => 'CONST-2024-002',
+                'clave' => '197654',
+                'nombre' => 'Ana Sofía Hernández Cruz',
+                'correo' => 'ana.hernandez@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. Mecánica',
+                'fecha_generacion' => '2024-12-01'
+            ],
+            [
+                'folio' => 'CONST-2024-003',
+                'clave' => '198765',
+                'nombre' => 'Carlos Eduardo Ruiz Flores',
+                'correo' => 'carlos.ruiz@alumnos.uaslp.edu.mx',
+                'carrera' => 'Ing. en Software',
+                'fecha_generacion' => '2024-12-10'
+            ],
+        ];
+
+        return view('secretaria.validar_constancia', compact('constancias'));
+    })->name('secretaria.validar_constancia');
+});
+
+
+
+
+
 Route::get('/alumno/expediente/solicitudFPP01/{id}', [SolicitudController::class, 'show'])
         ->name('solicitud.show');
 Route::get('/solicitud/create', [SolicitudController::class, 'create'])->name('solicitud.create');

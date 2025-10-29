@@ -271,59 +271,69 @@ $entidadOptions = [
         <div id="sec-empresa" class="accordion-collapse collapse" aria-labelledby="h-empresa">
             <div class="accordion-body">
 
-            <p><strong>Tipo de sector:</strong>
-            @if($tipoSector == 'privado') Sector Privado
-            @elseif($tipoSector == 'publico') Sector Público
-            @elseif($tipoSector == 'uaslp') Sector UASLP
-            @else No especificado
-            @endif
-            </p>
+            @php
+            $empresaNombre = '-';
+            $tipoSectorTexto = '-';
+            $privado = $publico = $uaslp = null;
 
-            {{-- SECTOR PRIVADO --}}
-            @if ($privado)
-            <p><strong>Nombre de la empresa:</strong> {{ $empresa->Nombre_Depn_Emp ?? 'No especificado' }}</p>
-            <p><strong>Razón Social:</strong> {{ $privado->Razon_Social }}</p>
-            <p><strong>RFC:</strong> {{ $empresa->RFC_Empresa ?? 'No especificado' }}</p>
-            <p><strong>Dirección:</strong> {{ $empresa->Calle }} #{{ $empresa->Numero }}, {{ $empresa->Colonia }}, {{ $empresa->Municipio }}, {{ $empresa->Estado }}, CP {{ $empresa->Cp }}</p>
-            <p><strong>Teléfono:</strong> {{ $empresa->Telefono }}</p>
-            <p><strong>Área o Departamento:</strong> {{ $privado->Area_Depto }}</p>
-            <p><strong>Ramo:</strong> {{ $ramoOptions[$empresa->Ramo] ?? 'No especificado' }}</p>
-            <p><strong>Número de Trabajadores:</strong> {{ $numTrabajadoresOptions[$privado->Num_Trabajadores] ?? 'No especificado' }}</p>
-            <p><strong>Actividad o Giro:</strong> {{ $actividadGiroOptions[$privado->Actividad_Giro] ?? 'No especificado' }}</p>
-            <p><strong>Empresa Outsourcing:</strong> {{ $privado->Emp_Outsourcing ? 'Sí' : 'No' }}</p>
-            @if($privado->Razon_Social_Outsourcing)
-                <p><strong>Razón Social Outsourcing:</strong> {{ $privado->Razon_Social_Outsourcing }}</p>
-            @endif
+            if ($solicitud->dependenciaMercadoSolicitud) {
+                $dep = $solicitud->dependenciaMercadoSolicitud;
 
-            {{-- SECTOR PÚBLICO --}}
-            @elseif ($publico)
-            <p><strong>Nombre de la dependencia:</strong> {{ $empresa->Nombre_Depn_Emp ?? 'No especificado' }}</p>
-            <p><strong>RFC:</strong> {{ $empresa->RFC_Empresa ?? 'No especificado' }}</p>
-            <p><strong>Ramo:</strong> {{ $ramoOptions[$empresa->Ramo] ?? 'No especificado' }}</p>
-            <p><strong>Dirección:</strong> {{ $empresa->Calle }} #{{ $empresa->Numero }}, {{ $empresa->Colonia }}, {{ $empresa->Municipio }}, {{ $empresa->Estado }}, CP {{ $empresa->Cp }}</p>
-            <p><strong>Teléfono:</strong> {{ $empresa->Telefono }}</p>
-            <p><strong>Área o Departamento:</strong> {{ $publico->Area_Depto }}</p>
-            <p><strong>Ámbito:</strong>
-                @switch($publico->Ambito)
-                    @case(1) Municipal @break
-                    @case(2) Estatal @break
-                    @case(3) Federal @break
-                    @default No especificado
-                @endswitch
-            </p>
+                if ($dep->Id_Privado) {
+                    $privado = $dep->sectorPrivado; // cargar info del sector privado
+                    $empresa = optional($dep->dependenciaEmpresa);
+                    $empresaNombre = $empresa->Nombre_Depn_Emp ?? 'Empresa Privada (no registrada)';
+                    $tipoSectorTexto = 'Sector Privado';
+                } elseif ($dep->Id_Publico) {
+                    $publico = $dep->sectorPublico;
+                    $empresa = optional($dep->dependenciaEmpresa);
+                    $empresaNombre = $empresa->Nombre_Depn_Emp ?? 'Dependencia Pública (no registrada)';
+                    $tipoSectorTexto = 'Sector Público';
+                } elseif ($dep->Id_UASLP) {
+                    $uaslp = $dep->sectorUaslp;
+                    $empresaNombre = 'Universidad Autónoma de San Luis Potosí';
+                    $tipoSectorTexto = 'Sector UASLP';
+                }
+            }
+            @endphp
 
-            {{-- SECTOR UASLP --}}
-            @elseif ($uaslp)
-            <p><strong>Área o Departamento:</strong> {{ $uaslp->Area_Depto }}</p>
-            <p><strong>Tipo de Entidad:</strong>
-                @if($uaslp->Tipo_Entidad == 1) Instituto
-                @elseif($uaslp->Tipo_Entidad == 2) Centro de Investigación
-                @else No especificado
+            <p><strong>Tipo de sector:</strong> {{ $tipoSectorTexto }}</p>
+            <p><strong>Nombre:</strong> {{ $empresaNombre }}</p>
+
+            @if($privado)
+                <p><strong>Razón Social:</strong> {{ $privado->Razon_Social ?? 'No especificado' }}</p>
+                <p><strong>RFC:</strong> {{ $empresa->RFC_Empresa ?? 'No especificado' }}</p>
+                <p><strong>Dirección:</strong> {{ $empresa->Calle }} #{{ $empresa->Numero }}, {{ $empresa->Colonia }}, {{ $empresa->Municipio }}, {{ $empresa->Estado }}, CP {{ $empresa->Cp }}</p>
+                <p><strong>Teléfono:</strong> {{ $empresa->Telefono }}</p>
+                <p><strong>Área o Departamento:</strong> {{ $privado->Area_Depto ?? '-' }}</p>
+                <p><strong>Ramo:</strong> {{ $ramoOptions[$empresa->Ramo] ?? 'No especificado' }}</p>
+                <p><strong>Número de Trabajadores:</strong> {{ $numTrabajadoresOptions[$privado->Num_Trabajadores] ?? 'No especificado' }}</p>
+                <p><strong>Actividad o Giro:</strong> {{ $actividadGiroOptions[$privado->Actividad_Giro] ?? 'No especificado' }}</p>
+                <p><strong>Empresa Outsourcing:</strong> {{ $privado->Emp_Outsourcing ? 'Sí' : 'No' }}</p>
+                @if($privado->Razon_Social_Outsourcing)
+                    <p><strong>Razón Social Outsourcing:</strong> {{ $privado->Razon_Social_Outsourcing }}</p>
                 @endif
-            </p>
-            <p><strong>Entidad Académica:</strong> {{ $entidadOptions[$uaslp->Id_Entidad_Academica] ?? 'No especificado' }} </p>
+            @elseif($publico)
+                <p><strong>Área o Departamento:</strong> {{ $publico->Area_Depto ?? '-' }}</p>
+                <p><strong>Ámbito:</strong>
+                    @switch($publico->Ambito)
+                        @case(1) Municipal @break
+                        @case(2) Estatal @break
+                        @case(3) Federal @break
+                        @default No especificado
+                    @endswitch
+                </p>
+            @elseif($uaslp)
+                <p><strong>Área o Departamento:</strong> {{ $uaslp->Area_Depto ?? '-' }}</p>
+                <p><strong>Tipo de Entidad:</strong>
+                    @if($uaslp->Tipo_Entidad == 1) Instituto
+                    @elseif($uaslp->Tipo_Entidad == 2) Centro de Investigación
+                    @else No especificado
+                    @endif
+                </p>
+                <p><strong>Entidad Académica:</strong> {{ $entidadOptions[$uaslp->Id_Entidad_Academica] ?? 'No especificado' }}</p>
             @else
-            <p>No se encontraron datos del sector.</p>
+                <p>No se encontraron datos del sector.</p>
             @endif
 
             <div class="mt-3 text-end">

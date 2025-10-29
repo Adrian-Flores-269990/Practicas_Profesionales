@@ -11,6 +11,28 @@
   </h4>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
+    {{-- Mostrar PDF subido si existe --}}
+    @php
+      $alumno = session('alumno');
+      $claveAlumno = $alumno['cve_uaslp'] ?? null;
+      $pdfPath = null;
+      if ($claveAlumno) {
+        $files = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/desglose-percepciones');
+        $pdfs = collect($files)->filter(function($f) use ($claveAlumno) {
+          return str_contains($f, $claveAlumno . '_desglose_percepciones');
+        })->sortDesc();
+        if ($pdfs->count() > 0) {
+          $pdfPath = $pdfs->first();
+        }
+      }
+    @endphp
+    @if($pdfPath)
+      <div class="mb-4">
+        <h6 class="fw-bold">Documento subido:</h6>
+        <iframe src="{{ asset('storage/' . $pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
+        <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn btn-outline-primary mt-2">Abrir PDF en nueva pestaña</a>
+      </div>
+    @endif
     <form method="POST" action="{{ route('alumno.desglose-percepciones.upload') }}" enctype="multipart/form-data" id="form-reporte">
       @csrf
         {{-- Área de envío de archivo --}}

@@ -15,8 +15,8 @@
           Prácticas Profesionales
         </a>
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
-          <li><a class="dropdown-item" href="#">Generar Constancias de Validación</a></li>
-          <li><a class="dropdown-item" href="#">Consultar Constancias de Validación</a></li>
+          <li><a class="dropdown-item" href="{{ route('secretaria.generar_constancia') }}">Generar Constancias de Validación</a></li>
+          <li><a class="dropdown-item" href="{{ route('secretaria.validar_constancia') }}">Consultar Constancias de Validación</a></li>
         </ul>
       </li>
 

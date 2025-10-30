@@ -8,6 +8,28 @@ use Illuminate\Support\Facades\Log;
 
 class PdfController extends Controller
 {
+    public function eliminarDesglosePercepciones(Request $request)
+    {
+        $archivo = $request->input('archivo');
+        if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
+            return back()->with('success', 'El archivo fue eliminado correctamente.');
+        } else {
+            return back()->withErrors(['No se encontró el archivo a eliminar.']);
+        }
+    }
+
+    public function eliminarCartaAceptacion(Request $request)
+    {
+        $archivo = $request->input('archivo');
+        if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
+            return back()->with('success', 'El archivo fue eliminado correctamente.');
+        } else {
+            return back()->withErrors(['No se encontró el archivo a eliminar.']);
+        }
+    }
+
     public function subirCartaAceptacion(Request $request)
     {
         $request->validate([
@@ -75,4 +97,6 @@ class PdfController extends Controller
             return back()->withErrors(['No se pudo guardar el archivo.']);
         }
     }
+
+    // Método eliminado. La lógica de guardado de constancia_pdf se moverá a SolicitudController@store
 }

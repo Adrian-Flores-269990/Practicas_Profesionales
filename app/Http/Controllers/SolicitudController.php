@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Models\EstadoProceso;
+use App\Models\CarreraIngenieria;
 
 class SolicitudController extends Controller
 {
@@ -48,7 +49,7 @@ class SolicitudController extends Controller
                     //1 - Alumno
                     //2 - Pasante
                     'Situacion_Alumno_Pasante' => $request->estado === 'alumno' ? 1 : 2,
-                    
+
                     'Estadistica_General' => $request->estadistica_general === 'si' ? 1 : 0,
                     'Constancia_Vig_Der' => $request->constancia_derechos === 'si' ? 1 : 0,
                     'Carta_Pasante' => $request->has('cartapasante') ? 1 : 0,
@@ -121,7 +122,7 @@ class SolicitudController extends Controller
                     }
                 }
 
-                // 🔹 Luego de eso, marca la primera etapa como "proceso"
+                // Luego de eso, marca la primera etapa como "proceso"
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
                     ->update(['estado' => 'proceso']);
@@ -290,6 +291,12 @@ class SolicitudController extends Controller
                         ->orderByDesc('Fecha_Solicitud')
                         ->get();
 
+
+        $carreras = CarreraIngenieria::select('Descripcion_Capitalizadas')
+                        ->distinct()
+                        ->orderBy('Descripcion_Capitalizadas')
+                        ->get();
+
         return view('alumno.expediente.solicitudFPP01', compact('solicitudes'));
     }
 
@@ -313,5 +320,4 @@ class SolicitudController extends Controller
 
         return view('alumno.expediente.editarSolicitud', compact('solicitud'));
     }
-    
 }

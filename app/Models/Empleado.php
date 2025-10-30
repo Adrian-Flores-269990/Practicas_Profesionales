@@ -12,17 +12,8 @@ class Empleado extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'Id_Rol','Nombre','RPE','Area','Carrera','Cargo','Correo_Electronico','Telefono','Contrasena'
+        'Id_Rol','Nombre','RPE','Area','Carrera','Cargo','Correo','Telefono'
     ];
-
-    protected $hidden = [
-        'Contrasena',
-    ];
-
-    // Indica a Laravel que la contraseña está en el campo 'Contrasena'
-    public function getAuthPassword() {
-        return $this->Contrasena;
-    }
 
     public function rol()
     {

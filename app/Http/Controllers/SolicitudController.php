@@ -121,10 +121,25 @@ class SolicitudController extends Controller
                     }
                 }
 
-                // 🔹 Luego de eso, marca la primera etapa como "proceso"
+                // Reiniciar las etapas principales si ya existían (para nueva solicitud)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->whereIn('etapa', [
+                        'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                        'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                        'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                        'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                    ])
+                    ->update(['estado' => 'pendiente']);
+
+                // Luego de eso, marca la primera etapa como "proceso"
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
                     ->update(['estado' => 'proceso']);
+
+                // Asegurar que DSSPP también se reinicie (por si estaba realizado)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
+                    ->update(['estado' => 'pendiente']);
 
                 $sectorPrivado = NULL; // Id de los sectores que no existen
                 $sectorPublico = NULL; // Id de los sectores que no existen
@@ -216,24 +231,6 @@ class SolicitudController extends Controller
                     'Id_Mercado' => 1,
                     'Porcentaje' => 100
                 ]);
-
-                // Crear empresa si aplica
-                if ($request->sector === 'privado' || $request->sector === 'publico') {
-                    $empresa = DependenciaEmpresa::create([
-                        'Nombre_Depn_Emp' => $nombreEmpresa,
-                        'Clasificacion' => $clasificacion,
-                        'Calle' => $calle,
-                        'Numero' => $numero,
-                        'Colonia' => $colonia,
-                        'Cp' => $cp,
-                        'Estado' => $estado,
-                        'Municipio' => $municipio,
-                        'Telefono' => $telefono,
-                        'Ramo' => $ramo,
-                        'RFC_Empresa' => $rfc,
-                        'Autorizada' => 0
-                    ]);
-                }
             });
 
             return redirect()->route('alumno.inicio')->with('success', 'Solicitud guardada correctamente.');

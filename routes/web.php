@@ -35,6 +35,10 @@ Route::prefix('admin')->group(function () {
     Route::get('/inicio', fn () => view('administrador.inicio'))->name('administrador.inicio');
       //  Panel de empleados y roles
     Route::get('/empleados', [AdminController::class, 'index'])->name('administrador.empleados');
+    Route::post('/empleados', [AdminController::class, 'store'])->name('administrador.empleados.store');
+    Route::put('/empleados/{id}', [AdminController::class, 'update'])->name('administrador.empleados.update');
+    Route::delete('/empleados/{id}', [AdminController::class, 'destroy'])->name('administrador.empleados.destroy');
+    
     Route::put('/empleados/{id}/rol', [AdminController::class, 'actualizarRol'])->name('administrador.actualizarRol');
 
 });

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
+use Illuminate\Support\Facades\Storage;
 
 class SolicitudController extends Controller
 {
@@ -21,7 +22,6 @@ class SolicitudController extends Controller
     {
         try {
             DB::transaction(function() use ($request) {
-
                 // Primero obtener el alumno desde sesión o request
                 $alumno = session('alumno');
                 $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave') ?? $request->input('clave_hidden') ?? null;
@@ -31,6 +31,20 @@ class SolicitudController extends Controller
                     throw ValidationException::withMessages([
                         'clave_alumno' => 'No se encontró la clave del alumno. Asegúrate de haber iniciado sesión o de que el web service devuelva la información.'
                     ]);
+                }
+
+                // Guardar PDF de constancia de vigencia de derechos si corresponde
+                $nombreArchivoConstancia = null;
+                if ($request->constancia_derechos === 'si' && $request->hasFile('constancia_pdf')) {
+                    $file = $request->file('constancia_pdf');
+                    if ($file->isValid()) {
+                        $nombreArchivoConstancia = $claveAlumno . '_carta_vigencia_derechos_' . time() . '.' . $file->getClientOriginalExtension();
+                        $ruta = 'expedientes/carta-vigencia-derechos/' . $nombreArchivoConstancia;
+                        if (!Storage::disk('public')->exists('expedientes/carta-vigencia-derechos')) {
+                            Storage::disk('public')->makeDirectory('expedientes/carta-vigencia-derechos');
+                        }
+                        Storage::disk('public')->putFileAs('expedientes/carta-vigencia-derechos', $file, $nombreArchivoConstancia);
+                    }
                 }
 
                 // Preparar variables de días y turno
@@ -54,7 +68,7 @@ class SolicitudController extends Controller
                     'Constancia_Vig_Der' => $request->constancia_derechos === 'si' ? 1 : 0,
                     'Carta_Pasante' => $request->has('cartapasante') ? 1 : 0,
                     'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
-                    'Archivo_CVD' => $request->constancia_derechos === 'si' ? 1 : 0,
+                    'Archivo_CVD' => $request->hasFile('constancia_pdf') ? 1 : 0,
                     'Fecha_Inicio' => $request->fecha_inicio, //No lo he checado
                     'Fecha_Termino' => $request->fecha_termino, //No lo he checado
                     'Clave_Encargado' => 1, //Nos falta este dato del web service
@@ -122,10 +136,25 @@ class SolicitudController extends Controller
                     }
                 }
 
+                // Reiniciar las etapas principales si ya existían (para nueva solicitud)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->whereIn('etapa', [
+                        'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                        'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                        'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                        'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                    ])
+                    ->update(['estado' => 'pendiente']);
+
                 // Luego de eso, marca la primera etapa como "proceso"
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
                     ->update(['estado' => 'proceso']);
+
+                // Asegurar que DSSPP también se reinicie (por si estaba realizado)
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
+                    ->update(['estado' => 'pendiente']);
 
                 $sectorPrivado = NULL; // Id de los sectores que no existen
                 $sectorPublico = NULL; // Id de los sectores que no existen
@@ -217,24 +246,6 @@ class SolicitudController extends Controller
                     'Id_Mercado' => 1,
                     'Porcentaje' => 100
                 ]);
-
-                // Crear empresa si aplica
-                if ($request->sector === 'privado' || $request->sector === 'publico') {
-                    $empresa = DependenciaEmpresa::create([
-                        'Nombre_Depn_Emp' => $nombreEmpresa,
-                        'Clasificacion' => $clasificacion,
-                        'Calle' => $calle,
-                        'Numero' => $numero,
-                        'Colonia' => $colonia,
-                        'Cp' => $cp,
-                        'Estado' => $estado,
-                        'Municipio' => $municipio,
-                        'Telefono' => $telefono,
-                        'Ramo' => $ramo,
-                        'RFC_Empresa' => $rfc,
-                        'Autorizada' => 0
-                    ]);
-                }
             });
 
             return redirect()->route('alumno.inicio')->with('success', 'Solicitud guardada correctamente.');

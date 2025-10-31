@@ -11,7 +11,7 @@ use App\Models\CarreraIngenieria;
 class DssppController extends Controller
 {
     /**
-     * 📋 Lista de solicitudes que llegan al Departamento DSSPP.
+     *  Lista de solicitudes que llegan al Departamento DSSPP.
      */
     public function index()
     {
@@ -44,7 +44,7 @@ class DssppController extends Controller
     }
 
     /**
-     * 🔍 Muestra los datos completos de una solicitud específica.
+     *  Muestra los datos completos de una solicitud específica.
      */
     public function verSolicitud($id)
     {
@@ -53,7 +53,7 @@ class DssppController extends Controller
     }
 
     /**
-     * 🧾 Revisión y autorización de solicitudes por DSSPP.
+     *  Autorizar o rechazar solicitud por parte del DSSPP.
      */
     public function autorizarSolicitud(Request $request, $id)
     {
@@ -61,7 +61,7 @@ class DssppController extends Controller
             'comentario_departamento' => 'nullable|string|max:500',
         ]);
 
-        // 🔹 Capturar decisiones por sección
+        //  Decisiones por sección (botones Aceptar/Rechazar)
         $decisiones = [
             'seccion_solicitante' => $request->input('seccion_solicitante'),
             'seccion_empresa'     => $request->input('seccion_empresa'),
@@ -73,48 +73,70 @@ class DssppController extends Controller
         // ✅ Si todas las secciones son "1", se aprueba
         $autorizado = collect($decisiones)->every(fn($v) => $v === '1') ? 1 : 0;
 
-        // 🔹 Guardar decisión en la tabla de autorizaciones
-        AutorizacionSolicitud::updateOrCreate(
-            ['Id_Solicitud_FPP01' => $id],
-            [
-                'Autorizo_Departamento' => $autorizado,
-                'Comentario_Departamento' => $request->comentario_departamento,
-                'Fecha_Ad' => now(),
-            ]
-        );
-
-        // 🔹 Actualizar la solicitud principal
-        $solicitud = SolicitudFPP01::find($id);
-        if ($solicitud) {
-            $solicitud->Estado_Departamento = $autorizado ? 'aprobado' : 'rechazado';
-            $solicitud->save();
+        //  Actualizar la solicitud
+        $solicitud = SolicitudFPP01::findOrFail($id);
+        $solicitud->Estado_Departamento = $autorizado ? 'aprobado' : 'rechazado';
+        //$solicitud->Comentario_Departamento = $request->comentario_departamento ?? null;
+        $solicitud->save();
 
             $claveAlumno = $solicitud->Clave_Alumno;
             $estadoEncargado = $solicitud->Estado_Encargado ?? null;
 
-            // ⚙️ Actualizar los estados del flujo
-            if ($autorizado) {
-                // Etapa completada
-                EstadoProceso::where('clave_alumno', $claveAlumno)
-                    ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
-                    ->update(['estado' => 'realizado']);
+        // ⚙️ Si cualquiera (DSSPP o Encargado) rechaza, se reinicia el flujo correctamente
+        if ($solicitud->Estado_Departamento === 'rechazado' || $estadoEncargado === 'rechazado') {
+            //  Las dos fases de autorización vuelven a pendiente
+            EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->whereIn('etapa', [
+                    'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                    'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)'
+                ])
+                ->update(['estado' => 'pendiente']);
 
-                // Si el encargado ya aprobó también → siguiente etapa
-                if ($estadoEncargado === 'aprobado') {
-                    EstadoProceso::where('clave_alumno', $claveAlumno)
-                        ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
-                        ->update(['estado' => 'proceso']);
-                }
-            } else {
-                // Rechazo → regresa etapas
-                EstadoProceso::where('clave_alumno', $claveAlumno)
-                    ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
-                    ->update(['estado' => 'pendiente']);
+            //  El registro inicial vuelve a proceso
+            EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
+                ->update(['estado' => 'proceso']);
 
+            //  La siguiente etapa (autorización de prácticas profesionales) vuelve a pendiente
+            EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+                ->update(['estado' => 'pendiente']);
+        }
+
+        // Si DSSPP aprueba, marca su etapa como realizada
+        if ($solicitud->Estado_Departamento === 'aprobado') {
+            EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
+                ->update(['estado' => 'realizado']);
+
+            // Verificar estados actuales (DSSPP, Encargado y Registro)
+            $estados = EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->whereIn('etapa', [
+                    'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                    'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                    'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)'
+                ])
+                ->pluck('estado')
+                ->toArray();
+
+            // Solo si las tres son 'realizado', avanza la siguiente etapa
+            if (!in_array('pendiente', $estados) && !in_array('proceso', $estados)) {
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
                     ->update(['estado' => 'proceso']);
+            } else {
+                // En cualquier otro caso, se mantiene pendiente
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+                    ->update(['estado' => 'pendiente']);
             }
+        }
+
+        // 🔹 Solo marca “realizado” si aprobó y el encargado aún no lo ha hecho
+        if ($solicitud->Estado_Departamento === 'aprobado' && $estadoEncargado !== 'aprobado') {
+            EstadoProceso::where('clave_alumno', $claveAlumno)
+                ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
+                ->update(['estado' => 'realizado']);
         }
 
         return redirect()
@@ -123,7 +145,7 @@ class DssppController extends Controller
     }
 
     /**
-     * 👩‍🎓 Consultar datos de alumno por clave.
+     *  Buscar alumno por clave.
      */
     public function consultarAlumno(Request $request)
     {

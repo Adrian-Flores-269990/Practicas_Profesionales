@@ -100,3 +100,4 @@ class PdfController extends Controller
 
     // Método eliminado. La lógica de guardado de constancia_pdf se moverá a SolicitudController@store
 }
+

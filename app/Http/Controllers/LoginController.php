@@ -65,6 +65,7 @@ class LoginController extends Controller
         $alumno = $datos[0];
 
         // Insertar o actualizar al alumno en la base local
+        
         Alumno::updateOrCreate(
             ['Clave_Alumno' => $alumno['cve_uaslp']],
             [
@@ -72,7 +73,7 @@ class LoginController extends Controller
                 'ApellidoP_Alumno' => $alumno['paterno'] ?? '',
                 'ApellidoM_Alumno' => $alumno['materno'] ?? '',
                 'Semestre' => $alumno['semestre'] ?? '',
-                'Carrera' => $alumno['carrera'] ?? '',
+                //'Carrera' => $alumno['carrera'] ?? '',
                 'TelefonoCelular' => $alumno['telefono_celular'] ?? '',
                 'CorreoElectronico' => $alumno['correo_electronico'] ?? '',
                 'Clave_Carrera' => $alumno['clave_carrera'] ?? null,
@@ -80,7 +81,7 @@ class LoginController extends Controller
                 'Clave_Materia' => null,
             ]
         );
-
+        
         session(['alumno' => $alumno]);
         return redirect()->intended('/alumno/inicio');
     }

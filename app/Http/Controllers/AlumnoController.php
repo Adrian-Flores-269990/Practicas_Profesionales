@@ -87,21 +87,22 @@ class AlumnoController extends Controller
 
         // Buscar solicitud actual
         $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-        ->latest('Id_Solicitud_FPP01') // Usa la solicitud más reciente
-        ->first();
+            ->latest('Id_Solicitud_FPP01')
+            ->first();
 
         if (!$solicitud) {
             $procesos = \App\Models\EstadoProceso::where('clave_alumno', $claveAlumno)->get();
             return view('alumno.estado', compact('procesos'));
         }
 
-        // --- Estados dinámicos según la revisión de DSSPP y Encargado ---
+        // Estados actuales
         $estadoDepto = $solicitud->Estado_Departamento;
         $estadoEncargado = $solicitud->Estado_Encargado;
 
-        // Si alguno rechazó, se reinicia a “proceso”
+        // Determinar si alguno rechazó
         $reiniciar = ($estadoDepto === 'rechazado' || $estadoEncargado === 'rechazado');
 
+        // Etapas principales
         $procesos = [
             [
                 'etapa' => 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
@@ -109,9 +110,14 @@ class AlumnoController extends Controller
             ],
             [
                 'etapa' => 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
-                'estado' => match ($estadoDepto) {
-                    'aprobado' => 'realizado',
-                    'rechazado' => 'pendiente',
+                'estado' => match (true) {
+                    //  Si el encargado rechazó, se fuerza a pendiente
+                    $estadoEncargado === 'rechazado' => 'pendiente',
+                    //  Si el DSSPP aprobó y el encargado NO rechazó
+                    $estadoDepto === 'aprobado' && $estadoEncargado !== 'rechazado' => 'realizado',
+                    //  Si el DSSPP rechazó
+                    $estadoDepto === 'rechazado' => 'pendiente',
+                    //  En cualquier otro caso, sigue en proceso
                     default => 'proceso',
                 },
             ],
@@ -121,21 +127,22 @@ class AlumnoController extends Controller
                     'aprobado' => 'realizado',
                     'rechazado' => 'pendiente',
                     default => (
-                        $estadoDepto == 'aprobado' ? 'proceso' : 'pendiente'
+                        $estadoDepto === 'aprobado' ? 'proceso' : 'pendiente'
                     ),
                 },
             ],
             [
                 'etapa' => 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                // Solo pasa a “proceso” si ambos aprobaron
                 'estado' => (
                     $estadoEncargado === 'aprobado' && $estadoDepto === 'aprobado'
                 )
-                    ? 'proceso' // ambos aprobaron → avanza
-                    : ($reiniciar ? 'proceso' : 'pendiente'), // si alguno rechazó → reinicia
+                    ? 'proceso'
+                    : 'pendiente',
             ],
         ];
 
-        // 🔄 Actualizar o crear las 4 primeras etapas
+        // Actualizar o crear las 4 primeras etapas
         foreach ($procesos as $p) {
             \App\Models\EstadoProceso::updateOrCreate(
                 ['clave_alumno' => $claveAlumno, 'etapa' => $p['etapa']],

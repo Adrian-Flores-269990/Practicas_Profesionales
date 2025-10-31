@@ -94,26 +94,42 @@ class EncargadoController extends Controller
             $claveAlumno = $solicitud->Clave_Alumno;
 
             if ($autorizado) {
-                // Etapa completada (verde)
+                // Marca su propia etapa como realizada
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)')
                     ->update(['estado' => 'realizado']);
 
-                // Si el DSSPP ya aprobó, avanza la siguiente etapa
-                if ($solicitud->Estado_Departamento === 'aprobado') {
+                // Verificar si las tres etapas anteriores ya están realizadas
+                $todasRealizadas = EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->whereIn('etapa', [
+                        'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                        'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                        'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)'
+                    ])
+                    ->where('estado', 'realizado')
+                    ->count() === 3;
+
+                // Solo si las tres están completadas, se activa la siguiente fase
+                if ($todasRealizadas) {
                     EstadoProceso::where('clave_alumno', $claveAlumno)
                         ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
                         ->update(['estado' => 'proceso']);
                 }
             } else {
-                // Rechazo → regresa a pendiente y proceso
+                // Si rechazó, marca su propia etapa en pendiente
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)')
                     ->update(['estado' => 'pendiente']);
 
+                // También devuelve la siguiente etapa a pendiente (no proceso)
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
-                    ->update(['estado' => 'proceso']);
+                    ->update(['estado' => 'pendiente']);
+
+                // Reiniciar también DSSPP a pendiente si estaba aprobado
+                EstadoProceso::where('clave_alumno', $claveAlumno)
+                    ->where('etapa', 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)')
+                    ->update(['estado' => 'pendiente']);
             }
         }
 
@@ -121,4 +137,5 @@ class EncargadoController extends Controller
             ->route('encargado.solicitudes_alumnos')
             ->with('success', 'Revisión guardada correctamente.');
     }
+
 }

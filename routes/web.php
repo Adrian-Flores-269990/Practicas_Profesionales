@@ -246,4 +246,3 @@ Route::prefix('dsspp')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
-

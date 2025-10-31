@@ -8,6 +8,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\EncargadoController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DssppController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +31,16 @@ Route::post('/empleado/login', [LoginController::class, 'loginEmpleado'])->name(
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->group(function () {
+    //  Página de inicio del administrador
     Route::get('/inicio', fn () => view('administrador.inicio'))->name('administrador.inicio');
+      //  Panel de empleados y roles
+    Route::get('/empleados', [AdminController::class, 'index'])->name('administrador.empleados');
+    Route::post('/empleados', [AdminController::class, 'store'])->name('administrador.empleados.store');
+    Route::put('/empleados/{id}', [AdminController::class, 'update'])->name('administrador.empleados.update');
+    Route::delete('/empleados/{id}', [AdminController::class, 'destroy'])->name('administrador.empleados.destroy');
+    
+    Route::put('/empleados/{id}/rol', [AdminController::class, 'actualizarRol'])->name('administrador.actualizarRol');
+
 });
 
 /*

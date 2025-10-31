@@ -67,7 +67,7 @@ class LoginController extends Controller
         // Insertar o actualizar al alumno en la base local
         
         Alumno::updateOrCreate(
-            ['Id_Alumno' => $alumno['cve_uaslp']],
+            ['Clave_Alumno' => $alumno['cve_uaslp']],
             [
                 'Nombre' => $alumno['nombres'] ?? '',
                 'ApellidoP_Alumno' => $alumno['paterno'] ?? '',

@@ -163,6 +163,19 @@
   </h4>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
+
+    @if(session('error'))
+    <div class="alert alert-danger text-center fw-bold">
+      {{ session('error') }}
+    </div>
+    @endif
+
+    @if(session('success'))
+    <div class="alert alert-success text-center fw-bold">
+      {{ session('success') }}
+    </div>
+    @endif
+    
     <!-- Leyenda -->
     <div class="container mb-3">
       <div class="d-flex justify-content-center flex-wrap mt-4">

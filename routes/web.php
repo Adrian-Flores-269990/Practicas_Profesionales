@@ -9,6 +9,7 @@ use App\Http\Controllers\EncargadoController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DssppController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BitacoraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/empleados', [AdminController::class, 'store'])->name('administrador.empleados.store');
     Route::put('/empleados/{id}', [AdminController::class, 'update'])->name('administrador.empleados.update');
     Route::delete('/empleados/{id}', [AdminController::class, 'destroy'])->name('administrador.empleados.destroy');
+    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('admin.bitacora');
+
+
 
     Route::put('/empleados/{id}/rol', [AdminController::class, 'actualizarRol'])->name('administrador.actualizarRol');
 

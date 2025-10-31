@@ -26,6 +26,24 @@ class SolicitudController extends Controller
                 $alumno = session('alumno');
                 $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave') ?? $request->input('clave_hidden') ?? null;
 
+                //  Validación: impedir enviar nueva solicitud si ya existe una en proceso o aprobada
+                $solicitudActiva = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                    ->orderByDesc('Fecha_Solicitud')
+                    ->first();
+
+                if ($solicitudActiva) {
+                    // Si está pendiente o aprobada, bloquear
+                    if (
+                        $solicitudActiva->Estado_Departamento === 'pendiente' ||
+                        $solicitudActiva->Estado_Encargado === 'pendiente' ||
+                        ($solicitudActiva->Estado_Departamento === 'aprobado' && 
+                        $solicitudActiva->Estado_Encargado === 'aprobado')
+                    ) {
+                        return redirect()->back()->with('error', '⚠️ Ya tienes una solicitud en proceso. Espera la resolución antes de enviar otra.');
+                    }
+                    // Si la rechazaron cualquiera de los dos → puede volver a mandar
+                }
+
                 if (empty($claveAlumno)) {
                     Log::warning('Intento de guardar solicitud sin Clave_Alumno. Session alumno: ', ['session_alumno' => $alumno]);
                     throw ValidationException::withMessages([
@@ -248,6 +266,7 @@ class SolicitudController extends Controller
                 ]);
             });
 
+            $this->logBitacora("Registro de solicitud");
             return redirect()->route('alumno.inicio')->with('success', 'Solicitud guardada correctamente.');
 
         } catch (\Exception $e) {
@@ -295,13 +314,27 @@ class SolicitudController extends Controller
             return redirect()->route('alumno.inicio')->with('error', 'Sesión no válida.');
         }
 
-        // según tu sesión, suele venir como cve_uaslp
         $claveAlumno = $alumno['cve_uaslp'];
 
-        $solicitudes = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                        ->orderByDesc('Fecha_Solicitud')
-                        ->get();
+        // ✅ Traer la última solicitud del alumno
+        $ultima = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->latest('Fecha_Solicitud')
+            ->first();
 
+        // ✅ Validar si ya tiene una solicitud activa
+        if ($ultima && (
+            $ultima->Estado_Departamento == 'pendiente' ||
+            $ultima->Estado_Encargado == 'pendiente' ||
+            ($ultima->Estado_Departamento == 'aprobado' && $ultima->Estado_Encargado == 'aprobado')
+        )) {
+            return redirect()->route('alumno.estado')
+                ->with('error', '⚠️ Ya tienes una solicitud en revisión. No puedes crear otra hasta que sea rechazada.');
+        }
+
+        // Mostrar formulario solo si NO está limitada
+        $solicitudes = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->orderByDesc('Fecha_Solicitud')
+            ->get();
 
         $carreras = CarreraIngenieria::select('Descripcion_Capitalizadas')
                         ->distinct()

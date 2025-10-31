@@ -72,6 +72,14 @@ class DssppController extends Controller
             );
         });
 
+        // Registrar en bitácora según acción
+        if ($request->accion === 'aceptar') {
+            $this->logBitacora("Aprobación DSSPP a solicitud");
+        } else {
+            $this->logBitacora("Rechazo DSSPP a solicitud");
+        }
+
+
         return redirect()
             ->route('dsspp.solicitudes')
             ->with('success', 'Acción realizada correctamente.');

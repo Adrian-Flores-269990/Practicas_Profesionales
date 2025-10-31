@@ -24,7 +24,7 @@
           <li><a class="dropdown-item" href="#">Estadísticas de la Empresa</a></li>
           <li><a class="dropdown-item" href="#">Generar Constancia de Validación</a></li>
           <li><a class="dropdown-item" href="#">Consultar Constancias de Validación</a></li>
-          <li><a class="dropdown-item" href="#">Bitácora</a></li>
+          <li><a class="dropdown-item" href="{{ route('admin.bitacora') }}">Bitácora</a></li>
         </ul>
       </li>
 

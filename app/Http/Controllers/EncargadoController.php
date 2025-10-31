@@ -27,6 +27,10 @@ class EncargadoController extends Controller
     public function verSolicitud($id)
     {
         $solicitud = SolicitudFPP01::findOrFail($id);
+
+        // Bitácora: encargado abre solicitud
+        $this->logBitacora("Encargado visualizó solicitud #$id");
+
         return view('encargado.revisar_solicitud', compact('solicitud'));
     }
 
@@ -40,6 +44,9 @@ class EncargadoController extends Controller
             'dependenciaMercadoSolicitud.sectorUaslp',
             'autorizaciones' // traer la fila de autorizacion_solicitud
         ])->findOrFail($id);
+
+        // Bitácora: encargado inició revisión
+        $this->logBitacora("Encargado revisa detalles de solicitud #$id");
 
         return view('encargado.revision', compact('solicitud'));
     }
@@ -110,6 +117,9 @@ class EncargadoController extends Controller
                 $solicitud->Estado_Encargado = 'rechazado';
                 $solicitud->save();
 
+                // Bitácora
+                $this->logBitacora("Encargado RECHAZÓ solicitud");
+
                 // actualizar EstadoProceso en consecuencia
                 EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)
                     ->whereIn('etapa', [
@@ -123,6 +133,9 @@ class EncargadoController extends Controller
                 $solicitud->Autorizacion = 1; // aprobado final
                 $solicitud->Estado_Encargado = 'aprobado';
                 $solicitud->save();
+                
+                //  Bitácora
+                $this->logBitacora("Encargado APROBÓ solicitud");
 
                 // actualizar EstadoProceso: encargardo realizado y activar siguiente etapa si corresponde
                 EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)

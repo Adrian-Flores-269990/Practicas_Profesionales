@@ -70,4 +70,9 @@ class SolicitudFPP01 extends Model
     {
         return $this->hasOne(DependenciaMercadoSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
     }
+
+    public function autorizaciones()
+    {
+        return $this->hasMany(AutorizacionSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+    }
 }

@@ -6,7 +6,7 @@
 @include('partials.nav.registro')
 
 <style>
-/* 🎯 FLECHAS ALTERNADAS — 3 COLUMNAS FIJAS Y RESPONSIVAS SIN ROMPER FILAS */
+/* FLECHAS ALTERNADAS — 3 COLUMNAS FIJAS Y RESPONSIVAS SIN ROMPER FILAS */
 
 /* Contenedor principal */
 .arrow-grid {

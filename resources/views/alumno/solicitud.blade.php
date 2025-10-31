@@ -148,10 +148,19 @@
                     <label class="form-check-label" for="estadistica_no">No</label>
                   </div>
                 </div>
+                 {{-- Upload de estadística general (se muestra solo si selecciona "Sí") --}}
+                 <div class="mt-3" id="upload_estadistica" style="display: none;">
+                   <div class="alert alert-info mb-2">
+                     <i class="bi bi-info-circle"></i> Por favor, sube tu archivo de estadística general en formato PDF (Saca una captura de tu estadística general en el portal de ingeniería)
+                   </div>
+                   <label class="form-label">Subir Estadística General (PDF) <span class="text-danger">*</span></label>
+                   <input type="file" name="estadistica_pdf" class="form-control mb-2" accept=".pdf" id="estadistica_file">
+                   <small class="form-text text-muted">Tamaño máximo: 5MB</small>
+                 </div>
               </div>
 
               <div class="col-md-6">
-                <label class="form-label d-block">Constancia de Vigencia de Derechos <span class="text-danger">*</span></label>
+                <label class="form-label d-block">Constancia de vigencia de derechos(Seguro social) <span class="text-danger">*</span></label>
                 <div class="d-flex gap-3 mt-2">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="constancia_derechos" id="constancia_si" value="si" required>
@@ -169,13 +178,28 @@
             <div class="row g-3 mb-3" id="upload_constancia" style="display: none;">
               <div class="col-12">
                 <div class="alert alert-info mb-2">
-                  <i class="bi bi-info-circle"></i> Por favor, sube tu Constancia de Vigencia de Derechos en formato PDF
+                  <i class="bi bi-info-circle"></i> Por favor, sube tu constancia de vigencia de derechos en formato PDF
                 </div>
                 <label class="form-label">Subir Constancia (PDF) <span class="text-danger">*</span></label>
-                <input type="file" name="constancia_pdf" class="form-control" accept=".pdf" id="constancia_file">
+                <input type="file" name="constancia_pdf" class="form-control mb-2" accept=".pdf" id="constancia_file">
                 <small class="form-text text-muted">Tamaño máximo: 5MB</small>
               </div>
             </div>
+
+            {{-- Mensajes de éxito --}}
+            @if(session('success'))
+              <div class="alert alert-success mt-2">{{ session('success') }}</div>
+            @endif
+            {{-- Mensajes de error --}}
+            @if($errors->any())
+              <div class="alert alert-danger mt-2">
+                <ul class="mb-0">
+                  @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                  @endforeach
+                </ul>
+              </div>
+            @endif
 
             <!-- Fila 5: Checkboxes finales -->
             <div class="row g-3">
@@ -184,6 +208,14 @@
                   <input class="form-check-input" type="checkbox" name="cartapasante" id="cartapasante" value="1">
                   <label class="form-check-label" for="cartapasante">Carta Pasante</label>
                 </div>
+                 <div class="mt-2" id="upload_cartapasante" style="display: none;">
+                   <div class="alert alert-info mb-2">
+                     <i class="bi bi-info-circle"></i> Si tienes tu carta de pasante, súbela en formato PDF
+                   </div>
+                   <label class="form-label">Subir Carta Pasante (PDF)</label>
+                   <input type="file" name="cartapasante_pdf" class="form-control mb-2" accept=".pdf" id="cartapasante_file">
+                   <small class="form-text text-muted">Tamaño máximo: 5MB</small>
+                 </div>
               </div>
 
               <div class="col-md-4">
@@ -625,19 +657,55 @@ document.addEventListener('DOMContentLoaded', function() {
   const uploadDiv = document.getElementById('upload_constancia');
   const fileInput = document.getElementById('constancia_file');
 
-  function toggleUpload() {
+  // Script para mostrar/ocultar upload de estadística general
+  const estadisticaSi = document.getElementById('estadistica_si');
+  const estadisticaNo = document.getElementById('estadistica_no');
+  const uploadEstadisticaDiv = document.getElementById('upload_estadistica');
+  const estadisticaFileInput = document.getElementById('estadistica_file');
+
+  // Script para mostrar/ocultar upload de carta pasante
+  const cartapasanteCheckbox = document.getElementById('cartapasante');
+  const uploadCartaPasanteDiv = document.getElementById('upload_cartapasante');
+  const cartapasanteFileInput = document.getElementById('cartapasante_file');
+
+  function toggleUploadConstancia() {
     if (constanciaSi.checked) {
       uploadDiv.style.display = 'block';
       fileInput.setAttribute('required', 'required');
     } else {
       uploadDiv.style.display = 'none';
       fileInput.removeAttribute('required');
-      fileInput.value = ''; // Limpiar archivo seleccionado
+      fileInput.value = '';
     }
   }
 
-  constanciaSi.addEventListener('change', toggleUpload);
-  constanciaNo.addEventListener('change', toggleUpload);
+  function toggleUploadEstadistica() {
+    if (estadisticaSi.checked) {
+      uploadEstadisticaDiv.style.display = 'block';
+      estadisticaFileInput.setAttribute('required', 'required');
+    } else {
+      uploadEstadisticaDiv.style.display = 'none';
+      estadisticaFileInput.removeAttribute('required');
+      estadisticaFileInput.value = '';
+    }
+  }
+
+  function toggleUploadCartaPasante() {
+    if (cartapasanteCheckbox.checked) {
+      uploadCartaPasanteDiv.style.display = 'block';
+      cartapasanteFileInput.setAttribute('required', 'required');
+    } else {
+      uploadCartaPasanteDiv.style.display = 'none';
+      cartapasanteFileInput.removeAttribute('required');
+      cartapasanteFileInput.value = '';
+    }
+  }
+
+  constanciaSi.addEventListener('change', toggleUploadConstancia);
+  constanciaNo.addEventListener('change', toggleUploadConstancia);
+  estadisticaSi.addEventListener('change', toggleUploadEstadistica);
+  estadisticaNo.addEventListener('change', toggleUploadEstadistica);
+  cartapasanteCheckbox.addEventListener('change', toggleUploadCartaPasante);
 
   // Script para mostrar sectores
   sectorSelect.addEventListener('change', function () {

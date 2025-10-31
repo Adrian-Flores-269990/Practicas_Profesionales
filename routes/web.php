@@ -74,9 +74,11 @@ Route::prefix('alumno')->group(function () {
         Route::get('/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
         Route::get('/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
 
-        // Upload PDFs
-        Route::post('/carta-aceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('alumno.carta-aceptacion.upload');
-        Route::post('/desglose-percepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('alumno.desglose-percepciones.upload');
+    // Upload PDFs
+    Route::post('/carta-aceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('alumno.carta-aceptacion.upload');
+    Route::post('/carta-aceptacion/eliminar', [PdfController::class, 'eliminarCartaAceptacion'])->name('alumno.carta-aceptacion.eliminar');
+    Route::post('/desglose-percepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('alumno.desglose-percepciones.upload');
+    Route::post('/desglose-percepciones/eliminar', [PdfController::class, 'eliminarDesglosePercepciones'])->name('alumno.desglose-percepciones.eliminar');
     });
 
     // FAQs y documentación

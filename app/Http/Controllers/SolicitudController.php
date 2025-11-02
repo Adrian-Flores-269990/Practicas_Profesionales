@@ -65,6 +65,34 @@ class SolicitudController extends Controller
                     }
                 }
 
+                // Guardar PDF de estadística general si corresponde
+                $nombreArchivoEstadistica = null;
+                if ($request->estadistica_general === 'si' && $request->hasFile('estadistica_pdf')) {
+                    $fileEstadistica = $request->file('estadistica_pdf');
+                    if ($fileEstadistica->isValid()) {
+                        $nombreArchivoEstadistica = $claveAlumno . '_estadistica_general_' . time() . '.' . $fileEstadistica->getClientOriginalExtension();
+                        $rutaEstadistica = 'expedientes/estadistica-general/' . $nombreArchivoEstadistica;
+                        if (!Storage::disk('public')->exists('expedientes/estadistica-general')) {
+                            Storage::disk('public')->makeDirectory('expedientes/estadistica-general');
+                        }
+                        Storage::disk('public')->putFileAs('expedientes/estadistica-general', $fileEstadistica, $nombreArchivoEstadistica);
+                    }
+                }
+
+                // Guardar PDF de carta pasante si corresponde
+                $nombreArchivoCartaPasante = null;
+                if ($request->has('cartapasante') && $request->hasFile('cartapasante_pdf')) {
+                    $fileCartaPasante = $request->file('cartapasante_pdf');
+                    if ($fileCartaPasante->isValid()) {
+                        $nombreArchivoCartaPasante = $claveAlumno . '_carta_pasante_' . time() . '.' . $fileCartaPasante->getClientOriginalExtension();
+                        $rutaCartaPasante = 'expedientes/carta-pasante/' . $nombreArchivoCartaPasante;
+                        if (!Storage::disk('public')->exists('expedientes/carta-pasante')) {
+                            Storage::disk('public')->makeDirectory('expedientes/carta-pasante');
+                        }
+                        Storage::disk('public')->putFileAs('expedientes/carta-pasante', $fileCartaPasante, $nombreArchivoCartaPasante);
+                    }
+                }
+
                 // Preparar variables de días y turno
                 $diasSeleccionados = $request->input('dias_asistencia', []);
                 $diasString = implode('', $diasSeleccionados);

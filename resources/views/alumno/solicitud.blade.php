@@ -249,6 +249,48 @@
         <div id="sec-practicas" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-practicas">
           <div class="accordion-body">
             <div class="row g-3">
+              {{-- Menú desplegable de empresas registradas --}}
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Selecciona una empresa registrada</label>
+                <select name="empresa_registrada" id="empresa_registrada" class="form-select">
+                  <option value="">-- Selecciona empresa --</option>
+                  @foreach($empresas as $empresa)
+                    <option value="{{ $empresa->Id_Depn_Emp }}"
+                      data-nombre="{{ $empresa->Nombre_Depn_Emp }}"
+                      data-clasificacion="{{ $empresa->Clasificacion }}"
+                      data-sector="{{ strtolower($empresa->Clasificacion) }}"
+                      data-ramo="{{ $empresa->Ramo }}"
+                      data-ramo-text="{{ $empresa->Ramo }}"
+                      data-calle="{{ $empresa->Calle }}"
+                      data-numero="{{ $empresa->Numero }}"
+                      data-colonia="{{ $empresa->Colonia }}"
+                      data-cp="{{ $empresa->Cp }}"
+                      data-estado="{{ $empresa->Estado }}"
+                      data-municipio="{{ $empresa->Municipio }}"
+                      data-telefono="{{ $empresa->Telefono }}"
+                      data-rfc="{{ $empresa->RFC_Empresa }}"
+                    >{{ $empresa->Nombre_Depn_Emp }}</option>
+                  @endforeach
+                </select>
+
+                {{-- Vista previa (solo lectura) de la empresa seleccionada --}}
+                <div id="empresa_preview" class="card mt-3 p-3" style="display: none;">
+                  <h6 class="mb-2">Datos de la empresa (vista previa)</h6>
+                  <div class="row g-2">
+                    <div class="col-md-6"><label class="form-label">Nombre</label><input type="text" id="pv_nombre" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">RFC</label><input type="text" id="pv_rfc" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">Ramo</label><input type="text" id="pv_ramo" class="form-control" readonly></div>
+                    <div class="col-md-4"><label class="form-label">Calle</label><input type="text" id="pv_calle" class="form-control" readonly></div>
+                    <div class="col-md-2"><label class="form-label">Número</label><input type="text" id="pv_numero" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">Colonia</label><input type="text" id="pv_colonia" class="form-control" readonly></div>
+                    <div class="col-md-2"><label class="form-label">C.P.</label><input type="text" id="pv_cp" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">Estado</label><input type="text" id="pv_estado" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">Municipio</label><input type="text" id="pv_municipio" class="form-control" readonly></div>
+                    <div class="col-md-3"><label class="form-label">Teléfono</label><input type="text" id="pv_telefono" class="form-control" readonly></div>
+                  </div>
+                </div>
+              </div>
+
 
               <div class="col-md-3">
                 <label class="form-label">Fecha de inicio <span class="text-danger">*</span></label>
@@ -259,7 +301,7 @@
                 <label class="form-label">Fecha de término <span class="text-danger">*</span></label>
                 <input type="date" name="fecha_termino" class="form-control mt-1" required>
               </div>
-
+                
               <!-- Tipo de sector -->
               <div class="col-md-4">
                 <label class="form-label">Tipo de sector <span class="text-danger">*</span></label>
@@ -647,6 +689,113 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Autocompletar campos de empresa al seleccionar una empresa registrada
+  const empresaSelect = document.getElementById('empresa_registrada');
+  if (empresaSelect) {
+    empresaSelect.addEventListener('change', function() {
+      const selected = empresaSelect.options[empresaSelect.selectedIndex];
+
+      // Preview inputs
+      const preview = document.getElementById('empresa_preview');
+      const pv_nombre = document.getElementById('pv_nombre');
+      const pv_rfc = document.getElementById('pv_rfc');
+      const pv_ramo = document.getElementById('pv_ramo');
+      const pv_calle = document.getElementById('pv_calle');
+      const pv_numero = document.getElementById('pv_numero');
+      const pv_colonia = document.getElementById('pv_colonia');
+      const pv_cp = document.getElementById('pv_cp');
+      const pv_estado = document.getElementById('pv_estado');
+      const pv_municipio = document.getElementById('pv_municipio');
+      const pv_telefono = document.getElementById('pv_telefono');
+
+      if (selected && selected.value) {
+        // Mostrar preview con datos
+        preview.style.display = 'block';
+        pv_nombre.value = selected.getAttribute('data-nombre') || '';
+        pv_rfc.value = selected.getAttribute('data-rfc') || '';
+        pv_ramo.value = selected.getAttribute('data-ramo-text') || selected.getAttribute('data-ramo') || '';
+        pv_calle.value = selected.getAttribute('data-calle') || '';
+        pv_numero.value = selected.getAttribute('data-numero') || '';
+        pv_colonia.value = selected.getAttribute('data-colonia') || '';
+        pv_cp.value = selected.getAttribute('data-cp') || '';
+        pv_estado.value = selected.getAttribute('data-estado') || '';
+        pv_municipio.value = selected.getAttribute('data-municipio') || '';
+        pv_telefono.value = selected.getAttribute('data-telefono') || '';
+
+        // Prioriza el mapeo desde el campo 'ramo' (1=Privado, 2=Público, 3=UASLP)
+        const ramoAttr = selected.getAttribute('data-ramo');
+        let mappedSector = '';
+        if (ramoAttr === '1' || ramoAttr === '1') mappedSector = 'privado';
+        else if (ramoAttr === '2') mappedSector = 'publico';
+        else if (ramoAttr === '3') mappedSector = 'uaslp';
+
+        // Si no hay 'ramo' válido, intentar mapear por texto de clasificación/sector (fallback)
+        if (!mappedSector) {
+          let rawSector = selected.getAttribute('data-sector') || selected.getAttribute('data-clasificacion') || '';
+          const normalize = s => s ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : '';
+          const s = normalize(rawSector);
+          if (s.includes('priv')) mappedSector = 'privado';
+          else if (s.includes('uaslp')) mappedSector = 'uaslp';
+          else if (s.includes('pub') || s.includes('pueb') || s.includes('public')) mappedSector = 'publico';
+        }
+
+        // Si hay sector mapeado, seleccionar y disparar el evento change para mostrar la sección correspondiente
+        const sectorSelect = document.getElementById('sector');
+        if (mappedSector && sectorSelect) {
+          sectorSelect.value = mappedSector;
+          sectorSelect.dispatchEvent(new Event('change'));
+        }
+
+        // Rellenar inputs sector-específicos (intenta para privado, público y uaslp)
+        // PRIVADO
+        // Asigna valor si existe y dispara 'change' para que la UI reaccione (por ejemplo selects)
+        const setIfExists = (selector, value) => {
+          const el = document.querySelector(selector);
+          if (el) {
+            el.value = value || '';
+            // dispatch change so any listeners update (useful for select elements)
+            try { el.dispatchEvent(new Event('change')); } catch(e) { /* ignore */ }
+          }
+        };
+
+        setIfExists('input[name="nombre_empresa_privado"]', selected.getAttribute('data-nombre'));
+        setIfExists('input[name="razon_social"]', selected.getAttribute('data-nombre'));
+        setIfExists('input[name="rfc_privado"]', selected.getAttribute('data-rfc'));
+        setIfExists('select[name="ramo_privado"], #ramo_privado', selected.getAttribute('data-ramo'));
+        setIfExists('input[name="calle_empresa_privado"]', selected.getAttribute('data-calle'));
+        setIfExists('input[name="numero_empresa_privado"]', selected.getAttribute('data-numero'));
+        setIfExists('input[name="colonia_empresa_privado"]', selected.getAttribute('data-colonia'));
+        setIfExists('input[name="cp_empresa_privado"]', selected.getAttribute('data-cp'));
+        setIfExists('input[name="estado_empresa_privado"]', selected.getAttribute('data-estado'));
+        setIfExists('input[name="municipio_empresa_privado"]', selected.getAttribute('data-municipio'));
+        setIfExists('input[name="telefono_privado"]', selected.getAttribute('data-telefono'));
+        setIfExists('input[name="area_depto_privado"]', '');
+
+        // PUBLICO
+        setIfExists('input[name="nombre_empresa_publico"]', selected.getAttribute('data-nombre'));
+        setIfExists('input[name="rfc_publico"]', selected.getAttribute('data-rfc'));
+        setIfExists('select[name="ramo_publico"], #ramo_publico', selected.getAttribute('data-ramo'));
+        setIfExists('input[name="calle_empresa_publico"]', selected.getAttribute('data-calle'));
+        setIfExists('input[name="numero_empresa_publico"]', selected.getAttribute('data-numero'));
+        setIfExists('input[name="colonia_empresa_publico"]', selected.getAttribute('data-colonia'));
+        setIfExists('input[name="cp_empresa_publico"]', selected.getAttribute('data-cp'));
+        setIfExists('input[name="estado_empresa_publico"]', selected.getAttribute('data-estado'));
+        setIfExists('input[name="municipio_empresa_publico"]', selected.getAttribute('data-municipio'));
+        setIfExists('input[name="telefono_publico"]', selected.getAttribute('data-telefono'));
+        setIfExists('input[name="area_depto_publico"]', '');
+
+        // UASLP
+        setIfExists('input[name="area_depto_uaslp"]', selected.getAttribute('data-nombre') ? selected.getAttribute('data-nombre') : '');
+      } else {
+        // Limpiar preview y campos
+        preview.style.display = 'none';
+        pv_nombre.value = pv_rfc.value = pv_ramo.value = pv_calle.value = pv_numero.value =
+          pv_colonia.value = pv_cp.value = pv_estado.value = pv_municipio.value = pv_telefono.value = '';
+
+        // No seleccionar sector automáticamente
+      }
+    });
+  }
   const accordionItems = document.querySelectorAll('.accordion-item');
   const form = document.querySelector('form');
   const sectorSelect = document.getElementById('sector');

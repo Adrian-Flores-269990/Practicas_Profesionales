@@ -57,7 +57,10 @@ Route::prefix('alumno')->group(function () {
     Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
     //Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
     Route::get('/estado', [AlumnoController::class, 'estadoAlumno'])->name('alumno.estado');
-    Route::get('/solicitud', fn () => view('alumno.solicitud'))->name('alumno.solicitud');
+    Route::get('/solicitud', function () {
+        $empresas = \App\Models\DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
+        return view('alumno.solicitud', compact('empresas'));
+    })->name('alumno.solicitud');
     Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');

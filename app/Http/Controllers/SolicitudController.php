@@ -369,7 +369,10 @@ class SolicitudController extends Controller
                         ->orderBy('Descripcion_Capitalizadas')
                         ->get();
 
-        return view('alumno.expediente.solicitudFPP01', compact('solicitudes'));
+        // Obtener todas las empresas para el menú desplegable
+        $empresas = \App\Models\DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
+
+        return view('alumno.expediente.solicitudFPP01', compact('solicitudes', 'empresas'));
     }
 
     public function edit($id)

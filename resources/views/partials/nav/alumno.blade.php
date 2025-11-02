@@ -1,5 +1,13 @@
 @include('partials.modals')
 
+@php
+  $alumno = session('alumno');
+  $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+            ->where('Autorizacion', 1)
+            ->where('Apoyo_Economico', 1)
+            ->count();
+@endphp
+
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
   <div class="container justify-content-center">
     <ul class="nav">
@@ -27,9 +35,11 @@
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.registroFPP02') }}">Registro de Solicitud de Autorización (FPP02)</a></li>
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.cartaAceptacion') }}">Carta de Aceptación</a></li>
+          @if ($existe == true)
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.desglosePercepciones') }}">Carta de Desglose de Percepciones</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">Solicitud de Recibo para Ayuda Económica</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">Recibo de Pago</a></li>
+          @endif
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reportesParciales') }}">Reportes Parciales</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">Reporte Final</a></li>
           <li><a class="dropdown-item" href="#">Carta de Término</a></li>

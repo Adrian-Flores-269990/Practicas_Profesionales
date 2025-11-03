@@ -54,6 +54,7 @@ Route::prefix('admin')->group(function () {
 */
 Route::prefix('alumno')->group(function () {
 
+<<<<<<< HEAD
     Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
     //Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
     Route::get('/estado', [AlumnoController::class, 'estadoAlumno'])->name('alumno.estado');
@@ -64,6 +65,13 @@ Route::prefix('alumno')->group(function () {
     Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
+=======
+// SECRETARIA HOME
+Route::get('/encargado/home', fn () => view('encargado.home'))->name('encargado.home');
+Route::get('/encargado/solicitudes_alumnos', fn () => view('encargado.solicitudes_alumnos'))->name('encargado.solicitudes_alumnos');
+Route::get('/encargado/alumnos_en_proceso', fn () => view('encargado.alumnos_en_proceso'))->name('encargado.alumnos_en_proceso');
+Route::get('/encargado/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
+>>>>>>> a5308f025c34d51820a3bf5f20a77c865d89bdc1
 
     // Expediente
     Route::prefix('expediente')->group(function () {

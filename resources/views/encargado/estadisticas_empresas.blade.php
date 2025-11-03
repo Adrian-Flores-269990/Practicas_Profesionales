@@ -2,6 +2,11 @@
 @section('title','Estadísticas empresas')
 
 @section('content')
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> a5308f025c34d51820a3bf5f20a77c865d89bdc1
     <nav class="navbar" style="background-color: #000066;">
       <div class="container-fluid justify-content-center">
         <span class="navbar-text text-white mx-auto" style="font-weight: 500;">
@@ -15,13 +20,20 @@
         <div class="col-md-6">
           <label for="empresaDropdown" class="form-label fw-bold">Nombre de la empresa</label>
           <select class="form-select" id="empresaDropdown">
+<<<<<<< HEAD
             <option selected disabled>Selecciona la empresa</option>
             <option value="ABB MÉXICO S.A. DE C.V.E">ABB MÉXICO S.A. DE C.V.E</option>
         </select>
+=======
+            <option selected>Selecciona la empresa</option>
+            {{-- Opciones aquí --}}
+          </select>
+>>>>>>> a5308f025c34d51820a3bf5f20a77c865d89bdc1
         </div>
         <div class="col-md-6">
           <label for="versionDropdown" class="form-label fw-bold">Versión</label>
           <select class="form-select" id="versionDropdown">
+<<<<<<< HEAD
             <option selected disabled>Selecciona versión de cuestionario</option>
             <option value="Versión 1.1 2024-2025">Versión 1.1 2024-2025</option>
         </select>
@@ -141,3 +153,13 @@
     });
     </script>
 @endsection
+=======
+            <option selected>Selecciona versión de cuestionario</option>
+            {{-- Opciones  aquí --}}
+          </select>
+        </div>
+      </div>
+    </div>
+
+@endsection
+>>>>>>> a5308f025c34d51820a3bf5f20a77c865d89bdc1

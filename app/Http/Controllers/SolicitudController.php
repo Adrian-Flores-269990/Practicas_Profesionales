@@ -94,7 +94,7 @@ class SolicitudController extends Controller
                 }
 
                 // Preparar variables de días y turno
-                $diasSeleccionados = $request->input('dias_asistencia', []);
+                $diasSeleccionados = (array) $request->input('dias_asistencia', []);
                 $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 

@@ -1,13 +1,23 @@
+@include('partials.modals')
+
 <nav class="dsspp-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">
-      <li class="nav-item dropdown">
+
+
+
+
+    
+      <li class="nav-item">
+            <a class="nav-link" href="{{ route('dsspp.inicio') }}">Inicio</a>
+        </li>
+        <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="practicasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Prácticas Profesionales
         </a>
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
-          <li><a class="dropdown-item" href="#">Consultar Alumno</a></li>
-          <li><a class="dropdown-item" href="#">Solicitudes Pendientes</a></li>
+          <li><a class="dropdown-item"  href="{{ route('dsspp.consultar_alumno') }}">Consultar Alumno</a></li>
+          <li><a class="dropdown-item" href="{{ route('dsspp.solicitudes') }}">Solicitudes Pendientes</a></li>
         </ul>
       </li>
 
@@ -31,7 +41,7 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#">Cerrar Sesión</a>
+        <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>
     </ul>
   </div>

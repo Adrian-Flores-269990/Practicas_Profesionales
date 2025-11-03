@@ -7,18 +7,23 @@
     <div class="card-auth">
       <h1>Acceso Empleados</h1>
 
-      {{-- Si luego usas un controlador/guard distinto, cambia el action --}}
-      <form method="POST" action="#">
+      <form method="POST" action="{{ route('empleado.login.post') }}">
         @csrf
 
         <div class="field">
-          <label for="email">Correo institucional</label>
-          <input id="email" type="email" name="email" required autofocus>
+          <label for="rpe">RPE</label>
+          <input id="rpe" type="number" name="rpe" value="{{ old('rpe') }}" required autofocus>
+          @error('rpe')
+            <span class="error">{{ $message }}</span>
+          @enderror
         </div>
 
         <div class="field">
-          <label for="password">Contraseña</label>
-          <input id="password" type="password" name="password" required>
+          <label for="contrasena">Contraseña</label>
+          <input id="contrasena" type="password" name="contrasena" required>
+          @error('contrasena')
+            <span class="error">{{ $message }}</span>
+          @enderror
         </div>
 
         <button type="submit">Ingresar</button>
@@ -26,7 +31,7 @@
 
       <div class="links">
         <a href="{{ route('alumno.login') }}">¿Eres alumno? Ir al login de alumnos</a>
-        <a href="{{ route('home') }}">Volver al inicio</a>
+        <a href="{{ route('welcome') }}">Volver al inicio</a>
       </div>
     </div>
   </div>
@@ -43,6 +48,7 @@
     .field input{
       width:100%;padding:10px;border:1px solid #cfd7e3;border-radius:8px;outline:none
     }
+    .error { color: red; font-size: 12px; margin-top: 4px; display: block; }
     button{
       width:100%;padding:10px;border:none;border-radius:10px;background:#0b78a8;color:#fff;
       font-weight:700;cursor:pointer

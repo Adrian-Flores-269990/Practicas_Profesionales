@@ -1,25 +1,124 @@
 @extends('layouts.alumno')
 @section('title','Inicio Alumno')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
+@endpush
+
 @section('content')
-  <div class="container-fluid info-alumno-wrapper">
-    <div class="bloque-datos">
-      <div><img src="{{ asset('images/perfil.webp') }}" alt="Foto del alumno" class="foto-alumno"></div>
-      <div class="datos-izquierda">
-        <div class="campo-pareado"><div class="campo-label">Clave UASLP</div><div class="campo-valor">XXXXXX</div></div>
-        <div class="campo-pareado"><div class="campo-label">Clave Ingeniería</div><div class="campo-valor">XXXXXXXXXXXX</div></div>
-        <div class="campo-pareado"><div class="campo-label">Nombre</div><div class="campo-valor">NOMBRE DEL ALUMNO</div></div>
-        <div class="campo-pareado"><div class="campo-label">Carrera</div><div class="campo-valor">NOMBRE DE LA CARRERA</div></div>
-        <div class="campo-pareado"><div class="campo-label">Asesor</div><div class="campo-valor">NOMBRE DEL ASESOR</div></div>
-        <div class="campo-pareado"><div class="campo-label">Ciclo escolar</div><div class="campo-valor">CICLO ESCOLAR</div></div>
-        <div class="campo-pareado"><div class="campo-label">Semestre</div><div class="campo-valor">SEMESTRE</div></div>
+
+
+
+@php
+  $alumno = session('alumno');
+  
+  // Normaliza URL de foto
+  $foto = $alumno['url_foto'] ?? null;
+  if ($foto) {
+      $foto = trim($foto);
+
+      // Si termina con "jpg" o "png" pero SIN punto (…/12345jpg), inserta el punto
+      if (preg_match('/(jpg|png)$/i', $foto) && !preg_match('/\.(jpg|png)$/i', $foto)) {
+          $foto = preg_replace('/(jpg|png)$/i', '.$1', $foto);
+      }
+
+  }
+@endphp
+
+
+<div class="container-xxl alumno-home my-3">
+  <div class="row g-3">
+
+    <!-- Columna principal -->
+    <div class="col-lg-8">
+      <div class="card profile-card">
+        <div class="card-body d-flex align-items-center gap-3">
+
+
+        <img class="avatar"
+            src="{{ $foto ?? asset('images/perfil.webp') }}"
+            alt="Foto del alumno"
+            data-fallback="{{ asset('images/perfil.webp') }}"
+            onerror="this.onerror=null;this.src=this.dataset.fallback">
+
+          <div class="flex-grow-1">
+            <h3 class="mb-1 nombre">
+              {{ $alumno['nombres'] ?? '' }} {{ $alumno['paterno'] ?? '' }} {{ $alumno['materno'] ?? '' }}
+            </h3>
+
+            <div class="kv">
+              <div class="kv-label">Clave UASLP</div>
+              <div class="kv-value">{{ $alumno['cve_uaslp'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Carrera</div>
+              <div class="kv-value">{{ $alumno['carrera'] ?? '-' }}</div>
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="card-body pt-0">
+          <div class="kv-grid">
+
+            <div class="kv">
+              <div class="kv-label">Clave de carrera</div>
+              <div class="kv-value">{{ $alumno['clave_carrera'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Área</div>
+              <div class="kv-value">{{ $alumno['area'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Semestre</div>
+              <div class="kv-value">{{ $alumno['semestre'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Créditos</div>
+              <div class="kv-value">{{ $alumno['creditos'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Correo electrónico</div>
+              <div class="kv-value">{{ $alumno['correo_electronico'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Teléfono celular</div>
+              <div class="kv-value">{{ $alumno['telefono_celular'] ?? '-' }}</div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="datos-derecha">
-      <div class="campo-extra"><div class="label">Fecha</div><div class="valor">25/02/2025</div></div>
-      <div class="campo-extra"><div class="label">Condición</div><div class="valor">REGULAR</div></div>
-      <div class="campo-extra"><div class="label">Situación</div><div class="valor">INSCRITO</div></div>
+    <!-- Columna lateral (estatus + accesos) -->
+    <div class="col-lg-4">
+      <div class="card status-card mb-3">
+        <div class="card-body status-grid">
+          <div class="kv kv-status">
+            <div class="kv-label">Fecha</div>
+            <div class="kv-value">{{ now()->format('d/m/Y') }}</div>
+          </div>
+
+          <div class="kv kv-status">
+            <div class="kv-label">Condición</div>
+            <div class="kv-value">{{ $alumno['condicion'] ?? '-' }}</div>
+          </div>
+
+          <div class="kv kv-status">
+            <div class="kv-label">Situación</div>
+            <div class="kv-value">{{ $alumno['situacion'] ?? '-' }}</div>
+          </div>
+        </div>
+      </div>
     </div>
+
   </div>
+</div>
 @endsection

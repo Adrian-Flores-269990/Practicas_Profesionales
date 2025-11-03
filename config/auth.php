@@ -36,11 +36,16 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users', // ahora apunta a 'Alumno'
     ],
+
+    'empleado' => [
+        'driver' => 'session',
+        'provider' => 'empleados',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -62,14 +67,26 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\Alumno::class,
         ],
+
+        'empleados' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Empleado::class,
+        ],
+    ],
+
+    //'providers' => [
+        //'users' => [
+            //'driver' => 'eloquent',
+            //'model' => env('AUTH_MODEL', App\Models\User::class),
+        //],
 
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-    ],
+    //],
 
     /*
     |--------------------------------------------------------------------------

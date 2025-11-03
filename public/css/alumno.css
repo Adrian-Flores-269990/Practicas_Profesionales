@@ -7,13 +7,102 @@
   .bloque-datos{min-width:600px}
   .datos-derecha{max-width:200px}
 }
-.foto-alumno{width:170px;height:93px;object-fit:contain;background-color:#fff}
-.campo-pareado{display:flex;flex-direction:row;align-items:center}
-.campo-label{background-color:#000066;color:#fff;font-weight:700;padding:0 4px;flex:0 0 25%;text-align:right}
-.campo-valor{color:#03246f;padding:0 4px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.campo-extra{display:flex;flex-direction:column}
-.campo-extra .label{background-color:#000066;color:#fff;font-size:.6rem;text-align:center;padding:1px 4px;width:100%}
-.campo-extra .valor{background-color:#dbeafe;color:#03246f;font-size:0.6rem;padding:0rem 5rem;text-align:center;width:100%;display:flex;justify-content:center;align-items:center}
+
+
+
+/* ==============================
+   HEADER DE INICIO DEL ALUMNO
+   ============================== */
+
+/* Tarjetas dentro de la home del alumno */
+.alumno-home .card{
+  border:1px solid #e5ecf5;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+/* Header de perfil */
+.profile-card .avatar{
+  width:250px;
+  height:250px;
+  object-fit:cover;
+  background:#e9eef5;
+  border:2px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+.profile-card .nombre{
+  font-size:1.35rem;
+  color:#0b4f87;
+  font-weight:750;
+  letter-spacing:.4px;
+
+}
+
+/* Grid de pares etiqueta/valor */
+.kv-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 18px;
+}
+@media (max-width: 992px){
+  .kv-grid{ grid-template-columns:1fr; }
+}
+.kv{
+  background:#f7faff;
+  border:1px solid #e7eef7;
+  border-radius:10px;
+  padding:10px 12px;
+}
+.kv-label{
+  color:#4a5b75;
+  font-weight:700;
+  text-transform:uppercase;
+  font-size:.95rem;
+  letter-spacing:.4px;
+  margin-bottom:2px;
+}
+
+.kv-value{
+  color:#10243e;
+  font-weight:350; 
+}
+
+/* Estatus en formato kv apilado */
+.status-card .status-grid{
+  display:grid;
+  gap:10px;
+}
+
+.kv-status{
+  background:#004795;
+  border-color:transparent;
+  color:#fff;
+    text-align: center;
+
+}
+
+.kv-status .kv-label{
+  color:rgba(255,255,255,.9);
+  font-size:.95rem;
+  margin-bottom:2px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+
+.kv-status .kv-value{
+  color:#fff;
+  font-weight:350;
+  font-size:1rem;
+}
+
+
+
+
+
+
+
+
 .alumno-navbar{background-color:#f3f4f6;margin:0 !important;}
 .alumno-navbar .nav{display:flex;justify-content:space-around;width:100%}
 .alumno-navbar .nav-link{color:rgba(0, 0, 0, 0.5)}
@@ -43,3 +132,30 @@
   .arrow-right::after{border-top:40px solid transparent;border-bottom:40px solid transparent;border-left-width:20px;border-right-width:20px;right:-20px}
   .arrow-left::after{border-top:40px solid transparent;border-bottom:40px solid transparent;border-left-width:20px;border-right-width:20px;left:-20px}
 }
+
+
+
+
+
+/* ==============================
+   SOLICITUD Y REGISTRO DE ALUMNOS
+   ============================== */
+  .form-label { 
+    font-weight: 700; 
+  }
+
+  .text-danger {
+    color: #dc3545 !important;
+  }
+
+  .section-title {
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+
+   .form-label { font-weight: 700; font-size: .95rem; }  /* tamaño de letra y negrita */
+  .accordion-button { background:#f8fafc; color:#063; } /* color de los acordiones o secciones */
+  .soli-card { box-shadow: 0 1px 0 rgba(0,0,0,.03); }

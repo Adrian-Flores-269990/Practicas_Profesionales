@@ -1,7 +1,16 @@
+@include('partials.modals')
+
 <nav class="administrador-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">
-      <li class="nav-item dropdown">
+
+
+
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('administrador.inicio') }}">Inicio</a>
+        </li>
+        <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="practicasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           Prácticas Profesionales
         </a>
@@ -15,7 +24,7 @@
           <li><a class="dropdown-item" href="#">Estadísticas de la Empresa</a></li>
           <li><a class="dropdown-item" href="#">Generar Constancia de Validación</a></li>
           <li><a class="dropdown-item" href="#">Consultar Constancias de Validación</a></li>
-          <li><a class="dropdown-item" href="#">Bitácora</a></li>
+          <li><a class="dropdown-item" href="{{ route('admin.bitacora') }}">Bitácora</a></li>
         </ul>
       </li>
 
@@ -42,9 +51,16 @@
           <li><a class="dropdown-item" href="#">Ayuda Empleado</a></li>
         </ul>
       </li>
-
       <li class="nav-item">
-        <a class="nav-link" href="#">Cerrar Sesión</a>
+        <a
+          class="nav-link {{ request()->routeIs('administrador.empleados') ? 'active' : '' }}"
+          href="{{ route('administrador.empleados') }}"
+        >
+          Modificar Roles
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>
     </ul>
   </div>

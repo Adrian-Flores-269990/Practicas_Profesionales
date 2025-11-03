@@ -3,7 +3,6 @@
   <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 @endpush
 
-
 @section('title','Login')
 
 @section('content')
@@ -23,7 +22,7 @@
         <div class="row mb-3 align-items-center">
           <label for="cuenta" class="col-form-label label-fixed text-start">Cuenta UASLP</label>
           <div class="col">
-            <input type="text" class="form-control" id="cuenta" name="cuenta" placeholder="Correo UASLP / RPE / 'A' + Clave única" required>
+            <input type="text" class="form-control" id="cuenta" name="cuenta" placeholder="Clave única" required>
             @if($errors->has('cuenta'))
               <small class="text-danger">{{ $errors->first('cuenta') }}</small>
             @endif
@@ -48,7 +47,7 @@
       Facultad de Ingeniería, UASLP<br>
       Dr. Manuel Nava #8, Zona Universitaria poniente<br>
       Tels: (444) 826.2330 al 2339<br>
-      <a href="http://www.ingenieria.uaslp.mx" class="footer-link">http://www.ingenieria.uaslp.mx</a><br><br>
+      <a href="http://www.ingenieria.uaslp.mx" class="footer-link">www.ingenieria.uaslp.mx</a><br><br>
     </div>
   </div>
 @endsection

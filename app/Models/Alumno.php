@@ -33,4 +33,9 @@ class Alumno extends Authenticatable
     {
         return $this->password;
     }
+
+    public function solicitudes()
+    {
+        return $this->hasMany(SolicitudFPP01::class, 'Clave_Alumno', 'Clave_Alumno');
+    }
 }

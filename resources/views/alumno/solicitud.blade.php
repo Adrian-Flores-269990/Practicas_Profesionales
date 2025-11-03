@@ -18,7 +18,7 @@
     SOLICITUD DE REGISTRO DEL ALUMNO
   </h4>
 
-  <form action="{{ route('solicitud.store') }}" method="POST" enctype="multipart/form-data">
+  <form action="{{ route('solicitud.store') }}" method="POST" enctype="multipart/form-data" id="formulario_solicitud">
     @csrf
 
     <div class="accordion" id="soliAccordion">
@@ -45,7 +45,6 @@
                 <label class="form-label">Nombre del Alumno</label>
                 <input type="text" name="nombre_alumno" class="form-control" value="{{ $alumno['nombres'] ?? '' }} {{ $alumno['paterno'] ?? '' }} {{ $alumno['materno'] ?? '' }}" readonly>
               </div>
-
 
               <div class="col-md-4">
                 <label class="form-label">Clave</label>
@@ -411,9 +410,9 @@
                     </div>
                   </div>
                 </div>
-                <div class="mb-2">
+                <div class="mb-2" id="razon_outsourcing" style="display: none">
                   <label class="form-label">Razón Social Outsourcing <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="razon_social_outsourcing" data-require="true">
+                  <input type="text" class="form-control" name="razon_social_outsourcing" id="razon_social_outsourcing" data-require="true">
                 </div>
               </div>
 
@@ -566,7 +565,7 @@
       </div>
 
       {{-- 6. Horario --}}
-      <div class="accordion-item soli-card mt-3">
+      <div class="accordion-item soli-card mt-3" id="horario">
         <h2 class="accordion-header" id="h-horario">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-horario">
             HORARIO
@@ -592,17 +591,35 @@
               </div>
               <div class="col-12">
                 <label class="form-label">Días de asistencia</label>
-                <div class="d-flex flex-wrap gap-2">
-                  @php
-                    $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-                    $dias_val = ['L','M','X','J','V','S','D'];
-                  @endphp
-                  @foreach ($dias as $i => $dia)
+                <div class="d-flex flex-wrap gap-2" id="dias_de_asistencia">
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="{{ $dias_val[$i] }}" id="dia_{{ $dias_val[$i] }}">
-                      <label class="form-check-label" for="dia_{{ $dias_val[$i] }}">{{ $dia }}</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="lunes" id="lunes" required>
+                      <label class="form-check-label" for="dia_lunes">Lunes</label>
                     </div>
-                  @endforeach
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="martes" id="martes" required>
+                      <label class="form-check-label" for="dia_martes">Martes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="miercoles" id="miercoles" required>
+                      <label class="form-check-label" for="dia_miercoles">Miércoles</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="jueves" id="jueves" required>
+                      <label class="form-check-label" for="dia_jueves">Jueves</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="viernes" id="viernes" required>
+                      <label class="form-check-label" for="dia_viernes">Viernes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="sabado" id="sabado" required>
+                      <label class="form-check-label" for="dia_sabado">Sábado</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="domingo" id="domingo" required>
+                      <label class="form-check-label" for="dia_domingo">Domingo</label>
+                    </div>
                 </div>
               </div>
             </div>
@@ -890,6 +907,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Mostrar/ocultar razón social outsourcing
+  const outsourcingSi = document.getElementById('out_si');
+  const outsourcingNo = document.getElementById('out_no');
+  const contenedorOutsourcing = document.getElementById('razon_outsourcing');
+  const campoNombreEmpresa = document.getElementById('razon_social_outsourcing');
+
+  function actualizarContenedorOutsourcing() {
+    if (outsourcingSi.checked && (sectorSelect.value == 'privado')) {
+      contenedorOutsourcing.style.display = 'block';
+      campoNombreEmpresa.setAttribute('required', 'required');
+    } else {
+      contenedorOutsourcing.style.display = 'none';
+      campoNombreEmpresa.removeAttribute('required');
+      campoNombreEmpresa.value = '';
+    }
+  }
+
+  outsourcingSi.addEventListener('change', actualizarContenedorOutsourcing);
+  outsourcingNo.addEventListener('change', actualizarContenedorOutsourcing);
+
+  // Que se requieran los días de asistencia
+  const checkboxesDias = document.querySelectorAll('input[name="dias_asistencia"]');
+  checkboxesDias.forEach(cb => { cb.addEventListener('change', sincronizarCheckboxGrupo); });
+
+  function sincronizarCheckboxGrupo() {
+    const algunoMarcado = Array.from(checkboxesDias).some(cb => cb.checked);
+
+    if (!algunoMarcado) {
+      checkboxesDias.forEach(cb => {
+        cb.setAttribute('required', 'required');
+      });
+    } else {
+      checkboxesDias.forEach(cb => {
+        cb.removeAttribute('required');
+      });
+    }
+  }
+
   // Colorear secciones completas
   function checkSection(section) {
     let completed = true;
@@ -899,6 +954,13 @@ document.addEventListener('DOMContentLoaded', function() {
     normalInputs.forEach(input => {
       if (!input.value) completed = false;
     });
+
+    // Validar checkboxes
+    const checkboxes = section.querySelectorAll('input[type="checkbox"][required]');
+    checkboxes.forEach(cb => {
+      if (!cb.checked) completed = false;
+    });
+
 
     // Validar radio buttons (verificar que al menos uno esté seleccionado por grupo)
     const radioGroups = {};
@@ -930,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     checkSection(item);
   });
+  
 
   // Validación al enviar
   form.addEventListener('submit', function(e) {

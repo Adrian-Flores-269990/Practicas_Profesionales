@@ -40,7 +40,12 @@
                     @if ($solicitud->Autorizacion === 1)
                         <span class="badge bg-success">Aceptada</span>
                     @elseif ($solicitud->Autorizacion === 0)
-                        <span class="badge bg-danger">Rechazada</span>
+                        @if ($solicitud->Estado_Encargado === 'rechazado')
+                          <span class="badge bg-danger">Rechazada por Encargado</span>
+                        @endif
+                        @if ($solicitud->Estado_Departamento === 'rechazado')
+                          <span class="badge bg-danger">Rechazada por Encargado</span>
+                        @endif
                     @else
                         <span class="badge bg-warning text-dark">Pendiente</span>
                     @endif

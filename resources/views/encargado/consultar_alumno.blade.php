@@ -8,11 +8,11 @@
     max-width: 800px;
     margin: 0 auto;
   }
-
+  
   .search-box {
     position: relative;
   }
-
+  
   .search-icon {
     position: absolute;
     left: 15px;
@@ -20,7 +20,7 @@
     transform: translateY(-50%);
     color: #6c757d;
   }
-
+  
   .form-control-search {
     padding-left: 45px;
     height: 50px;
@@ -28,35 +28,35 @@
     border: 2px solid #dee2e6;
     font-size: 1rem;
   }
-
+  
   .form-control-search:focus {
     border-color: #0d6efd;
     box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
   }
-
+  
   .alumno-card {
     border: 1px solid #dee2e6;
     border-radius: 8px;
     transition: all 0.3s ease;
     background: white;
   }
-
+  
   .alumno-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transform: translateY(-2px);
   }
-
+  
   .alumno-header {
     background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
     color: white;
     padding: 1.5rem;
     border-radius: 8px 8px 0 0;
   }
-
+  
   .alumno-info {
     padding: 1.5rem;
   }
-
+  
   .info-label {
     font-weight: 600;
     color: #6c757d;
@@ -64,19 +64,19 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-
+  
   .info-value {
     font-size: 1rem;
     color: #212529;
     margin-top: 0.25rem;
   }
-
+  
   .formularios-section {
     background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 0 0 8px 8px;
   }
-
+  
   .formulario-btn {
     display: flex;
     align-items: center;
@@ -90,37 +90,37 @@
     transition: all 0.2s ease;
     margin-bottom: 0.75rem;
   }
-
+  
   .formulario-btn:hover {
     background: #0d6efd;
     color: white;
     border-color: #0d6efd;
     transform: translateX(5px);
   }
-
+  
   .formulario-btn i {
     font-size: 1.2rem;
   }
-
+  
   .badge-status {
     font-size: 0.75rem;
     padding: 0.35rem 0.65rem;
     border-radius: 12px;
     font-weight: 600;
   }
-
+  
   .no-results {
     text-align: center;
     padding: 3rem;
     color: #6c757d;
   }
-
+  
   .no-results i {
     font-size: 4rem;
     margin-bottom: 1rem;
     opacity: 0.3;
   }
-
+  
   .search-info {
     background: #e7f3ff;
     border-left: 4px solid #0d6efd;
@@ -137,23 +137,23 @@
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     CONSULTAR ALUMNO
   </h4>
-
+  
   <div class="bg-white p-4 rounded shadow-sm">
-
+    
     {{-- Buscador --}}
     <div class="search-container mb-4">
       <div class="search-info">
         <i class="bi bi-info-circle me-2"></i>
         <strong>Busca por:</strong> Clave única o Apellidos
       </div>
-
+      
       <form action="{{ route('encargado.consultar_alumno') }}" method="GET">
         <div class="search-box">
           <i class="bi bi-search search-icon"></i>
-          <input
-            type="text"
-            name="busqueda"
-            class="form-control form-control-search"
+          <input 
+            type="text" 
+            name="busqueda" 
+            class="form-control form-control-search" 
             value="{{ request('busqueda') }}"
           >
         </div>
@@ -171,7 +171,7 @@
             <i class="bi bi-person-check-fill text-primary me-2"></i>
             Resultados encontrados: <span class="badge bg-primary">{{ count($alumnos) }}</span>
           </h5>
-
+          
           @foreach($alumnos as $alumno)
             <div class="alumno-card mb-4">
               {{-- Header del alumno --}}
@@ -216,7 +216,7 @@
                   <i class="bi bi-file-earmark-text me-2"></i>
                   Documentos y Formularios
                 </h6>
-
+                
                 <div class="row g-2">
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
@@ -227,7 +227,7 @@
                       <span class="badge badge-status bg-success">Completado</span>
                     </a>
                   </div>
-
+                  
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>
@@ -237,7 +237,7 @@
                       <span class="badge badge-status bg-info">Ver detalles</span>
                     </a>
                   </div>
-
+                  
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>
@@ -247,7 +247,7 @@
                       <span class="badge badge-status bg-warning text-dark">Pendiente</span>
                     </a>
                   </div>
-
+                  
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>
@@ -257,7 +257,7 @@
                       <span class="badge badge-status bg-primary">3 reportes</span>
                     </a>
                   </div>
-
+                  
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>
@@ -267,7 +267,7 @@
                       <span class="badge badge-status bg-secondary">No iniciado</span>
                     </a>
                   </div>
-
+                  
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>

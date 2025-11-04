@@ -36,7 +36,7 @@ class SolicitudController extends Controller
                     if (
                         $solicitudActiva->Estado_Departamento === 'pendiente' ||
                         $solicitudActiva->Estado_Encargado === 'pendiente' ||
-                        ($solicitudActiva->Estado_Departamento === 'aprobado' && 
+                        ($solicitudActiva->Estado_Departamento === 'aprobado' &&
                         $solicitudActiva->Estado_Encargado === 'aprobado')
                     ) {
                         return redirect()->back()->with('error', '⚠️ Ya tienes una solicitud en proceso. Espera la resolución antes de enviar otra.');
@@ -94,7 +94,7 @@ class SolicitudController extends Controller
                 }
 
                 // Preparar variables de días y turno
-                $diasSeleccionados = $request->input('dias_asistencia', []);
+                $diasSeleccionados = (array) $request->input('dias_asistencia', []);
                 $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 
@@ -356,7 +356,7 @@ class SolicitudController extends Controller
             ($ultima->Estado_Departamento == 'aprobado' && $ultima->Estado_Encargado == 'aprobado')
         )) {
             return redirect()->route('alumno.estado')
-                ->with('error', '⚠️ Ya tienes una solicitud en revisión. No puedes crear otra hasta que sea rechazada.');
+                ->with('error', 'Ya tienes una solicitud en revisión. No puedes crear otra hasta que sea rechazada.');
         }
 
         // Mostrar formulario solo si NO está limitada

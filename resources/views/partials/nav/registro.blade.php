@@ -1,29 +1,59 @@
 @php
+use App\Models\SolicitudFPP01;
+use App\Models\EstadoProceso;
+
 $claveAlumno = session('alumno')['cve_uaslp'] ?? null;
 
-$ultimaSolicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                ->latest('Id_Solicitud_FPP01')
-                ->first();
+$ultimaSolicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+    ->latest('Id_Solicitud_FPP01')
+    ->first();
 
-$bloqueado = false;
+// Estados de bloqueo por menú
+$bloqueoSolicitud = false;
+$bloqueoRegistro = true;
+$bloqueoReporte = true;
+$bloqueoEvaluacion = true;
 
 if ($ultimaSolicitud) {
-    // ÚLTIMA solicitud está en proceso = bloquear
-    if ($ultimaSolicitud->Estado_Departamento == 'pendiente' ||
-        $ultimaSolicitud->Estado_Encargado == 'pendiente') {
-        $bloqueado = true;
+    $dep = $ultimaSolicitud->Estado_Departamento;
+    $enc = $ultimaSolicitud->Estado_Encargado;
+
+    // 🟥 BLOQUEO SOLICITUD
+    // Si la solicitud está en proceso o aprobada → bloquear
+    if (($dep == 'pendiente' || $enc == 'pendiente') ||
+        ($dep == 'aprobado' && $enc == 'aprobado')) {
+        $bloqueoSolicitud = true;
     }
 
-    // ÚLTIMA solicitud aprobada por ambos = bloquear
-    if ($ultimaSolicitud->Estado_Departamento == 'aprobado' &&
-        $ultimaSolicitud->Estado_Encargado == 'aprobado') {
-        $bloqueado = true;
+    // Si fue rechazada → desbloquear
+    if ($dep == 'rechazado' || $enc == 'rechazado') {
+        $bloqueoSolicitud = false;
     }
 
-    // Si la última está rechazada → permitir
-    if ($ultimaSolicitud->Estado_Departamento == 'rechazado' ||
-        $ultimaSolicitud->Estado_Encargado == 'rechazado') {
-        $bloqueado = false;
+    // 🟧 BLOQUEO REGISTRO
+    // Se desbloquea si la solicitud fue aprobada por ambos
+    if ($dep == 'aprobado' && $enc == 'aprobado') {
+        $bloqueoRegistro = false;
+    }
+
+    // 🟨 BLOQUEO REPORTE
+    // Se desbloquea si el registro fue aprobado
+    $registro = EstadoProceso::where('clave_alumno', $claveAlumno)
+        ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+        ->first();
+
+    if ($registro && $registro->estado === 'aprobado') {
+        $bloqueoReporte = false;
+    }
+
+    // 🟩 BLOQUEO EVALUACIÓN
+    // Se desbloquea si el reporte final fue aprobado
+    $reporte = EstadoProceso::where('clave_alumno', $claveAlumno)
+        ->where('etapa', 'REPORTE FINAL')
+        ->first();
+
+    if ($reporte && $reporte->estado === 'aprobado') {
+        $bloqueoEvaluacion = false;
     }
 }
 @endphp
@@ -32,30 +62,50 @@ if ($ultimaSolicitud) {
 <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom mb-4 submenu-alumno">
     <div class="submenu-alumno">
         <ul class="nav">
+
+            {{-- 🔹 Estado: siempre activo --}}
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.estado') ? 'active' : '' }}" href="{{ route('alumno.estado') }}">Estado</a>
+                <a class="nav-link {{ request()->routeIs('alumno.estado') ? 'active' : '' }}" href="{{ route('alumno.estado') }}">
+                    Estado
+                </a>
             </li>
+
+            {{-- 🔹 Solicitud --}}
             <li class="nav-item">
-                @if($bloqueado)
-                    <a class="nav-link disabled text-secondary" style="pointer-events:none;">
-                    Solicitud 🛑
-                    </a>
+                @if($bloqueoSolicitud)
+                    <a class="nav-link disabled text-secondary" style="pointer-events:none;">Solicitud</a>
                 @else
-                    <a class="nav-link {{ request()->routeIs('alumno.solicitud') ? 'active' : '' }}"
-                    href="{{ route('alumno.solicitud') }}">
-                    Solicitud
-                    </a>
+                    <a class="nav-link {{ request()->routeIs('alumno.solicitud') ? 'active' : '' }}" href="{{ route('alumno.solicitud') }}">Solicitud</a>
                 @endif
             </li>
+
+            {{-- 🔹 Registro --}}
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.registro') ? 'active' : '' }}" href="{{ route('alumno.registro') }}">Registro</a>
+                @if($bloqueoRegistro)
+                    <a class="nav-link disabled text-secondary" style="pointer-events:none;">Registro</a>
+                @else
+                    <a class="nav-link {{ request()->routeIs('alumno.registro') ? 'active' : '' }}" href="{{ route('alumno.registro') }}">Registro</a>
+                @endif
             </li>
+
+            {{-- 🔹 Nuevo Reporte --}}
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.reporte') ? 'active' : '' }}" href="{{ route('alumno.reporte') }}">Nuevo Reporte</a>
+                @if($bloqueoReporte)
+                    <a class="nav-link disabled text-secondary" style="pointer-events:none;">Nuevo Reporte</a>
+                @else
+                    <a class="nav-link {{ request()->routeIs('alumno.reporte') ? 'active' : '' }}" href="{{ route('alumno.reporte') }}">Nuevo Reporte</a>
+                @endif
             </li>
+
+            {{-- 🔹 Evaluación --}}
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('alumno.evaluacion') ? 'active' : '' }}" href="{{ route('alumno.evaluacion') }}">Evaluación</a>
+                @if($bloqueoEvaluacion)
+                    <a class="nav-link disabled text-secondary" style="pointer-events:none;">Evaluación</a>
+                @else
+                    <a class="nav-link {{ request()->routeIs('alumno.evaluacion') ? 'active' : '' }}" href="{{ route('alumno.evaluacion') }}">Evaluación</a>
+                @endif
             </li>
+
         </ul>
     </div>
 </nav>

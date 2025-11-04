@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Models\EstadoProceso;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\SolicitudFPP01;
 
 class AlumnoController extends Controller
 {
@@ -32,7 +35,7 @@ class AlumnoController extends Controller
             'Clave_Area' => $request->Clave_Area,
         ]);
 
-        // 2️⃣ Inicializar todas las etapas del proceso con estado 'pendiente'
+        // Inicializar todas las etapas del proceso con estado 'pendiente'
         $etapas = [
             'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
             'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
@@ -154,5 +157,64 @@ class AlumnoController extends Controller
         return view('alumno.estado', compact('procesos'));
     }
 
+    public function aceptar(Request $request)
+    {
+        $alumno = session('alumno');
 
+        if (!$alumno) {
+            return redirect()->route('alumno.inicio')
+                ->with('error', 'No se encontró la sesión del alumno.');
+        }
+
+        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+            ->latest('Id_Solicitud_FPP01')
+            ->first();
+
+        // Solo generar PDF
+        $pdf = Pdf::loadView('pdf.fpp02', compact('alumno', 'solicitud'))
+            ->setPaper('letter', 'portrait');
+
+        return $pdf->download('Formato_FPP02.pdf');
+    }
+
+    public function confirmaFPP02()
+    {
+        $alumno = session('alumno');
+        $clave = $alumno['cve_uaslp'] ?? null;
+
+        if (!$clave) {
+            return redirect()->route('alumno.inicio')
+                ->with('error', 'No se encontró la clave del alumno en la sesión.');
+        }
+
+        // Buscar la última solicitud registrada (FPP01)
+        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
+            ->latest('Id_Solicitud_FPP01')
+            ->first();
+
+        if (!$solicitud) {
+            return redirect()->route('alumno.estado')
+                ->with('error', 'No se encontró ninguna solicitud previa.');
+        }
+
+        // Pasar datos a la vista (puede ser fpp02.blade.php o registro.blade.php)
+        return view('alumno.registro', compact('alumno', 'solicitud'));
+    }
+
+    public function revisar($alumno)
+    {
+        $solicitud = SolicitudFPP01::with([
+            'alumno',
+            'dependenciaMercadoSolicitud.dependenciaEmpresa',
+            'dependenciaMercadoSolicitud.sectorPrivado',
+            'dependenciaMercadoSolicitud.sectorPublico',
+            'dependenciaMercadoSolicitud.sectorUaslp',
+            'autorizaciones'
+        ])->findOrFail($alumno);
+
+        // Bitácora: encargado inició revisión
+        $this->logBitacora("Encargado revisa detalles de solicitud #$alumno");
+
+        return view('encargado.revision', compact('solicitud'));
+    }
 }

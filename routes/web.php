@@ -53,15 +53,15 @@ Route::prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('alumno')->group(function () {
-
     Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
-    //Route::get('/estado', fn () => view('alumno.estado'))->name('alumno.estado');
     Route::get('/estado', [AlumnoController::class, 'estadoAlumno'])->name('alumno.estado');
     Route::get('/solicitud', function () {
         $empresas = \App\Models\DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
         return view('alumno.solicitud', compact('empresas'));
     })->name('alumno.solicitud');
-    Route::get('/registro', fn () => view('alumno.registro'))->name('alumno.registro');
+    Route::get('/registro', [AlumnoController::class, 'confirmaFPP02'])->name('alumno.registro');
+    Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
+    Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
 
@@ -99,8 +99,6 @@ Route::prefix('alumno')->group(function () {
     Route::get('/crear', [AlumnoController::class, 'create'])->name('alumno.create');
     Route::post('/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 });
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -254,3 +252,5 @@ Route::prefix('dsspp')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
+Route::post('/alumno/fpp02/generar', [App\Http\Controllers\PdfController::class, 'generarFpp02Ajax'])
+    ->name('alumno.fpp02.generar');

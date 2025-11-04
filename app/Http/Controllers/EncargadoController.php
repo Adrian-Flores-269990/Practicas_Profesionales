@@ -8,7 +8,7 @@ use App\Models\SolicitudFPP01;
 use App\Models\AutorizacionSolicitud;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
-use App\Models\Alumno; // Asegúrate de tener este modelo
+use App\Models\Alumno;
 use App\Services\UaslpApiService;
 
 class EncargadoController extends Controller
@@ -39,11 +39,11 @@ class EncargadoController extends Controller
     public function consultarAlumno(Request $request)
     {
         $alumnos = [];
-        
+
         // Si hay búsqueda
         if ($request->has('busqueda') && !empty($request->busqueda)) {
             $busqueda = trim($request->busqueda);
-            
+
             // Buscar SOLO alumnos que tienen al menos una solicitud
             $alumnosQuery = Alumno::whereHas('solicitudes') // Solo los que tienen solicitudes
                 ->where(function($query) use ($busqueda) {
@@ -71,7 +71,7 @@ class EncargadoController extends Controller
                 ];
             })->toArray();
         }
-        
+
         return view('encargado.consultar_alumno', compact('alumnos'));
     }
 
@@ -173,7 +173,7 @@ class EncargadoController extends Controller
                 $solicitud->Autorizacion = 1;
                 $solicitud->Estado_Encargado = 'aprobado';
                 $solicitud->save();
-                
+
                 $this->logBitacora("Encargado APROBÓ solicitud");
 
                 EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)

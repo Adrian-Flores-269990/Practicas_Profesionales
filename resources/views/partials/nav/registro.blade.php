@@ -37,12 +37,12 @@ if ($ultimaSolicitud) {
     }
 
     // 🟨 BLOQUEO REPORTE
-    // Se desbloquea si el registro fue aprobado
+    // Se desbloquea si el registro fue aprobado o realizado
     $registro = EstadoProceso::where('clave_alumno', $claveAlumno)
         ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
         ->first();
 
-    if ($registro && $registro->estado === 'aprobado') {
+    if ($registro && in_array($registro->estado, ['aprobado', 'realizado'])) {
         $bloqueoReporte = false;
     }
 

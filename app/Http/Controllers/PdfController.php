@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\SolicitudFPP01;
-use App\Models\Alumno;
+use App\Models\EstadoProceso;
 
 class PdfController extends Controller
 {
@@ -107,71 +106,171 @@ class PdfController extends Controller
     // PDF FPP02
     // -------------------------------------------------------
 
+    private function actualizarSemaforo($claveAlumno, $etapaActual)
+    {
+        try {
+            // Actualizar la etapa actual
+            $actual = EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => $etapaActual,
+                ],
+                [
+                    'estado' => 'realizado',
+                ]
+            );
+
+            // Lista completa de etapas en orden
+            $etapas = [
+                'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)',
+                'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)',
+                'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                'CARTA DE PRESENTACIÓN (ALUMNO)',
+                'CARTA DE ACEPTACIÓN (ALUMNO)',
+                'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                'CARTA DE DESGLOSE DE PERCEPCIONES',
+                'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
+                'RECIBO DE PAGO',
+                'REPORTE PARCIAL NO. X',
+                'REVISIÓN REPORTE PARCIAL NO. X',
+                'CORRECCIÓN REPORTE PARCIAL NO. X',
+                'REPORTE FINAL',
+                'REVISIÓN REPORTE FINAL',
+                'CORRECCIÓN REPORTE FINAL',
+                'CALIFICACIÓN REPORTE FINAL',
+                'CARTA DE TÉRMINO',
+                'EVALUACIÓN DE LA EMPRESA',
+                'CALIFICACIÓN FINAL',
+                'EVALUACIÓN DEL ALUMNO',
+                'LIBERACIÓN DEL ALUMNO',
+                'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES',
+            ];
+
+            // Buscar la siguiente etapa
+            $indiceActual = array_search($etapaActual, $etapas);
+            if ($indiceActual !== false && isset($etapas[$indiceActual + 1])) {
+                $siguienteEtapa = $etapas[$indiceActual + 1];
+
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $claveAlumno,
+                        'etapa' => $siguienteEtapa,
+                    ],
+                    [
+                        'estado' => 'pendiente',
+                    ]
+                );
+
+                Log::info("Siguiente etapa marcada como pendiente", [
+                    'clave_alumno' => $claveAlumno,
+                    'siguiente' => $siguienteEtapa
+                ]);
+            }
+
+            Log::info("Etapa actual marcada como realizada", [
+                'clave_alumno' => $claveAlumno,
+                'actual' => $etapaActual
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error al actualizar semáforo: " . $e->getMessage());
+        }
+    }
+
+    // -------------------------------------------------------
+    // PDF FPP02
+    // -------------------------------------------------------
     public function generarFpp02(Request $request)
     {
-        $alumno = session('alumno');
-        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+        $alumnoSesion = session('alumno');
+        $claveAlumno = $alumnoSesion['cve_uaslp'] ?? null;
 
-        // Obtener datos (ajusta según tus modelos)
-        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)->latest()->first();
-        $empresa = $solicitud ? $solicitud->empresa : null;
+        if (!$claveAlumno) {
+            return back()->withErrors(['No se encontró la sesión del alumno.']);
+        }
+
+        // Obtener solicitud
+        $solicitud = \App\Models\SolicitudFPP01::with([
+            'alumno',
+            'dependenciaMercadoSolicitud.dependenciaEmpresa',
+            'dependenciaMercadoSolicitud.sectorPrivado',
+            'dependenciaMercadoSolicitud.sectorPublico',
+            'dependenciaMercadoSolicitud.sectorUaslp'
+        ])
+        ->where('Clave_Alumno', $claveAlumno)
+        ->latest('Id_Solicitud_FPP01')
+        ->first();
 
         if (!$solicitud) {
             return back()->withErrors(['No se encontró la información de la solicitud.']);
         }
 
-        // Generar PDF desde la vista
-        $pdf = Pdf::loadView('pdfs.fpp02', compact('alumno', 'empresa', 'solicitud'));
+        $dependencia = $solicitud->dependenciaMercadoSolicitud;
+        $empresa = optional($dependencia)->dependenciaEmpresa;
+        $sector = $dependencia?->Id_Privado
+            ? $dependencia->sectorPrivado
+            : ($dependencia?->Id_Publico
+                ? $dependencia->sectorPublico
+                : $dependencia?->sectorUaslp);
+
+        // Generar PDF
+        $pdf = Pdf::loadView('pdf.fpp02', [
+            'alumno' => $solicitud->alumno,
+            'solicitud' => $solicitud,
+            'empresa' => $empresa,
+            'sector' => $sector,
+        ])->setPaper('letter', 'portrait');
 
         $nombreArchivo = 'FPP02_' . $claveAlumno . '_' . time() . '.pdf';
+        $rutaCarpeta = 'expedientes/fpp02';
+        $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
 
-        // Descargar directamente
-        return $pdf->download($nombreArchivo);
+        if (!Storage::disk('public')->exists($rutaCarpeta)) {
+            Storage::disk('public')->makeDirectory($rutaCarpeta);
+        }
+
+        Storage::disk('public')->put($rutaCompleta, $pdf->output());
+
+        // ACTUALIZAR SEMÁFORO
+        $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
+
+        // Guardar sesión
+        session(['fpp02_impreso_' . $claveAlumno => true]);
+
+        // Descargar PDF
+        $pathAbsoluto = storage_path('app/public/' . $rutaCompleta);
+        return response()->download($pathAbsoluto, 'Formato_FPP02.pdf');
     }
 
-    public function generarFpp02Ajax(Request $request)
+    // -------------------------------------------------------
+    // SUBIR FPP02 FIRMADO
+    // -------------------------------------------------------
+    public function subirFpp02Firmado(Request $request)
     {
-        try {
-            $alumno = session('alumno');
-            $claveAlumno = $alumno['cve_uaslp'] ?? null;
+        $request->validate([
+            'archivo' => 'required|file|mimes:pdf|max:20480',
+        ]);
 
-            if (!$claveAlumno) {
-                return response()->json(['error' => 'No se encontró sesión del alumno.'], 400);
-            }
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
 
-            $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                ->where('Estado_Departamento', 'aprobado')
-                ->where('Estado_Encargado', 'aprobado')
-                ->latest('Id_Solicitud_FPP01')
-                ->first();
+        $file = $request->file('archivo');
+        $nombreArchivo = $claveAlumno . '_FPP02_firmado_' . time() . '.pdf';
+        $ruta = 'expedientes/fpp02-firmados/' . $nombreArchivo;
 
-            if (!$solicitud) {
-                return response()->json(['error' => 'No se encontró solicitud aprobada.'], 404);
-            }
-
-            $datosAlumno = \App\Models\Alumno::where('cve_uaslp', $claveAlumno)->first();
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.fpp02', [
-                'solicitud' => $solicitud,
-                'alumno' => $datosAlumno,
-            ])->setPaper('letter', 'portrait');
-
-            $nombreArchivo = $claveAlumno . '_fpp02_' . time() . '.pdf';
-            $ruta = 'expedientes/fpp02/' . $nombreArchivo;
-
-            if (!Storage::disk('public')->exists('expedientes/fpp02')) {
-                Storage::disk('public')->makeDirectory('expedientes/fpp02');
-            }
-
-            Storage::disk('public')->put($ruta, $pdf->output());
-
-            return response($pdf->output(), 200, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="Formato_FPP02.pdf"',
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error al generar FPP02 (AJAX): ' . $e->getMessage());
-            return response()->json(['error' => 'Ocurrió un error interno.'], 500);
+        if (!Storage::disk('public')->exists('expedientes/fpp02-firmados')) {
+            Storage::disk('public')->makeDirectory('expedientes/fpp02-firmados');
         }
+
+        Storage::disk('public')->putFileAs('expedientes/fpp02-firmados', $file, $nombreArchivo);
+
+        // ACTUALIZAR SEMÁFORO
+        $this->actualizarSemaforo($claveAlumno, 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)');
+
+        return back()->with('success', 'El archivo firmado fue subido correctamente.');
     }
 
 }

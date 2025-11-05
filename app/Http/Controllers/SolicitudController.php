@@ -344,12 +344,12 @@ class SolicitudController extends Controller
 
         $claveAlumno = $alumno['cve_uaslp'];
 
-        // ✅ Traer la última solicitud del alumno
+        // Traer la última solicitud del alumno
         $ultima = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
             ->latest('Fecha_Solicitud')
             ->first();
 
-        // ✅ Validar si ya tiene una solicitud activa
+        // Validar si ya tiene una solicitud activa
         if ($ultima && (
             $ultima->Estado_Departamento == 'pendiente' ||
             $ultima->Estado_Encargado == 'pendiente' ||

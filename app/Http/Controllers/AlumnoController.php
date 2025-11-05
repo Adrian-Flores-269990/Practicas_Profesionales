@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Models\EstadoProceso;
-use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\SolicitudFPP01;
+use App\Models\SolicitudFPP02;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AlumnoController extends Controller
 {
@@ -160,19 +161,81 @@ class AlumnoController extends Controller
     public function aceptar(Request $request)
     {
         $alumno = session('alumno');
+        $clave = $alumno['cve_uaslp'] ?? null;
 
-        if (!$alumno) {
+        if (!$alumno || !$clave) {
             return redirect()->route('alumno.inicio')
                 ->with('error', 'No se encontró la sesión del alumno.');
         }
 
-        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
             ->latest('Id_Solicitud_FPP01')
             ->first();
 
-        // Solo generar PDF
-        $pdf = Pdf::loadView('pdf.fpp02', compact('alumno', 'solicitud'))
+        if (!$solicitud) {
+            return back()->with('error', 'No se encontró la solicitud FPP01 previa.');
+        }
+
+        // =====================
+        // CÁLCULOS AUTOMÁTICOS
+        // =====================
+        $fechaInicio = Carbon::parse($solicitud->Fecha_Inicio);
+        $fechaTermino = Carbon::parse($solicitud->Fecha_Termino);
+        $numMeses = $fechaInicio->diffInMonths($fechaTermino);
+
+        $horarioEntrada = Carbon::parse($solicitud->Horario_Entrada);
+        $horarioSalida = Carbon::parse($solicitud->Horario_Salida);
+        $horasPorDia = abs($horarioSalida->diffInHours($horarioEntrada));
+
+        $diasSemana = 0;
+        foreach (['L', 'M', 'X', 'J', 'V', 'S'] as $dia) {
+            if (!empty($solicitud->$dia) && $solicitud->$dia == 1) $diasSemana++;
+        }
+        $totalHoras = max(0, $horasPorDia * ($diasSemana ?: 5) * $numMeses * 4);
+
+        // =====================
+        // INSERTAR EN FPP02
+        // =====================
+        SolicitudFPP02::create([
+            'Asignacion_Oficial_DSSPP' => 0,
+            'Fecha_Asignacion' => now(),
+            'Servicio_Social' => 0,
+            'Num_Meses' => $numMeses,
+            'Total_Horas' => $totalHoras,
+            'Autorizacion' => 1,
+            'Fecha_Autorizacion' => now(),
+        ]);
+
+        // =====================
+        // ACTUALIZAR SEMÁFORO
+        // =====================
+        try {
+            $updated = EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                ],
+                [
+                    'estado' => 'realizado',
+                ]
+            );
+
+            Log::info('EstadoProceso actualizado correctamente al imprimir', [
+                'clave_alumno' => $clave,
+                'etapa' => $updated->etapa,
+                'nuevo_estado' => $updated->estado
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar EstadoProceso al imprimir: ' . $e->getMessage());
+        }
+
+        // =====================
+        // GENERAR PDF
+        // =====================
+        $pdf = PDF::loadView('pdf.fpp02', compact('alumno', 'solicitud'))
             ->setPaper('letter', 'portrait');
+
+        session(['fpp02_impreso' => true]);
 
         return $pdf->download('Formato_FPP02.pdf');
     }
@@ -187,34 +250,48 @@ class AlumnoController extends Controller
                 ->with('error', 'No se encontró la clave del alumno en la sesión.');
         }
 
-        // Buscar la última solicitud registrada (FPP01)
-        $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
-            ->latest('Id_Solicitud_FPP01')
-            ->first();
-
-        if (!$solicitud) {
-            return redirect()->route('alumno.estado')
-                ->with('error', 'No se encontró ninguna solicitud previa.');
-        }
-
-        // Pasar datos a la vista (puede ser fpp02.blade.php o registro.blade.php)
-        return view('alumno.registro', compact('alumno', 'solicitud'));
-    }
-
-    public function revisar($alumno)
-    {
-        $solicitud = SolicitudFPP01::with([
+        $solicitud = \App\Models\SolicitudFPP01::with([
             'alumno',
             'dependenciaMercadoSolicitud.dependenciaEmpresa',
             'dependenciaMercadoSolicitud.sectorPrivado',
             'dependenciaMercadoSolicitud.sectorPublico',
             'dependenciaMercadoSolicitud.sectorUaslp',
             'autorizaciones'
-        ])->findOrFail($alumno);
+        ])
+        ->where('Clave_Alumno', $clave)
+        ->latest('Id_Solicitud_FPP01')
+        ->first();
 
-        // Bitácora: encargado inició revisión
-        $this->logBitacora("Encargado revisa detalles de solicitud #$alumno");
+        if (!$solicitud) {
+            return redirect()->route('alumno.estado')
+                ->with('error', 'No se encontró ninguna solicitud previa.');
+        }
 
-        return view('encargado.revision', compact('solicitud'));
+        $dependencia = $solicitud->dependenciaMercadoSolicitud;
+        $empresa = optional($dependencia)->dependenciaEmpresa;
+
+        $sector = null;
+        $tipoSector = null;
+        if ($dependencia?->Id_Privado) {
+            $sector = $dependencia->sectorPrivado;
+            $tipoSector = 'privado';
+        } elseif ($dependencia?->Id_Publico) {
+            $sector = $dependencia->sectorPublico;
+            $tipoSector = 'publico';
+        } elseif ($dependencia?->Id_UASLP) {
+            $sector = $dependencia->sectorUaslp;
+            $tipoSector = 'uaslp';
+        }
+
+        // Determinar si debe mostrar upload
+        $registroFpp02 = EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+            ->first();
+
+        $mostrarUpload =
+            session('fpp02_impreso_' . $clave, false) ||
+            ($registroFpp02 && $registroFpp02->estado === 'realizado');
+
+        return view('alumno.registro', compact('alumno', 'solicitud', 'empresa', 'sector', 'tipoSector', 'mostrarUpload'));
     }
 }

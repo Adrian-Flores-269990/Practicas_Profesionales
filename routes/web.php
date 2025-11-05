@@ -99,6 +99,9 @@ Route::prefix('alumno')->group(function () {
     Route::get('/crear', [AlumnoController::class, 'create'])->name('alumno.create');
     Route::post('/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 });
+Route::post('/alumno/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])
+    ->name('alumno.subirFpp02Firmado');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -252,5 +255,7 @@ Route::prefix('dsspp')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
-Route::post('/alumno/fpp02/generar', [App\Http\Controllers\PdfController::class, 'generarFpp02Ajax'])
-    ->name('alumno.fpp02.generar');
+Route::post('/alumno/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])
+    ->name('alumno.subirFpp02Firmado');
+Route::post('/alumno/generar-fpp02', [PdfController::class, 'generarFpp02'])
+    ->name('alumno.generarFpp02');

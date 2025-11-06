@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\UaslpApiService;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
+use App\Models\Empleado;
 
 class LoginController extends Controller
 {
@@ -15,7 +16,7 @@ class LoginController extends Controller
         $this->uaslpApi = $uaslpApi;
     }
 
-    // arriba de la clase o como método privado
+    // Arriba de la clase o como método privado
     private function datosArray($response) {
         $datos = $response['datos'] ?? null;
         if (is_null($datos)) return null;
@@ -23,6 +24,49 @@ class LoginController extends Controller
             $datos = json_decode($datos, true);
         }
         return $datos;
+    }
+
+    // Regresa el rol del empleado, en caso de no encontrarse el empleado en la base de datos
+    // se agrega sin rol
+    public function rolEmpleado($rpeEmpleado, $datosEmpleado)
+    {
+        $empleado = Empleado::where('RPE', $rpeEmpleado);
+
+        if (!$empleado->count() > 0) {
+            $carrera = NULL;
+            $area = NULL;
+            if($datosEmpleado['0']['carrera'] !== "NULL"){
+                foreach ($datosEmpleado as $item){
+                    $resultadoClaveArea[] = $item['clave_area'];
+                    $resultadoArea[] = $item['area'];
+                    $resultadoClaveCarrera[] = $item['clave_carrera'];
+                    $resultadoCarrera[] = $item['carrera'];
+                }
+                $claveArea = implode(',', $resultadoClaveArea);
+                $area = implode(',', $resultadoArea);
+                $claveCarrera = implode(',', $resultadoClaveCarrera);
+                $carrera = implode(',', $resultadoCarrera);
+            }
+            // Tanto clave_area como clave_carrera no se guardan en la base de datos
+            // porque los manejé como string, no como enteros
+            Empleado::create([
+                'Nombre' => $datosEmpleado['0']['nombre'],
+                'RPE' => $datosEmpleado['0']['rpe'],
+                'Clave_Area' => $claveArea,
+                'Area' => $area,
+                'Clave_Carrera' => $claveCarrera,
+                'Carrera' => $carrera,
+                'Cargo' => $datosEmpleado['0']['cargo'],
+                'Correo' => $datosEmpleado['0']['correo_electronico'],
+                'Telefono' => $datosEmpleado['0']['telefono'],
+            ]);
+            return NULL;
+        } else {
+            if ($empleado->count() == 1) {
+                $rol = Empleado::where('RPE', $rpeEmpleado)->value('Id_Rol');
+                return $rol;
+            }
+        }
     }
 
     // --- LOGIN ALUMNO ---
@@ -44,14 +88,25 @@ class LoginController extends Controller
 
         $loginDatos = $this->datosArray($loginResponse) ?? [];
         $userRaw = $loginDatos[0]['user'] ?? null;
-        if (!$userRaw) {
-            return back()->withErrors(['cuenta' => 'Respuesta de login inválida']);
+        
+        // No funcionó el web service
+        if (!($loginResponse['correcto'] ?? false)) {
+            return back()->withErrors(['cuenta' => 'Fallo en la conexión']);
         }
+
+        /*
+        // Verifica contraseña
+        $loginDatos = $this->datosArray($loginResponse) ?? [];
+        $conexion = $loginDatos[0]['conexion'];
+        if ($conexion === false) {
+            return back()->withErrors(['cuenta' => 'Datos incorrectos']);
+        }*/
+
 
         $tipoChar = strtolower($userRaw[0]);
         $claveReal = preg_replace('/^[au]/i', '', $userRaw);
 
-        $datosResponse = $this->uaslpApi->obtenerDatos($claveReal, 'alumno');
+        $datosResponse = $this->uaslpApi->obtenerDatosAlumno($claveReal, 'alumno');
 
         if (!($datosResponse['correcto'] ?? false)) {
             return back()->withErrors(['cuenta' => 'No se pudieron obtener los datos del alumno']);
@@ -97,6 +152,67 @@ class LoginController extends Controller
         $rpe = $request->input('rpe');
         $password = $request->input('contrasena');
 
+        $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
+
+        // No funcionó el web service
+        if (!($loginResponse['correcto'] ?? false)) {
+            return back()->withErrors(['cuenta' => 'Fallo en la conexión']);
+        }
+
+        /*
+        // Verifica contraseña
+        $loginDatos = $this->datosArray($loginResponse) ?? [];
+        $conexion = $loginDatos[0]['conexion'];
+        if ($conexion === false) {
+            return back()->withErrors(['cuenta' => 'Datos incorrectos']);
+        }*/
+
+        $datosResponse = $this->uaslpApi->obtenerDatosEmpleado($rpe, 'empleado');
+
+        if (empty($datosResponse['correcto'])) {
+            return back()->withErrors(['rpe' => 'No se pudieron obtener los datos del empleado']);
+        }
+
+        $datos = $this->datosArray($datosResponse);
+        if (empty($datos) || !is_array($datos)) {
+            return back()->withErrors(['rpe' => 'Error al procesar los datos del empleado']);
+        }
+
+        $rol = $this->rolEmpleado($rpe, $datos);
+
+
+        // Aquí solo faltaría cambiar los datos de cada ruta, de momento todos entran a encargado
+
+        session(['empleado' => $datos]);
+
+        // Observador
+        if($rol == NULL || $rol == 4){
+            return redirect()->route('encargado.inicio');
+        }
+
+        // Secretaría
+        if($rol == 7){
+            return redirect()->route('encargado.inicio');
+        }
+
+        // DSSPP
+        if($rol == 3){
+            return redirect()->route('encargado.inicio');
+        }
+
+        // Encargado
+        if($rol == 2){
+            return redirect()->route('encargado.inicio');
+        }
+
+        // Administrador
+        if($rol == 1){
+            return redirect()->route('encargado.inicio');
+        }
+
+
+
+
         // Simulación para pruebas sin API PARA ENCARGADO
         if ($rpe == 123 && $password == 'test') {
             $empleado = [
@@ -133,8 +249,6 @@ class LoginController extends Controller
             return redirect()->route('secretaria.inicio');
         }
 
-
-
         // Simulación para pruebas sin API PARA DSSPP
         if ($rpe == 987 && $password == 'test') {
             $empleado = [
@@ -146,34 +260,5 @@ class LoginController extends Controller
             session(['empleado' => $empleado]);
             return redirect()->route('dsspp.inicio');
         }
-
-
-
-
-
-
-        // Lógica real
-        $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
-
-        if (!isset($loginResponse['correcto']) || !$loginResponse['correcto']) {
-            return back()->withErrors(['rpe' => 'Credenciales incorrectas']);
-        }
-
-        $datosResponse = $this->uaslpApi->obtenerDatos($rpe, 'empleado');
-
-        if (!isset($datosResponse['correcto']) || !$datosResponse['correcto']) {
-            return back()->withErrors(['rpe' => 'No se pudieron obtener los datos del empleado']);
-        }
-
-        $datos = json_decode($datosResponse['datos'], true);
-
-        if (empty($datos) || !is_array($datos)) {
-            return back()->withErrors(['rpe' => 'Error al procesar los datos del empleado']);
-        }
-
-        $empleado = $datos[0];
-        session(['empleado' => $empleado]);
-
-        return redirect()->route('encargado.inicio');
     }
 }

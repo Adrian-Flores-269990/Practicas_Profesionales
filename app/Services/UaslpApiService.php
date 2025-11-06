@@ -25,13 +25,30 @@ class UaslpApiService
         return $response->json();
     }
 
-    public function obtenerDatos($clave, $tipo)
+    // Obtiene los datos del alumno del web service y los manda como respuesta
+    public function obtenerDatosAlumno($clave, $tipo)
     {
         $endpoint = "{$this->baseUrl}/practicas_profesionales/pp_get_datos.php";
 
         $payload = [
             "key_api" => $this->apiKey,
             "clave" => $clave,
+            "tipo" => $tipo
+        ];
+
+        $response = Http::withoutVerifying()->post($endpoint, $payload);
+
+        return $response->json();
+    }
+
+    // Obtiene los datos del empleado del web service y los manda como respuesta
+    public function obtenerDatosEmpleado($rpe, $tipo)
+    {
+        $endpoint = "{$this->baseUrl}/practicas_profesionales/pp_get_datos.php";
+
+        $payload = [
+            "key_api" => $this->apiKey,
+            "clave" => $rpe,
             "tipo" => $tipo
         ];
 

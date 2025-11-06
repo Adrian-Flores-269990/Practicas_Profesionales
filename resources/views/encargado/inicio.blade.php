@@ -23,17 +23,22 @@
 
           <div class="flex-grow-1">
             <h3 class="mb-1 nombre">
-              {{ $encargado['nombre'] ?? '' }}
+              {{ $encargado[0]['nombre'] ?? '' }}
             </h3>
 
             <div class="kv">
               <div class="kv-label">RPE</div>
-              <div class="kv-value">{{ $encargado['rpe'] ?? '-' }}</div>
+              <div class="kv-value">{{ $encargado[0]['rpe'] ?? '-' }}</div>
             </div>
 
             <div class="kv">
-              <div class="kv-label">rol</div>
-              <div class="kv-value">{{ $encargado['rol'] ?? '-' }}</div>
+              <div class="kv-label">Correo electrónico</div>
+              <div class="kv-value">{{ $encargado[0]['correo_electronico'] ?? '-' }}</div>
+            </div>
+
+            <div class="kv">
+              <div class="kv-label">Teléfono</div>
+              <div class="kv-value">{{ $encargado[0]['telefono'] ?? '-' }}</div>
             </div>
           </div>
         </div>
@@ -41,12 +46,17 @@
         <div class="card-body pt-0">
           <div class="kv-grid">
 
-            <div class="kv">
-              <div class="kv-label">Dependencia</div>
-              <div class="kv-value">{{ $encargado['dependencia'] ?? '-' }}</div>
-            </div>
-
-
+            @if (!empty($encargado))
+              @foreach ($encargado as $item)
+                  @if ($item['carrera'] !== "NULL")
+                  <div class="kv">
+                    <div class="kv-label">Encargado de la carrera</div>
+                    <div class="kv-value">{{ $item['carrera'] ?? '-' }}</div>
+                  </div> 
+                  @endif
+              @endforeach
+            @endif
+            
           </div>
         </div>
       </div>
@@ -61,8 +71,8 @@
             <div class="kv-value">{{ now()->format('d/m/Y') }}</div>
           </div>
           <div class="kv kv-status">
-            <div class="kv-label">Rol</div>
-            <div class="kv-value"></div>
+            <div class="kv-label">Cargo</div>
+            <div class="kv-value">{{ $encargado[0]['cargo'] ?? '-' }}</div>
           </div>
         </div>
       </div>

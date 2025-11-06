@@ -30,8 +30,8 @@
           Proceso
         </a>
         <ul class="dropdown-menu" aria-labelledby="procesoDropdown">
-          <li><a class="dropdown-item" href="#">Detalles</a></li>
-          <li><a class="dropdown-item" href="#">FAQs</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detalles">Detalles</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#faq">FAQs</a></li>
         </ul>
       </li>
 

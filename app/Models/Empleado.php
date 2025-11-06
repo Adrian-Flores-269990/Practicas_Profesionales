@@ -12,7 +12,14 @@ class Empleado extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'Id_Rol','Nombre','RPE','Area','Carrera','Cargo','Correo','Telefono'
+        'Id_Rol',
+        'Nombre',
+        'RPE',
+        'Area',
+        'Carrera',
+        'Cargo',
+        'Correo',
+        'Telefono'
     ];
 
     public function rol()

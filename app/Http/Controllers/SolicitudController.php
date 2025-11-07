@@ -98,6 +98,11 @@ class SolicitudController extends Controller
                 $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 
+                // Derivar Apoyo_Economico (1/0) desde hidden o radios (compatibilidad)
+                $apoyoEconomico = $request->has('apoyo_economico')
+                    ? ((int) $request->input('apoyo_economico') === 1 ? 1 : 0)
+                    : ($request->apoyoeco === 'si' ? 1 : 0);
+
                 // Crear la solicitud usando los datos del alumno
                 $solicitud = SolicitudFPP01::create([
                     'Fecha_Solicitud' => now(),
@@ -129,7 +134,7 @@ class SolicitudController extends Controller
                     'Horario_Salida' => $request->horario_salida,   //HH:MM
                     'Dias_Semana' => $diasString,
                     'Validacion_Creditos' => $request->val_creditos === 'si' ? 1 : 0,
-                    'Apoyo_Economico' => $request->apoyoeco === 'si' ? 1 : 0,
+                    'Apoyo_Economico' => $apoyoEconomico,
                     'Extension_Practicas' => $request->extension === 'si' ? 1 : 0,
                     'Expedicion_Recibos' => $request->expe_rec === 'si' ? 1 : 0,
                     'Autorizacion' => null,
@@ -216,7 +221,8 @@ class SolicitudController extends Controller
                     $cp = $request->cp_empresa_privado;
                     $estado = $request->estado_empresa_privado;
                     $municipio = $request->municipio_empresa_privado;
-                    $telefono = $request->telefono_empresa_privado;
+                    // Coincidir con el nombre del campo en el formulario (telefono_privado)
+                    $telefono = $request->telefono_privado;
                     $areaDepto = $request->area_depto_privado;
 
                     $sector = SectorPrivado::create([
@@ -239,7 +245,8 @@ class SolicitudController extends Controller
                     $cp = $request->cp_empresa_publico;
                     $estado = $request->estado_empresa_publico;
                     $municipio = $request->municipio_empresa_publico;
-                    $telefono = $request->telefono_empresa_publico;
+                    // Coincidir con el nombre del campo en el formulario (telefono_publico)
+                    $telefono = $request->telefono_publico;
                     $areaDepto = $request->area_depto_publico;
 
                     $sector = SectorPublico::create([

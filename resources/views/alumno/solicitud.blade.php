@@ -593,32 +593,32 @@
                 <label class="form-label">Días de asistencia</label>
                 <div class="d-flex flex-wrap gap-2" id="dias_de_asistencia">
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="lunes" id="lunes" required>
-                      <label class="form-check-label" for="dia_lunes">Lunes</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="L" id="dia_L">
+                      <label class="form-check-label" for="dia_L">Lunes</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="martes" id="martes" required>
-                      <label class="form-check-label" for="dia_martes">Martes</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="M" id="dia_M">
+                      <label class="form-check-label" for="dia_M">Martes</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="miercoles" id="miercoles" required>
-                      <label class="form-check-label" for="dia_miercoles">Miércoles</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="X" id="dia_X">
+                      <label class="form-check-label" for="dia_X">Miércoles</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="jueves" id="jueves" required>
-                      <label class="form-check-label" for="dia_jueves">Jueves</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="J" id="dia_J">
+                      <label class="form-check-label" for="dia_J">Jueves</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="viernes" id="viernes" required>
-                      <label class="form-check-label" for="dia_viernes">Viernes</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="V" id="dia_V">
+                      <label class="form-check-label" for="dia_V">Viernes</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="sabado" id="sabado" required>
-                      <label class="form-check-label" for="dia_sabado">Sábado</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="S" id="dia_S">
+                      <label class="form-check-label" for="dia_S">Sábado</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="domingo" id="domingo" required>
-                      <label class="form-check-label" for="dia_domingo">Domingo</label>
+                      <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="D" id="dia_D">
+                      <label class="form-check-label" for="dia_D">Domingo</label>
                     </div>
                 </div>
               </div>
@@ -662,6 +662,8 @@
                     <label class="form-check-label" for="ap-n">NO</label>
                   </div>
                 </div>
+                {{-- Campo oculto sincronizado para enviar 1/0 a backend --}}
+                <input type="hidden" name="apoyo_economico" id="apoyo_economico" value="0">
               </div>
               <div class="col-12">
                 <label class="form-label">Extensión de Prácticas <span class="text-danger">*</span></label>
@@ -834,6 +836,22 @@ document.addEventListener('DOMContentLoaded', function() {
   const uploadCartaPasanteDiv = document.getElementById('upload_cartapasante');
   const cartapasanteFileInput = document.getElementById('cartapasante_file');
 
+  // Sincronizar Apoyo Económico (radios) con campo oculto 1/0
+  const apSi = document.getElementById('ap-s');
+  const apNo = document.getElementById('ap-n');
+  const apHidden = document.getElementById('apoyo_economico');
+  function syncApoyoEconomico() {
+    if (apSi && apSi.checked) {
+      apHidden.value = '1';
+    } else if (apNo && apNo.checked) {
+      apHidden.value = '0';
+    }
+  }
+  if (apSi) apSi.addEventListener('change', syncApoyoEconomico);
+  if (apNo) apNo.addEventListener('change', syncApoyoEconomico);
+  // Inicializa valor oculto según selección actual
+  syncApoyoEconomico();
+
   function toggleUploadConstancia() {
     if (constanciaSi.checked) {
       uploadDiv.style.display = 'block';
@@ -928,20 +946,17 @@ document.addEventListener('DOMContentLoaded', function() {
   outsourcingNo.addEventListener('change', actualizarContenedorOutsourcing);
 
   // Que se requieran los días de asistencia
-  const checkboxesDias = document.querySelectorAll('input[name="dias_asistencia"]');
+  const checkboxesDias = document.querySelectorAll('input[name="dias_asistencia[]"]');
   checkboxesDias.forEach(cb => { cb.addEventListener('change', sincronizarCheckboxGrupo); });
 
   function sincronizarCheckboxGrupo() {
     const algunoMarcado = Array.from(checkboxesDias).some(cb => cb.checked);
-
+    // No usar 'required' individual en cada checkbox; validar manualmente
+    const grupoContainer = document.getElementById('dias_de_asistencia');
     if (!algunoMarcado) {
-      checkboxesDias.forEach(cb => {
-        cb.setAttribute('required', 'required');
-      });
+      grupoContainer.setAttribute('data-invalid', '1');
     } else {
-      checkboxesDias.forEach(cb => {
-        cb.removeAttribute('required');
-      });
+      grupoContainer.removeAttribute('data-invalid');
     }
   }
 
@@ -1003,8 +1018,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!input.value) allValid = false;
       });
     });
+    // Validación manual de días: al menos uno seleccionado
+    const algunoMarcado = Array.from(checkboxesDias).some(cb => cb.checked);
+    if (!algunoMarcado) {
+      allValid = false;
+      alert('Seleccione al menos un día de asistencia.');
+    }
+
     if (!allValid) {
       e.preventDefault();
+      if (!algunoMarcado) return; // ya alertó por días
       alert('Debe completar todas las secciones antes de enviar.');
     }
   });

@@ -2,10 +2,16 @@
 
 @php
   $alumno = session('alumno');
-  $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
-            ->where('Autorizacion', 1)
-            ->where('Apoyo_Economico', 1)
-            ->count();
+  $tieneCarta = false;
+  if ($alumno) {
+    $solicitudId = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+                   ->latest('Id_Solicitud_FPP01')
+                   ->value('Id_Solicitud_FPP01');
+    if ($solicitudId) {
+      $tieneCarta = (\App\Models\Expediente::where('Id_Solicitud_FPP01', $solicitudId)
+                      ->value('Carta_Desglose_Percepciones')) == 1;
+    }
+  }
 @endphp
 
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
@@ -35,8 +41,8 @@
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.registroFPP02') }}">Registro de Solicitud de Autorización (FPP02)</a></li>
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.cartaAceptacion') }}">Carta de Aceptación</a></li>
-          @if ($existe == true)
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.desglosePercepciones') }}">Carta de Desglose de Percepciones</a></li>
+          @if ($tieneCarta)
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">Solicitud de Recibo para Ayuda Económica</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">Recibo de Pago</a></li>
           @endif

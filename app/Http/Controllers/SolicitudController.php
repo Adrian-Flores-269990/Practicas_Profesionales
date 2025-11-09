@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Expediente;
 
 class SolicitudController extends Controller
 {
@@ -299,6 +300,12 @@ class SolicitudController extends Controller
                     'Id_Mercado' => 1,
                     'Porcentaje' => 100
                 ]);
+
+                // Asegurar creación de expediente asociado a la solicitud (si no existe)
+                Expediente::firstOrCreate(
+                    ['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01],
+                    ['Carta_Desglose_Percepciones' => 0]
+                );
             });
 
             $this->logBitacora("Registro de solicitud");

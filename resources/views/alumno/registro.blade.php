@@ -104,7 +104,7 @@
   </h4>
 
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
-  <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
+  <div id="info-section" class="{{ $mostrarUpload ? 'display:none;' : '' }}">
     {{-- Alumno --}}
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-person-badge"></i> DATOS DE ALUMNO</div>
@@ -152,7 +152,7 @@
   </div>
 
   {{-- SECCIÓN PARA SUBIR PDF FIRMADO (visible si YA imprimió) --}}
-  <div id="upload-section" style="{{ $mostrarUpload ? '' : 'display:none;' }}">
+  <div id="upload-section" class="{{ $mostrarUpload ? '' : 'display:none;' }}">
     <div class="bg-white p-4 rounded shadow-sm w-100">
       <h5 class="fw-bold mb-4 text-center"><i class="bi bi-upload"></i> Subir formato FPP02 firmado</h5>
 

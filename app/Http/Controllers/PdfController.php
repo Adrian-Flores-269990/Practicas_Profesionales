@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EstadoProceso;
+use App\Models\SolicitudFPP01;
+use App\Models\Expediente;
 
 class PdfController extends Controller
 {
@@ -15,6 +17,20 @@ class PdfController extends Controller
         $archivo = $request->input('archivo');
         if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
+            // Recalcular estado de desglose percepciones para el alumno
+            $alumno = session('alumno');
+            $claveAlumno = $alumno['cve_uaslp'] ?? null;
+            if ($claveAlumno) {
+                $restantes = collect(Storage::disk('public')->files('expedientes/desglose-percepciones'))
+                    ->filter(fn($f) => str_contains($f, $claveAlumno . '_desglose_percepciones'));
+                if ($restantes->count() === 0) {
+                    $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)->latest('Id_Solicitud_FPP01')->first();
+                    if ($solicitud) {
+                        Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
+                            ->update(['Carta_Desglose_Percepciones' => 0]);
+                    }
+                }
+            }
             return back()->with('success', 'El archivo fue eliminado correctamente.');
         } else {
             return back()->withErrors(['No se encontró el archivo a eliminar.']);
@@ -94,6 +110,20 @@ class PdfController extends Controller
         ]);
 
         if ($saved) {
+            // Verificar existencia de al menos un archivo de desglose para el alumno
+            $existeArchivo = collect(Storage::disk('public')->files('expedientes/desglose-percepciones'))
+                ->contains(fn($f) => str_contains($f, $claveAlumno . '_desglose_percepciones'));
+
+            if ($existeArchivo) {
+                // Obtener última solicitud FPP01 y actualizar expediente
+                $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)->latest('Id_Solicitud_FPP01')->first();
+                if ($solicitud) {
+                    Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
+                        ->update(['Carta_Desglose_Percepciones' => 1]);
+                    // Actualizar semáforo de etapa
+                    $this->actualizarSemaforo($claveAlumno, 'CARTA DE DESGLOSE DE PERCEPCIONES');
+                }
+            }
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
             return back()->withErrors(['No se pudo guardar el archivo.']);
@@ -235,7 +265,9 @@ class PdfController extends Controller
         Storage::disk('public')->put($rutaCompleta, $pdf->output());
 
         // ACTUALIZAR SEMÁFORO
-        $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
+        //$this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
+        // Etapa 4: REGISTRO DE SOLICITUD DE AUTORIZACIÓN...
+        $this->marcarEtapa($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES', 'proceso');
 
         // Guardar sesión
         session(['fpp02_impreso_' . $claveAlumno => true]);
@@ -267,10 +299,32 @@ class PdfController extends Controller
 
         Storage::disk('public')->putFileAs('expedientes/fpp02-firmados', $file, $nombreArchivo);
 
-        // ACTUALIZAR SEMÁFORO
-        $this->actualizarSemaforo($claveAlumno, 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)');
+        // ETAPA 4 → realizado
+        $this->marcarEtapa(
+            $claveAlumno, 
+            'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES', 
+            'realizado'
+        );
 
+        // ETAPA 5 → proceso (el encargado debe revisar)
+        $this->marcarEtapa(
+            $claveAlumno, 
+            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)', 
+            'proceso'
+        );
         return back()->with('success', 'El archivo firmado fue subido correctamente.');
     }
 
+    private function marcarEtapa($claveAlumno, $etapa, $estado)
+    {
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => $etapa,
+            ],
+            [
+                'estado' => $estado,
+            ]
+        );
+    }
 }

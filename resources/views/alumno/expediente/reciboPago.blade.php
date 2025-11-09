@@ -11,8 +11,22 @@
   </h4>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
-    <form>
-        {{-- Área de descarga de archivo --}}
+  {{-- Estado del último registro de pago --}}
+      @if(isset($ultimoPago) && $ultimoPago)
+        <div class="alert alert-success mb-3">
+          <strong>Último registro:</strong><br>
+          Folio: {{ $ultimoPago->Id_Solicitud_Pago }}<br>
+          Periodo: {{ $ultimoPago->Fecha_Inicio_Pago }} al {{ $ultimoPago->Fecha_Termino_Pago }}<br>
+          Salario: ${{ number_format($ultimoPago->Salario,2) }}<br>
+          Fecha Solicitud: {{ $ultimoPago->Fecha_Solicitud }}<br>
+          Fecha Entrega: {{ $ultimoPago->Fecha_Entrega }}
+        </div>
+      @else
+        <div class="alert alert-warning mb-3">
+          Aún no existe una solicitud de pago registrada. Genera primero tu <strong>Solicitud de Recibo para Ayuda Económica</strong>.
+        </div>
+      @endif
+
       <div class="mb-4 border rounded p-3 bg-light">
         <h6 class="fw-bold mb-3">
           <i class="bi bi-download"></i> Descargar el recibo de pago más reciente
@@ -23,23 +37,24 @@
             <div class="mb-2">
               <i class="bi bi-cloud-download display-6 text-muted"></i>
             </div>
-            <p class="text-muted">Haz clic en el botón para descargar tu documento</p>
-            <p class="small text-primary">Formato: PDF</p>
-            <a href="{{ asset('storage/documentos/carta_desglose.pdf') }}"
-               class="btn btn-outline-primary btn-sm"
-               download>
-               Descargar Documento
+            @if(isset($ultimoPago) && $ultimoPago)
+              <p class="text-muted">Haz clic en el botón para descargar tu recibo</p>
+              <p class="small text-primary">Formato: PDF</p>
+            <a href="{{ route('alumno.expediente.reciboPago.descargar') }}"
+               class="btn btn-outline-primary btn-sm">
+               Descargar Recibo PDF
             </a>
-          </div>
+          @else
+            <p class="text-muted mb-0">No hay recibo disponible.</p>
+          @endif
         </div>
       </div>
+    </div>
 
-      {{-- Botones --}}
       <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-secondary">Guardar cambios</button>
-        <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
-      </div>
-    </form>
+      <button type="button" class="btn btn-secondary" disabled>Guardar cambios</button>
+      <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -47,8 +62,8 @@
 <script>
   // Cancelar: limpia todo el formulario
   function resetFormulario() {
-    const form = document.querySelector('form');
-    form.reset();
+    // No hay formulario editable aquí; función decorativa
+    location.reload();
   }
 </script>
 @endpush

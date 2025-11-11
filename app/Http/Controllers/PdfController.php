@@ -75,18 +75,6 @@ class PdfController extends Controller
         return redirect()->back()->with('success', 'Documento eliminado correctamente.');
     }
 
-
-    public function eliminarDesglosePercepciones(Request $request)
-    {
-        $archivo = $request->input('archivo');
-        if ($archivo && Storage::disk('public')->exists($archivo)) {
-            Storage::disk('public')->delete($archivo);
-            return back()->with('success', 'El archivo fue eliminado correctamente.');
-        } else {
-            return back()->withErrors(['No se encontró el archivo a eliminar.']);
-        }
-    }
-
     public function subirCartaAceptacion(Request $request)
     {
         $request->validate([

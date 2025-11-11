@@ -89,72 +89,87 @@ class AlumnoController extends Controller
                 ->with('error', 'No se encontró la clave del alumno en la sesión.');
         }
 
-        // Buscar solicitud actual
+        // Buscar solicitud FPP01 más reciente
         $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
             ->latest('Id_Solicitud_FPP01')
             ->first();
 
+        // Si nunca ha hecho FPP01 → solo mostrar semáforo inicial
         if (!$solicitud) {
             $procesos = \App\Models\EstadoProceso::where('clave_alumno', $claveAlumno)->get();
             return view('alumno.estado', compact('procesos'));
         }
 
-        // Estados actuales
-        $estadoDepto = $solicitud->Estado_Departamento;
-        $estadoEncargado = $solicitud->Estado_Encargado;
+        // Estados de FPP01
+        $estadoDepto = $solicitud->Estado_Departamento;    // etapa 2
+        $estadoEncargado = $solicitud->Estado_Encargado;  // etapa 3
 
-        // Determinar si alguno rechazó
+        // Determinar si hubo rechazo
         $reiniciar = ($estadoDepto === 'rechazado' || $estadoEncargado === 'rechazado');
 
-        // Etapas principales
-        $procesos = [
+        // ============================
+        //      ETAPA 1 – REGISTRO
+        // ============================
+        $etapa1 = $reiniciar ? 'proceso' : 'realizado';
+
+        // ============================
+        //      ETAPA 2 – DSSPP (FPP01)
+        // ============================
+        $etapa2 = match (true) {
+            $estadoEncargado === 'rechazado' => 'pendiente', // si encargado rechazó, reinicia
+            $estadoDepto === 'aprobado' => 'realizado',      // DSSPP aprobó
+            $estadoDepto === 'rechazado' => 'pendiente',
+            default => 'proceso',                            // en revisión
+        };
+
+        // ============================
+        //      ETAPA 3 – Encargado (FPP01)
+        // ============================
+        $etapa3 = match ($estadoEncargado) {
+            'aprobado' => 'realizado',
+            'rechazado' => 'pendiente',
+            default => ($estadoDepto === 'aprobado' ? 'proceso' : 'pendiente'),
+        };
+
+        // ============================
+        //      ETAPA 4 – REGISTRO FPP02
+        // ============================
+        // ✅ NO sobreescribir si ya está en proceso o realizado
+        $etapa4Real = EstadoProceso::where('clave_alumno', $claveAlumno)
+            ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+            ->value('estado');
+
+        $etapa4 = $etapa4Real ?? 'pendiente';
+
+        // ============================
+        //  GUARDAR SOLO ETAPAS 1, 2 Y 3
+        // ============================
+        $procesosToUpdate = [
             [
-                'etapa' => 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
-                'estado' => $reiniciar ? 'proceso' : 'realizado',
+                'etapa'  => 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                'estado' => $etapa1,
             ],
             [
-                'etapa' => 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
-                'estado' => match (true) {
-                    //  Si el encargado rechazó, se fuerza a pendiente
-                    $estadoEncargado === 'rechazado' => 'pendiente',
-                    //  Si el DSSPP aprobó y el encargado NO rechazó
-                    $estadoDepto === 'aprobado' && $estadoEncargado !== 'rechazado' => 'realizado',
-                    //  Si el DSSPP rechazó
-                    $estadoDepto === 'rechazado' => 'pendiente',
-                    //  En cualquier otro caso, sigue en proceso
-                    default => 'proceso',
-                },
+                'etapa'  => 'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                'estado' => $etapa2,
             ],
             [
-                'etapa' => 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
-                'estado' => match ($estadoEncargado) {
-                    'aprobado' => 'realizado',
-                    'rechazado' => 'pendiente',
-                    default => (
-                        $estadoDepto === 'aprobado' ? 'proceso' : 'pendiente'
-                    ),
-                },
+                'etapa'  => 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                'estado' => $etapa3,
             ],
-            [
-                'etapa' => 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
-                // Solo pasa a “proceso” si ambos aprobaron
-                'estado' => (
-                    $estadoEncargado === 'aprobado' && $estadoDepto === 'aprobado'
-                )
-                    ? 'proceso'
-                    : 'pendiente',
-            ],
+            // ✅ Etapa 4 SOLO se muestra, NO se sobreescribe
         ];
 
-        // Actualizar o crear las 4 primeras etapas
-        foreach ($procesos as $p) {
-            \App\Models\EstadoProceso::updateOrCreate(
+        foreach ($procesosToUpdate as $p) {
+            EstadoProceso::updateOrCreate(
                 ['clave_alumno' => $claveAlumno, 'etapa' => $p['etapa']],
                 ['estado' => $p['estado']]
             );
         }
 
-        $procesos = \App\Models\EstadoProceso::where('clave_alumno', $claveAlumno)->get();
+        // Obtener todas las etapas reales del alumno
+        $procesos = EstadoProceso::where('clave_alumno', $claveAlumno)->get();
+
         return view('alumno.estado', compact('procesos'));
     }
 

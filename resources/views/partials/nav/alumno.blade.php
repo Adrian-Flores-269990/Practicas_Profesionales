@@ -2,16 +2,10 @@
 
 @php
   $alumno = session('alumno');
-  $tieneCarta = false;
-  if ($alumno) {
-    $solicitudId = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
-                   ->latest('Id_Solicitud_FPP01')
-                   ->value('Id_Solicitud_FPP01');
-    if ($solicitudId) {
-      $tieneCarta = (\App\Models\Expediente::where('Id_Solicitud_FPP01', $solicitudId)
-                      ->value('Carta_Desglose_Percepciones')) == 1;
-    }
-  }
+  $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+            ->where('Autorizacion', 1)
+            ->where('Apoyo_Economico', 1)
+            ->count();
 @endphp
 
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">

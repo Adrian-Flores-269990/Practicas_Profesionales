@@ -76,9 +76,26 @@ Route::prefix('alumno')->group(function () {
         Route::get('/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
         Route::get('/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
 
+
         Route::get('/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
         Route::get('/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
-
+        Route::get('/reciboPago', [\App\Http\Controllers\ReciboController::class, 'vistaReciboPago'])
+            ->name('alumno.expediente.reciboPago');
+        Route::get('/reciboPago/descargar', [\App\Http\Controllers\ReciboController::class, 'descargarReciboPago'])
+            ->name('alumno.expediente.reciboPago.descargar');
+        Route::get('/ayudaEconomica', function() {
+            $alumno = session('alumno');
+            $clave = $alumno['cve_uaslp'] ?? null;
+            if (!$clave) return redirect()->route('alumno.inicio');
+            $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)->latest('Id_Solicitud_FPP01')->first();
+            $flag = $solicitud ? \App\Models\Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->value('Carta_Desglose_Percepciones') : 0;
+            if ($flag != 1) {
+                return redirect()->route('alumno.expediente.desglosePercepciones')->with('error', 'Debes subir la Carta de Desglose de Percepciones primero.');
+            }
+            return view('alumno.expediente.ayudaEconomica');
+        })->name('alumno.expediente.ayudaEconomica');
+        
+        
         // Upload PDFs
 
         Route::get('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaAceptacion.mostrar');

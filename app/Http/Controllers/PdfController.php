@@ -12,54 +12,14 @@ use App\Models\Expediente;
 
 class PdfController extends Controller
 {
-
-    public function mostrarDocumento($claveAlumno, $tipo)
+    public function eliminarDesglosePercepciones(Request $request)
     {
-        $pdfPath = null;
-
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                    ->where('Autorizacion', 1)
-                                    ->first();
-
-        if (! $solicitud) {
-            return abort(404, 'Solicitud no autorizada');
-        }
-
-        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
-
-        if ($expediente && isset($expediente[$tipo])) {
-            $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
-
-            if (Storage::disk('public')->exists($rutaRelativa)) {
-                $pdfPath = asset('storage/' . $rutaRelativa);
-            }
-        }
-
-        // Siempre retorna la vista con pdfPath (puede ser null)
-        if ($tipo === 'Carta_Aceptacion') {
-            return view('alumno.expediente.cartaAceptacion', compact('pdfPath'));
-        }
-        if ($tipo === 'Carta_Desglose_Percepciones') {
-            return view('alumno.expediente.desglosePercepciones', compact('pdfPath'));
-        }
-
-        return abort(404, 'Tipo de documento no válido');
-    }
-
-    public function eliminarDocumento(Request $request, $claveAlumno, $tipo)
-    {
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                    ->where('Autorizacion', 1)
-                                    ->first();
-
-        if (! $solicitud) {
-            return abort(404, 'Solicitud no autorizada');
-        }
-
-        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
-
-        if (! $expediente || ! isset($expediente[$tipo])) {
-            return redirect()->back()->with('error', 'No se encontró el documento a eliminar.');
+        $archivo = $request->input('archivo');
+        if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
+            return back()->with('success', 'El archivo fue eliminado correctamente.');
+        } else {
+            return back()->withErrors(['No se encontró el archivo a eliminar.']);
         }
 
         $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
@@ -112,6 +72,7 @@ class PdfController extends Controller
             $expediente->update([
                 'Carta_Aceptacion' => $nombreArchivo,
             ]);
+            
 
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
@@ -156,6 +117,8 @@ class PdfController extends Controller
             $expediente->update([
                 'Carta_Desglose_Percepciones' => $nombreArchivo,
             ]);
+            // Actualizar semáforo de etapa
+            $this->actualizarSemaforo($claveAlumno, 'CARTA DE DESGLOSE DE PERCEPCIONES');
 
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
@@ -298,7 +261,9 @@ class PdfController extends Controller
         Storage::disk('public')->put($rutaCompleta, $pdf->output());
 
         // ACTUALIZAR SEMÁFORO
-        $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
+        //$this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
+        // Etapa 4: REGISTRO DE SOLICITUD DE AUTORIZACIÓN...
+        $this->marcarEtapa($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES', 'proceso');
 
         // Guardar sesión
         session(['fpp02_impreso_' . $claveAlumno => true]);
@@ -330,10 +295,32 @@ class PdfController extends Controller
 
         Storage::disk('public')->putFileAs('expedientes/fpp02-firmados', $file, $nombreArchivo);
 
-        // ACTUALIZAR SEMÁFORO
-        $this->actualizarSemaforo($claveAlumno, 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)');
+        // ETAPA 4 → realizado
+        $this->marcarEtapa(
+            $claveAlumno, 
+            'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES', 
+            'realizado'
+        );
 
+        // ETAPA 5 → proceso (el encargado debe revisar)
+        $this->marcarEtapa(
+            $claveAlumno, 
+            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)', 
+            'proceso'
+        );
         return back()->with('success', 'El archivo firmado fue subido correctamente.');
     }
 
+    private function marcarEtapa($claveAlumno, $etapa, $estado)
+    {
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => $etapa,
+            ],
+            [
+                'estado' => $estado,
+            ]
+        );
+    }
 }

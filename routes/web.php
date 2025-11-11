@@ -76,16 +76,20 @@ Route::prefix('alumno')->group(function () {
         Route::get('/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
         Route::get('/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
 
-        Route::get('/cartaAceptacion', fn () => view('alumno.expediente.cartaAceptacion'))->name('alumno.expediente.cartaAceptacion');
-        Route::get('/desglosePercepciones', fn () => view('alumno.expediente.desglosePercepciones'))->name('alumno.expediente.desglosePercepciones');
         Route::get('/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
         Route::get('/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
 
         // Upload PDFs
-        Route::post('/carta-aceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('alumno.carta-aceptacion.upload');
-        Route::post('/carta-aceptacion/eliminar', [PdfController::class, 'eliminarCartaAceptacion'])->name('alumno.carta-aceptacion.eliminar');
-        Route::post('/desglose-percepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('alumno.desglose-percepciones.upload');
-        Route::post('/desglose-percepciones/eliminar', [PdfController::class, 'eliminarDesglosePercepciones'])->name('alumno.desglose-percepciones.eliminar');
+
+        Route::get('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaAceptacion.mostrar');
+        Route::post('/cartaAceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('cartaAceptacion.upload');
+        Route::post('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->name('cartaAceptacion.eliminar');
+
+        Route::get('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('desglosePercepciones.mostrar');
+        Route::post('/desglosePercepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('desglosePercepciones.upload');
+        Route::post('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->name('desglosePercepciones.eliminar');
+
+
 
     });
 

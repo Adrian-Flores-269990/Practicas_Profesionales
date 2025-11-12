@@ -26,4 +26,20 @@ class Empleado extends Authenticatable
     {
         return $this->belongsTo(Rol::class, 'Id_Rol');
     }
+
+    public function solicitudes()
+    {
+        return $this->hasMany(SolicitudFPP01::class, 'Id_Encargado', 'Id_Encargado');
+    }
+
+    public function reportes()
+    {
+        return $this->hasMany(Reporte::class, 'Id_Encargado', 'Id_Encargado');
+    }
+
+    public function evaluaciones()
+    {
+        return $this->hasMany(Evaluacion::class, 'Id_Encargado', 'Id_Encargado');
+    }
+
 }

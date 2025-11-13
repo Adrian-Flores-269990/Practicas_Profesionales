@@ -10,6 +10,8 @@ use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DssppController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BitacoraController;
+use App\Models\SolicitudFPP01;
+use App\Models\Expediente;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,8 +92,8 @@ Route::prefix('alumno')->group(function () {
             $alumno = session('alumno');
             $clave = $alumno['cve_uaslp'] ?? null;
             if (!$clave) return redirect()->route('alumno.inicio');
-            $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)->latest('Id_Solicitud_FPP01')->first();
-            $expediente = \App\Models\Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $clave)->latest('Id_Solicitud_FPP01')->first();
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
             if (is_null($expediente['Carta_Desglose_Percepciones'])) {
                 return redirect()->route('desglosePercepciones.mostrar', [
                             'claveAlumno' => $clave,
@@ -104,7 +106,7 @@ Route::prefix('alumno')->group(function () {
         // Upload PDFs
         Route::get('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaAceptacion.mostrar');
         Route::post('/cartaAceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('cartaAceptacion.upload');
-        Route::post('/cartaAceptacion/{claveAlumno}', [PdfController::class, 'eliminarDocumento'])->name('cartaAceptacion.eliminar');
+        Route::post('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->name('cartaAceptacion.eliminar');
 
         Route::get('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('desglosePercepciones.mostrar');
         Route::post('/desglosePercepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('desglosePercepciones.upload');

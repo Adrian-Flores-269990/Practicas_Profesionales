@@ -40,8 +40,7 @@
         <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
         <div class="d-flex gap-2 mt-2">
           <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
-          <pre>Clave del alumno: {{ $claveAlumno ?? 'VACÍA' }}</pre>
-          <form method="POST" action="{{ route('cartaAceptacion.eliminar', ['claveAlumno' => $claveAlumno]) }}" style="display:inline;">
+          <form method="POST" action="{{ route('cartaAceptacion.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Aceptacion']) }}" style="display:inline;">
             @csrf
             <input type="hidden" name="archivo" value="{{ $pdfPath }}">
             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento actual?')">

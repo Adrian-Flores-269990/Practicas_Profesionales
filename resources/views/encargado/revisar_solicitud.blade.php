@@ -47,6 +47,42 @@
     $entidadOptions = [0 => 'Entidad2', 1 => 'Entidad1', 2 => 'Entidad3'];
 @endphp
 
+
+
+
+@php
+    $alumno = $solicitud->alumno ?? null;
+    $claveAlumno = $alumno->Clave_Alumno ?? null;
+    $pdfEstadistica = null;
+    $pdfPasante = null;
+
+    if ($claveAlumno) {
+        // 🔹 Buscar archivo de Carta Pasante (solo si Carta_Pasante == 1)
+        if ($solicitud->Carta_Pasante == 1) {
+            $filesPasante = Storage::disk('public')->files('expedientes/carta-pasante');
+            $pdfsPasante = collect($filesPasante)
+                ->filter(fn($f) => str_contains($f, '0' . $claveAlumno))
+                ->sortDesc();
+            if ($pdfsPasante->count() > 0) {
+                $pdfPasante = $pdfsPasante->first();
+            }
+        }
+
+        // 🔹 Buscar archivo de Estadística General
+        $filesEstadistica = Storage::disk('public')->files('expedientes/estadistica-general');
+        $pdfsEstadistica = collect($filesEstadistica)
+            ->filter(fn($f) => str_contains($f, '0' . $claveAlumno))
+            ->sortDesc();
+        if ($pdfsEstadistica->count() > 0) {
+            $pdfEstadistica = $pdfsEstadistica->first();
+        }
+    }
+@endphp
+
+
+
+
+
 @push('styles')
 <style>
   .header-alumno {
@@ -312,7 +348,7 @@
       @csrf
       @method('PUT')
 
-      {{-- SECCIÓN 1: DATOS DEL SOLICITANTE --}}
+      {{-- SECCIÓN 1: DATOS GENERALES DEL SOLICITANTE --}}
       <div class="seccion-card">
         <div class="seccion-header" onclick="toggleSection(this)">
           <i class="bi bi-person-badge"></i>
@@ -370,32 +406,44 @@
             </div>
           </div>
 
+
+
+
+
           <div class="dato-row">
-            <div class="dato-item">
-              <span class="dato-label">Estadística General</span>
-              @if(!empty($solicitud->Estadistica_General))
-                <a href="{{ asset('storage/pdf_solicitudes/' . $solicitud->Estadistica_General) }}" target="_blank" class="pdf-link">
-                  <i class="bi bi-file-pdf"></i> Ver PDF
-                </a>
-              @else
-                <span class="dato-valor">No disponible</span>
-              @endif
-            </div>
-            <div class="dato-item">
-              <span class="dato-label">Constancia de Vigencia de Derechos</span>
-              @if(!empty($solicitud->Constancia_Vig_Der))
-                <a href="{{ asset('storage/pdf_solicitudes/' . $solicitud->Constancia_Vig_Der) }}" target="_blank" class="pdf-link">
-                  <i class="bi bi-file-pdf"></i> Ver PDF
-                </a>
-              @else
-                <span class="dato-valor">No disponible</span>
-              @endif
-            </div>
+              {{--Estadística General --}}
+              <div class="dato-item">
+                  <span class="dato-label">Estadística General</span>
+                  @if ($pdfEstadistica)
+                      <a href="{{ asset('storage/' . $pdfEstadistica) }}" target="_blank" class="pdf-link">
+                          <i class="bi bi-file-pdf"></i> Ver PDF
+                      </a>
+                  @else
+                      <span class="dato-valor">No disponible</span>
+                  @endif
+              </div>
+
+              {{--Carta de Pasante --}}
+              <div class="dato-item">
+                  <span class="dato-label">Carta de Pasante</span>
+                  @if ($solicitud->Carta_Pasante == 1 && $pdfPasante)
+                      <a href="{{ asset('storage/' . $pdfPasante) }}" target="_blank" class="pdf-link">
+                          <i class="bi bi-file-pdf"></i> Ver PDF
+                      </a>
+                    @else
+                    <span class="dato-valor">N/A</span>
+                  @endif
+              </div>
+
+
+
             <div class="dato-item">
               <span class="dato-label">Egresado Situación Especial</span>
               <span class="dato-valor">{{ $solicitud->Egresado_Sit_Esp ? 'Sí' : 'No' }}</span>
             </div>
           </div>
+
+
 
           <div class="action-buttons">
             <button type="button" class="btn-aceptar btn-accion" data-seccion="solicitante" data-valor="1">

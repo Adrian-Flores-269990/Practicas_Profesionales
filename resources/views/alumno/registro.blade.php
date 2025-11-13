@@ -92,13 +92,13 @@
 </style>
 @endpush
 
+
 @section('content')
 @include('partials.nav.registro')
 
 @php $alumno = $solicitud->alumno; @endphp
 
 <div class="container mt-4">
-
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
   </h4>
@@ -141,13 +141,15 @@
       </div>
     </div>
 
-    {{-- Formulario que abre el PDF --}}
-    <form id="form-imprimir" action="{{ route('alumno.generarFpp02') }}" method="POST" target="_blank" style="display:none;">
+    {{-- Formulario que genera el PDF --}}
+    <form id="form-imprimir" action="{{ route('alumno.generarFpp02') }}" method="POST" style="display:none;">
         @csrf
     </form>
 
     <div class="btn-row">
-        <button type="button" id="btn-imprimir" class="btn-aceptar">Imprimir FPP02</button>
+        <button type="button" id="btn-imprimir" class="btn-aceptar">
+          <i class="bi bi-printer"></i> Generar y Descargar FPP02
+        </button>
     </div>
   </div>
 
@@ -155,6 +157,13 @@
   <div id="upload-section" style="{{ $mostrarUpload ? '' : 'display:none;' }}">
     <div class="bg-white p-4 rounded shadow-sm w-100">
       <h5 class="fw-bold mb-4 text-center"><i class="bi bi-upload"></i> Subir formato FPP02 firmado</h5>
+
+      {{-- Botón para regresar a la vista previa --}}
+      <div class="mb-3">
+        <button type="button" id="btn-volver-preview" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left"></i> Volver a la vista previa
+        </button>
+      </div>
 
       {{-- Mostrar PDF subido si ya existe --}}
       @php
@@ -230,8 +239,12 @@
         </div>
 
         <div class="d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Subir PDF firmado</button>
+          <button type="button" class="btn btn-danger" id="btn-cancelar-upload">
+            <i class="bi bi-x-circle"></i> Cancelar
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle"></i> Subir PDF firmado
+          </button>
         </div>
       </form>
     </div>
@@ -245,19 +258,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const infoSection = document.getElementById('info-section');
   const uploadSection = document.getElementById('upload-section');
   const formImprimir = document.getElementById('form-imprimir');
+  const btnVolverPreview = document.getElementById('btn-volver-preview');
+  const btnCancelarUpload = document.getElementById('btn-cancelar-upload');
 
+  // Al hacer clic en Imprimir
   if (btnImprimir) {
     btnImprimir.addEventListener('click', () => {
-      // 1) enviar el formulario al backend (se abre en pestaña nueva por target="_blank")
+      // 1) Enviar el formulario al backend (se abre en pestaña nueva por target="_blank")
       formImprimir.submit();
 
-      // 2) mostrar la sección de subida en la pestaña actual
+      // 2) Mostrar la sección de subida en la pestaña actual
       infoSection.style.display = 'none';
       uploadSection.style.display = 'block';
     });
   }
 
-  // Lógica para subida
+  // Botón para volver a la vista previa
+  if (btnVolverPreview) {
+    btnVolverPreview.addEventListener('click', () => {
+      uploadSection.style.display = 'none';
+      infoSection.style.display = 'block';
+      resetFormulario();
+    });
+  }
+
+  // Botón cancelar en la sección de upload
+  if (btnCancelarUpload) {
+    btnCancelarUpload.addEventListener('click', () => {
+      uploadSection.style.display = 'none';
+      infoSection.style.display = 'block';
+      resetFormulario();
+    });
+  }
+
+  // Lógica para subida de archivos
   const inputArchivo = document.getElementById('archivoUpload');
   const botonSubir = document.getElementById('botonSubir');
   const instrucciones = document.getElementById('archivoInstrucciones');
@@ -265,24 +299,66 @@ document.addEventListener('DOMContentLoaded', () => {
   const nombreArchivo = document.getElementById('archivoNombre');
   const tamañoArchivo = document.getElementById('archivoTamaño');
   const btnEliminar = document.getElementById('btnEliminarArchivo');
+  const zonaSubida = document.getElementById('zonaSubida');
 
-  botonSubir.addEventListener('click', () => inputArchivo.click());
+  if (botonSubir) {
+    botonSubir.addEventListener('click', () => inputArchivo.click());
+  }
 
-  inputArchivo.addEventListener('change', () => {
-    if (inputArchivo.files.length > 0) {
-      const file = inputArchivo.files[0];
-      instrucciones.classList.add('d-none');
-      preview.classList.remove('d-none');
-      nombreArchivo.textContent = file.name;
-      tamañoArchivo.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  if (inputArchivo) {
+    inputArchivo.addEventListener('change', () => {
+      if (inputArchivo.files.length > 0) {
+        const file = inputArchivo.files[0];
+        instrucciones.classList.add('d-none');
+        preview.classList.remove('d-none');
+        nombreArchivo.textContent = file.name;
+        tamañoArchivo.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      }
+    });
+  }
+
+  if (btnEliminar) {
+    btnEliminar.addEventListener('click', () => {
+      inputArchivo.value = "";
+      preview.classList.add('d-none');
+      instrucciones.classList.remove('d-none');
+    });
+  }
+
+  // Drag and drop
+  if (zonaSubida) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      zonaSubida.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-  });
 
-  btnEliminar.addEventListener('click', () => {
-    inputArchivo.value = "";
-    preview.classList.add('d-none');
-    instrucciones.classList.remove('d-none');
-  });
+    ['dragenter', 'dragover'].forEach(eventName => {
+      zonaSubida.addEventListener(eventName, () => {
+        zonaSubida.classList.add('border-primary', 'bg-light');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      zonaSubida.addEventListener(eventName, () => {
+        zonaSubida.classList.remove('border-primary', 'bg-light');
+      }, false);
+    });
+
+    zonaSubida.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        inputArchivo.files = files;
+        const event = new Event('change');
+        inputArchivo.dispatchEvent(event);
+      }
+    }, false);
+  }
 });
 
 function resetFormulario() {
@@ -291,10 +367,10 @@ function resetFormulario() {
   const instrucciones = document.getElementById('archivoInstrucciones');
   const inputArchivo = document.getElementById('archivoUpload');
 
-  form.reset();
-  inputArchivo.value = "";
-  preview.classList.add('d-none');
-  instrucciones.classList.remove('d-none');
+  if (form) form.reset();
+  if (inputArchivo) inputArchivo.value = "";
+  if (preview) preview.classList.add('d-none');
+  if (instrucciones) instrucciones.classList.remove('d-none');
 }
 </script>
 @endpush

@@ -526,7 +526,7 @@
         </div>
       </div>
 
-      {{-- 4. Encargado --}}
+      {{-- 3. Encargado --}}
       <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-encargado">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-encargado">
@@ -536,18 +536,46 @@
         <div id="sec-encargado" class="accordion-collapse collapse">
           <div class="accordion-body">
             <div class="row g-3">
-              <div class="col-md-6"><label class="form-label">Nombre Encargado de PP <span class="text-danger">*</span></label><input name="encargado_nombre" class="form-control" required></div>
-              <div class="col-md-6"><label class="form-label">Nombre Asesor Externo <span class="text-danger">*</span></label><input name="asesorexterno_nombre" class="form-control" required></div>
-              <div class="col-md-6"><label class="form-label">Area del Asesor Externo <span class="text-danger">*</span></label><input name="asesorexterno_area" class="form-control" required></div>
-              <div class="col-md-6"><label class="form-label">Puesto del Asesor Externo <span class="text-danger">*</span></label><input name="asesorexterno_puesto" class="form-control" required></div>
-              <div class="col-md-6"><label class="form-label">Correo del Asesor Externo <span class="text-danger">*</span></label><input type="email" name="asesorexterno_correo" class="form-control" required></div>
-              <div class="col-md-6"><label class="form-label">Teléfono del Asesor Externo <span class="text-danger">*</span></label><input name="asesorexterno_telefono" class="form-control" required></div>
+              <div class="col-md-6">
+                <label class="form-label">Nombre Encargado de PP <span class="text-danger">*</span></label>
+                <input name="encargado_nombre" class="form-control" required>
+              </div>
+              
+              <!-- ⭐ NOMBRES CORREGIDOS -->
+              <div class="col-md-6">
+                <label class="form-label">Nombre(s) Asesor Externo <span class="text-danger">*</span></label>
+                <input name="nombre_asesor" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Apellido Paterno <span class="text-danger">*</span></label>
+                <input name="apellido_paterno_asesor" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Apellido Materno</label>
+                <input name="apellido_materno_asesor" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Área del Asesor Externo <span class="text-danger">*</span></label>
+                <input name="area_asesor" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Puesto del Asesor Externo <span class="text-danger">*</span></label>
+                <input name="puesto_asesor" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Correo del Asesor Externo <span class="text-danger">*</span></label>
+                <input type="email" name="correo_asesor" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Teléfono del Asesor Externo <span class="text-danger">*</span></label>
+                <input name="telefono_asesor" class="form-control" required>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {{-- 5. Proyecto --}}
+      {{-- 4. Proyecto --}}
       <div class="accordion-item soli-card mt-3">
         <h2 class="accordion-header" id="h-proyecto">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-proyecto">
@@ -557,28 +585,34 @@
         <div id="sec-proyecto" class="accordion-collapse collapse">
           <div class="accordion-body">
             <div class="row g-3">
-              <div class="col-12"><label class="form-label">Nombre del proyecto <span class="text-danger">*</span></label><input name="mombre_proyecto" class="form-control" required></div>
-              <div class="col-12"><label class="form-label">Actividades <span class="text-danger">*</span></label><textarea name="actividades" class="form-control" rows="4" required></textarea></div>
+              <div class="col-12">
+                <label class="form-label">Nombre del proyecto <span class="text-danger">*</span></label>
+                <input name="nombre_proyecto" class="form-control" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Actividades <span class="text-danger">*</span></label>
+                <textarea name="actividades" class="form-control" rows="4" required></textarea>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {{-- 6. Horario --}}
+      {{-- 5. Horario --}}
       <div class="accordion-item soli-card mt-3" id="horario">
         <h2 class="accordion-header" id="h-horario">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-horario">
             HORARIO
           </button>
         </h2>
-        <div id="sec-horario" class="accordion-collapse collapse" data-bs-parent="#soliAccordion" aria-labelledby="h-horario">
+        <div id="sec-horario" class="accordion-collapse collapse">
           <div class="accordion-body">
             <div class="row g-2">
               <div class="col-md-3">
                 <label class="form-label">Turno <span class="text-danger">*</span></label>
                 <select name="turno" class="form-select" required>
-                    <option value="M">Matutino</option>
-                    <option value="V">Vespertino</option>
+                  <option value="M">Matutino</option>
+                  <option value="V">Vespertino</option>
                 </select>
               </div>
               <div class="col-md-3">
@@ -590,36 +624,37 @@
                 <input type="time" name="horario_salida" class="form-control" required>
               </div>
               <div class="col-12">
-                <label class="form-label">Días de asistencia</label>
-                <div class="d-flex flex-wrap gap-2" id="dias_de_asistencia">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="lunes" id="lunes" required>
-                      <label class="form-check-label" for="dia_lunes">Lunes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="martes" id="martes" required>
-                      <label class="form-check-label" for="dia_martes">Martes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="miercoles" id="miercoles" required>
-                      <label class="form-check-label" for="dia_miercoles">Miércoles</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="jueves" id="jueves" required>
-                      <label class="form-check-label" for="dia_jueves">Jueves</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="viernes" id="viernes" required>
-                      <label class="form-check-label" for="dia_viernes">Viernes</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="sabado" id="sabado" required>
-                      <label class="form-check-label" for="dia_sabado">Sábado</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="checkbox" name="dias_asistencia" value="domingo" id="domingo" required>
-                      <label class="form-check-label" for="dia_domingo">Domingo</label>
-                    </div>
+                <label class="form-label">Días de asistencia <span class="text-danger">*</span></label>
+                <div class="d-flex flex-wrap gap-2">
+                  <!-- ⭐ AGREGAR [] AL NAME Y VALORES CORTOS -->
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="L" id="lunes">
+                    <label class="form-check-label" for="lunes">Lunes</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="M" id="martes">
+                    <label class="form-check-label" for="martes">Martes</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="Mi" id="miercoles">
+                    <label class="form-check-label" for="miercoles">Miércoles</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="J" id="jueves">
+                    <label class="form-check-label" for="jueves">Jueves</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="V" id="viernes">
+                    <label class="form-check-label" for="viernes">Viernes</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="S" id="sabado">
+                    <label class="form-check-label" for="sabado">Sábado</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="D" id="domingo">
+                    <label class="form-check-label" for="domingo">Domingo</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -627,7 +662,7 @@
         </div>
       </div>
 
-      {{-- 7. Créditos / Apoyo --}}
+      {{-- 6. Créditos / Apoyo --}}
       <div class="accordion-item soli-card mt-3 mb-3">
         <h2 class="accordion-header" id="h-creditos">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sec-creditos">
@@ -708,9 +743,26 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Autocompletar campos de empresa al seleccionar una empresa registrada
   const empresaSelect = document.getElementById('empresa_registrada');
+
   if (empresaSelect) {
     empresaSelect.addEventListener('change', function() {
       const selected = empresaSelect.options[empresaSelect.selectedIndex];
+
+
+      
+        // === 2️⃣ CONVERTIR A MAYÚSCULAS Y QUITAR TILDES AL ESCRIBIR EL NOMBRE DE EMPRESA NUEVA ===
+        const camposNombre = document.querySelectorAll(
+          'input[name="nombre_empresa_privado"], input[name="nombre_empresa_publico"], input[name="area_depto_uaslp"]'
+        );
+
+        camposNombre.forEach(campo => {
+          campo.addEventListener('input', function() {
+            let val = this.value.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // quitar tildes
+            this.value = val.toUpperCase(); // mayúsculas
+          });
+        });
+      
+
 
       // Preview inputs
       const preview = document.getElementById('empresa_preview');
@@ -813,6 +865,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+
+
   const accordionItems = document.querySelectorAll('.accordion-item');
   const form = document.querySelector('form');
   const sectorSelect = document.getElementById('sector');
@@ -1009,5 +1064,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+
+// === VALIDAR ARCHIVOS MÁX 5MB ===
+document.addEventListener('DOMContentLoaded', function() {
+  const MAX_SIZE_MB = 5;
+  const fileInputs = document.querySelectorAll('input[type="file"]');
+
+  fileInputs.forEach(input => {
+    const errorMsg = document.createElement('small');
+    errorMsg.classList.add('text-danger');
+    errorMsg.style.display = 'none';
+    input.insertAdjacentElement('afterend', errorMsg);
+
+    input.addEventListener('change', function() {
+      errorMsg.style.display = 'none';
+      const file = this.files[0];
+      if (file && file.size > MAX_SIZE_MB * 1024 * 1024) {
+        this.value = '';
+        errorMsg.textContent = `El archivo excede el límite de ${MAX_SIZE_MB} MB.`;
+        errorMsg.style.display = 'block';
+      }
+    });
+  });
+});
+
+
 </script>
 @endpush

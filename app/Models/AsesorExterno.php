@@ -10,7 +10,7 @@ class AsesorExterno extends Model
     use HasFactory;
 
     protected $table = 'asesor_externo';
-    protected $primaryKey = 'Id_Asesor_EXterno';
+    protected $primaryKey = 'Id_Asesor_Externo';
     public $timestamps = false;
 
     protected $fillable = [

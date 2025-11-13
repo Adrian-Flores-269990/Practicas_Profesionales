@@ -12,41 +12,80 @@ use App\Models\Expediente;
 
 class PdfController extends Controller
 {
+    
+    public function mostrarDocumento($claveAlumno, $tipo)
+    {
+         $pdfPath = null;
+
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+
+        if (! $solicitud) {
+            return abort(404, 'Solicitud no autorizada');
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if ($expediente && isset($expediente[$tipo])) {
+            $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
+
+            if (Storage::disk('public')->exists($rutaRelativa)) {
+                $pdfPath = asset('storage/' . $rutaRelativa);
+            }
+        }
+
+        // Siempre retorna la vista con pdfPath (puede ser null)
+        if ($tipo === 'Carta_Aceptacion') {
+            return view('alumno.expediente.cartaAceptacion', compact('pdfPath'));
+        }
+        if ($tipo === 'Carta_Desglose_Percepciones') {
+            return view('alumno.expediente.desglosePercepciones', compact('pdfPath'));
+        }
+
+        return abort(404, 'Tipo de documento no válido');
+    }
+
+    public function eliminarDocumento(Request $request, $claveAlumno, $tipo)
+    {
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+
+        if (! $solicitud) {
+            return abort(404, 'Solicitud no autorizada');
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if (! $expediente || ! isset($expediente[$tipo])) {
+            return redirect()->back()->with('error', 'No se encontró el documento a eliminar.');
+        }
+
+        $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
+
+        if (Storage::disk('public')->exists($rutaRelativa)) {
+            Storage::disk('public')->delete($rutaRelativa);
+        }
+
+        // Quitar el nombre en expediente
+        $expediente->$tipo = null;
+        $expediente->save();
+
+        return redirect()->back()->with('success', 'Documento eliminado correctamente.');
+    }
+
+    
     public function eliminarDesglosePercepciones(Request $request)
     {
         $archivo = $request->input('archivo');
-        if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
-            // Recalcular estado de desglose percepciones para el alumno
-            $alumno = session('alumno');
-            $claveAlumno = $alumno['cve_uaslp'] ?? null;
-            if ($claveAlumno) {
-                $restantes = collect(Storage::disk('public')->files('expedientes/desglose-percepciones'))
-                    ->filter(fn($f) => str_contains($f, $claveAlumno . '_desglose_percepciones'));
-                if ($restantes->count() === 0) {
-                    $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)->latest('Id_Solicitud_FPP01')->first();
-                    if ($solicitud) {
-                        Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
-                            ->update(['Carta_Desglose_Percepciones' => 0]);
-                    }
-                }
+            if ($archivo && Storage::disk('public')->exists($archivo)) {
+                Storage::disk('public')->delete($archivo);
+                return back()->with('success', 'El archivo fue eliminado correctamente.');
+            } else {
+                return back()->withErrors(['No se encontró el archivo a eliminar.']);
             }
-            return back()->with('success', 'El archivo fue eliminado correctamente.');
-        } else {
-            return back()->withErrors(['No se encontró el archivo a eliminar.']);
         }
-    }
-
-    public function eliminarCartaAceptacion(Request $request)
-    {
-        $archivo = $request->input('archivo');
-        if ($archivo && \Illuminate\Support\Facades\Storage::disk('public')->exists($archivo)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($archivo);
-            return back()->with('success', 'El archivo fue eliminado correctamente.');
-        } else {
-            return back()->withErrors(['No se encontró el archivo a eliminar.']);
-        }
-    }
 
     public function subirCartaAceptacion(Request $request)
     {
@@ -54,18 +93,18 @@ class PdfController extends Controller
             'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
         ]);
 
-    $file = $request->file('archivo');
-    $alumno = session('alumno');
-    $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
-    $nombreArchivo = $claveAlumno . '_carta_aceptacion_' . time() . '.' . $file->getClientOriginalExtension();
-    $ruta = 'expedientes/carta-aceptacion/' . $nombreArchivo;
+        $file = $request->file('archivo');
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+        $nombreArchivo = $claveAlumno . '_carta_aceptacion_' . time() . '.' . $file->getClientOriginalExtension();
+        $ruta = 'expedientes/carta_Aceptacion/' . $nombreArchivo;
 
         // Asegurarse de que el directorio existe en el disco public
-        if (!Storage::disk('public')->exists('expedientes/carta-aceptacion')) {
-            Storage::disk('public')->makeDirectory('expedientes/carta-aceptacion');
+        if (!Storage::disk('public')->exists('expedientes/Carta_Aceptacion')) {
+            Storage::disk('public')->makeDirectory('expedientes/Carta_Aceptacion');
         }
 
-        $saved = Storage::disk('public')->putFileAs('expedientes/carta-aceptacion', $file, $nombreArchivo);
+            $saved = Storage::disk('public')->putFileAs('expedientes/Carta_Aceptacion', $file, $nombreArchivo);
 
         // Log para depuración
         Log::info('Intento de guardar archivo (public disk)', [
@@ -76,6 +115,16 @@ class PdfController extends Controller
         ]);
 
         if ($saved) {
+
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                                    ->where('Autorizacion', 1)
+                                                    ->first();
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud['Id_Solicitud_FPP01'])
+                                                    ->first();
+            $expediente->update([
+                'Carta_Aceptacion' => $nombreArchivo,
+            ]);
+
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
             return back()->withErrors(['No se pudo guardar el archivo.']);
@@ -88,18 +137,18 @@ class PdfController extends Controller
             'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
         ]);
 
-    $file = $request->file('archivo');
-    $alumno = session('alumno');
-    $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
-    $nombreArchivo = $claveAlumno . '_desglose_percepciones_' . time() . '.' . $file->getClientOriginalExtension();
-    $ruta = 'expedientes/desglose-percepciones/' . $nombreArchivo;
+        $file = $request->file('archivo');
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+        $nombreArchivo = $claveAlumno . '_desglose_percepciones_' . time() . '.' . $file->getClientOriginalExtension();
+        $ruta = 'expedientes/Carta_Desglose_Percepciones/' . $nombreArchivo;
 
         // Asegurarse de que el directorio existe en el disco public
-        if (!Storage::disk('public')->exists('expedientes/desglose-percepciones')) {
-            Storage::disk('public')->makeDirectory('expedientes/desglose-percepciones');
+        if (!Storage::disk('public')->exists('expedientes/Carta_Desglose_Percepciones')) {
+            Storage::disk('public')->makeDirectory('expedientes/Carta_Desglose_Percepciones');
         }
 
-        $saved = Storage::disk('public')->putFileAs('expedientes/desglose-percepciones', $file, $nombreArchivo);
+        $saved = Storage::disk('public')->putFileAs('expedientes/Carta_Desglose_Percepciones', $file, $nombreArchivo);
 
         // Log para depuración
         Log::info('Intento de guardar desglose percepciones (public disk)', [
@@ -110,20 +159,16 @@ class PdfController extends Controller
         ]);
 
         if ($saved) {
-            // Verificar existencia de al menos un archivo de desglose para el alumno
-            $existeArchivo = collect(Storage::disk('public')->files('expedientes/desglose-percepciones'))
-                ->contains(fn($f) => str_contains($f, $claveAlumno . '_desglose_percepciones'));
 
-            if ($existeArchivo) {
-                // Obtener última solicitud FPP01 y actualizar expediente
-                $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)->latest('Id_Solicitud_FPP01')->first();
-                if ($solicitud) {
-                    Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
-                        ->update(['Carta_Desglose_Percepciones' => 1]);
-                    // Actualizar semáforo de etapa
-                    $this->actualizarSemaforo($claveAlumno, 'CARTA DE DESGLOSE DE PERCEPCIONES');
-                }
-            }
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                                    ->where('Autorizacion', 1)
+                                                    ->first();
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud['Id_Solicitud_FPP01'])
+                                                    ->first();
+            $expediente->update([
+                'Carta_Desglose_Percepciones' => $nombreArchivo,
+            ]);
+
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
             return back()->withErrors(['No se pudo guardar el archivo.']);
@@ -134,7 +179,7 @@ class PdfController extends Controller
 
     // -------------------------------------------------------
     // PDF FPP02
-    // -------------------------------------------------------
+    // ------------------------------------------------------
 
     private function actualizarSemaforo($claveAlumno, $etapaActual)
     {

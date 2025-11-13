@@ -174,7 +174,7 @@
           <iframe src="{{ asset('storage/' . $pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
           <div class="d-flex gap-2 mt-2">
             <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF</a>
-            <form method="POST" action="{{ route('alumno.carta-aceptacion.eliminar') }}">
+            <form method="POST" action="{{ route('cartaAceptacion.eliminar', ['claveAlumno' => $claveAlumno]) }}">
               @csrf
               <input type="hidden" name="archivo" value="{{ $pdfPath }}">
               <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento?')">

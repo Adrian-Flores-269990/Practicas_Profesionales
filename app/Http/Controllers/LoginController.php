@@ -33,10 +33,14 @@ class LoginController extends Controller
         $empleado = Empleado::where('RPE', $rpeEmpleado);
 
         if (!$empleado->count() > 0) {
-            $carrera = NULL;
-            $area = NULL;
-            if($datosEmpleado['0']['carrera'] !== "NULL"){
-                foreach ($datosEmpleado as $item){
+            // Inicializa variables vacías para evitar el "Undefined variable"
+            $claveArea = null;
+            $area = null;
+            $claveCarrera = null;
+            $carrera = null;
+
+            if ($datosEmpleado['0']['carrera'] !== "NULL") {
+                foreach ($datosEmpleado as $item) {
                     $resultadoClaveArea[] = $item['clave_area'];
                     $resultadoArea[] = $item['area'];
                     $resultadoClaveCarrera[] = $item['clave_carrera'];
@@ -47,8 +51,7 @@ class LoginController extends Controller
                 $claveCarrera = implode(',', $resultadoClaveCarrera);
                 $carrera = implode(',', $resultadoCarrera);
             }
-            // Tanto clave_area como clave_carrera no se guardan en la base de datos
-            // porque los manejé como string, no como enteros
+            
             Empleado::create([
                 'Nombre' => $datosEmpleado['0']['nombre'],
                 'RPE' => $datosEmpleado['0']['rpe'],
@@ -60,7 +63,8 @@ class LoginController extends Controller
                 'Correo' => $datosEmpleado['0']['correo_electronico'],
                 'Telefono' => $datosEmpleado['0']['telefono'],
             ]);
-            return NULL;
+            
+            return null;
         } else {
             if ($empleado->count() == 1) {
                 $rol = Empleado::where('RPE', $rpeEmpleado)->value('Id_Rol');
@@ -102,7 +106,6 @@ class LoginController extends Controller
             return back()->withErrors(['cuenta' => 'Datos incorrectos']);
         }*/
 
-
         $tipoChar = strtolower($userRaw[0]);
         $claveReal = preg_replace('/^[au]/i', '', $userRaw);
 
@@ -120,7 +123,6 @@ class LoginController extends Controller
         $alumno = $datos[0];
 
         // Insertar o actualizar al alumno en la base local
-
         Alumno::updateOrCreate(
             ['Clave_Alumno' => $alumno['cve_uaslp']],
             [
@@ -152,20 +154,76 @@ class LoginController extends Controller
         $rpe = $request->input('rpe');
         $password = $request->input('contrasena');
 
-        $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
+        /* 
+        |--------------------------------------------------------------------------
+        | SIMULACIONES LOCALES (SIN API)
+        |--------------------------------------------------------------------------
+        | Estos accesos sirven para pruebas locales sin depender del web service.
+        | Puedes entrar con los siguientes usuarios:
+        |   - 123 / test  → Encargado
+        |   - 456 / test  → Administrador
+        |   - 789 / test  → Secretaría
+        |   - 987 / test  → DSSPP
+        */
+        if ($rpe == 123 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
+                'rpe' => $rpe,
+                'rol' => 'ENCARGADO DE PRÁCTICAS PROFESIONALES',
+                'dependencia' => 'FACULTAD DE INGENIERÍA',
+                'Id_Rol' => 2, // Encargado
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('encargado.inicio');
+        }
 
-        // No funcionó el web service
-        if (!($loginResponse['correcto'] ?? false)) {
-            return back()->withErrors(['cuenta' => 'Fallo en la conexión']);
+        if ($rpe == 456 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
+                'rpe' => $rpe,
+                'rol' => 'ADMINISTRADOR',
+                'dependencia' => 'FACULTAD DE INGENIERÍA',
+                'Id_Rol' => 1, // Administrador
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('administrador.inicio');
+        }
+
+        if ($rpe == 789 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
+                'rpe' => $rpe,
+                'rol' => 'SECRETARÍA',
+                'dependencia' => 'FACULTAD DE INGENIERÍA',
+                'Id_Rol' => 7, // Secretaría
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('secretaria.inicio');
+        }
+
+        if ($rpe == 987 && $password == 'test') {
+            $empleado = [
+                'nombre' => 'EDGAR IVAN AVALOS TORRES',
+                'rpe' => $rpe,
+                'rol' => 'DSSPP',
+                'dependencia' => 'FACULTAD DE INGENIERÍA',
+                'Id_Rol' => 3, // DSSPP
+            ];
+            session(['empleado' => $empleado]);
+            return redirect()->route('dsspp.inicio');
         }
 
         /*
-        // Verifica contraseña
-        $loginDatos = $this->datosArray($loginResponse) ?? [];
-        $conexion = $loginDatos[0]['conexion'];
-        if ($conexion === false) {
-            return back()->withErrors(['cuenta' => 'Datos incorrectos']);
-        }*/
+        |--------------------------------------------------------------------------
+        | LOGIN REAL (WEB SERVICE)
+        |--------------------------------------------------------------------------
+        */
+        $loginResponse = $this->uaslpApi->login($rpe, $password, 'u');
+
+        // Si el web service falla
+        if (!($loginResponse['correcto'] ?? false)) {
+            return back()->withErrors(['cuenta' => 'Fallo en la conexión con el servidor.']);
+        }
 
         $datosResponse = $this->uaslpApi->obtenerDatosEmpleado($rpe, 'empleado');
 
@@ -179,86 +237,28 @@ class LoginController extends Controller
         }
 
         $rol = $this->rolEmpleado($rpe, $datos);
-
-
-        // Aquí solo faltaría cambiar los datos de cada ruta, de momento todos entran a encargado
-
         session(['empleado' => $datos]);
 
-        // Observador
-        if($rol == NULL || $rol == 4){
-            return redirect()->route('encargado.inicio');
-        }
-
-        // Secretaría
-        if($rol == 7){
-            return redirect()->route('encargado.inicio');
-        }
-
-        // DSSPP
-        if($rol == 3){
-            return redirect()->route('encargado.inicio');
-        }
-
-        // Encargado
-        if($rol == 2){
-            return redirect()->route('encargado.inicio');
-        }
-
-        // Administrador
-        if($rol == 1){
-            return redirect()->route('encargado.inicio');
-        }
-
-
-
-
-        // Simulación para pruebas sin API PARA ENCARGADO
-        if ($rpe == 123 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
-                'rpe' => $rpe,
-                'rol' => 'ENCARGADO PRACTICAS PROFESIONALES',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'
-            ];
-            session(['empleado' => $empleado]);
-            return redirect()->route('encargado.inicio');
-        }
-
-        // Simulación para pruebas sin API PARA ADMINISTRADOR
-        if ($rpe == 456 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
-                'rpe' => $rpe,
-                'rol' => 'ADMINISTRADOR',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'
-            ];
-            session(['empleado' => $empleado]);
-            return redirect()->route('administrador.inicio');
-        }
-
-        // Simulación para pruebas sin API PARA SECRETARIA
-        if ($rpe == 789 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
-                'rpe' => $rpe,
-                'rol' => 'SECRETARÍA',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'
-            ];
-            session(['empleado' => $empleado]);
-            return redirect()->route('secretaria.inicio');
-        }
-
-        // Simulación para pruebas sin API PARA DSSPP
-        if ($rpe == 987 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'EDGAR IVAN AVALOS TORRES',
-                'rpe' => $rpe,
-                'rol' => 'DEPARTAMENTO DE SERVICIOS ESCOLARES Y PRÁCTICAS PROFESIONALES',
-                'dependencia' => 'FACULTAD DE INGENIERÍA'
-            ];
-            session(['empleado' => $empleado]);
-            return redirect()->route('dsspp.inicio');
+        /*
+        |--------------------------------------------------------------------------
+        | REDIRECCIONES SEGÚN ROL REAL
+        |--------------------------------------------------------------------------
+        */
+        switch ($rol) {
+            case 1:
+                return redirect()->route('administrador.inicio'); // Administrador
+            case 2:
+                return redirect()->route('encargado.inicio');     // Encargado
+            case 3:
+                return redirect()->route('dsspp.inicio');         // DSSPP
+            case 4:
+            case null:
+                return redirect()->route('encargado.inicio');     // Observador o sin rol
+            case 7:
+                return redirect()->route('secretaria.inicio');    // Secretaría
+            default:
+                return redirect()->route('encargado.inicio');     // Por defecto
         }
     }
+
 }

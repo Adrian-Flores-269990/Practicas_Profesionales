@@ -38,4 +38,10 @@ class Alumno extends Authenticatable
     {
         return $this->hasMany(SolicitudFPP01::class, 'Clave_Alumno', 'Clave_Alumno');
     }
+
+    public function estados()
+    {
+        return $this->hasMany(EstadoProceso::class, 'clave_alumno', 'Clave_Alumno');
+    }
+
 }

@@ -16,24 +16,24 @@ class ReciboController extends Controller
      * Descargar el PDF y registrar la solicitud de pago.
      */
     public function descargar(Request $request)
-{
-    $request->validate([
-        'nombre' => 'required|string',
-        'carrera' => 'required|string',
-        'clave' => 'required|string',
-        'fecha' => 'required|date',
-        'periodo' => 'required|string',
-        'cantidad' => 'required|numeric',
-        'empresa' => 'required|string',
-        'autoriza' => 'required|string',
-        'telefono_empresa' => 'required|string',
-        'cargo' => 'required|string',
-        'telefono_alumno' => 'required|string',
-        'fecha_entrega' => 'required|date',
-        'seguro' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'nombre' => 'required|string',
+            'carrera' => 'required|string',
+            'clave' => 'required|string',
+            'fecha' => 'required|date',
+            'periodo' => 'required|string',
+            'cantidad' => 'required|numeric',
+            'empresa' => 'required|string',
+            'autoriza' => 'required|string',
+            'telefono_empresa' => 'required|string',
+            'cargo' => 'required|string',
+            'telefono_alumno' => 'required|string',
+            'fecha_entrega' => 'required|date',
+            'seguro' => 'required|string',
+        ]);
 
-    $data = $request->all();
+        $data = $request->all();
 
     // Generar PDF
     $pdf = Pdf::loadView('pdf.recibo', compact('data'));
@@ -125,10 +125,15 @@ class ReciboController extends Controller
         if (!$clave) return redirect()->route('alumno.inicio');
 
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $clave)->latest('Id_Solicitud_FPP01')->first();
-        $flag = $solicitud ? Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->value('Carta_Desglose_Percepciones') : 0;
-        if ($flag != 1) {
-            return redirect()->route('alumno.expediente.desglosePercepciones')->with('error', 'Debes subir la Carta de Desglose de Percepciones primero.');
-        }
+        /*
+        ***************************** CHECAR ***********************************
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+        if (is_null($expediente['Solicitud_de_Recibo']) {
+            return redirect()->route('desglosePercepciones.mostrar', [
+                'claveAlumno' => $clave,
+                'tipo' => 'Carta_Desglose_Percepciones'
+            ])->with('error', 'Debes subir la Carta de Desglose de Percepciones primero.');
+        }*/
 
         $idExpediente = $solicitud ? Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->value('Id_Expediente') : null;
         $ultimoPago = null;

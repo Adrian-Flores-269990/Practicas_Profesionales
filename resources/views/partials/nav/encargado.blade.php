@@ -3,10 +3,6 @@
 <nav class="encargado-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">
-
-    
-
-
       <li class="nav-item">
           <a class="nav-link" href="{{ route('encargado.inicio') }}">Inicio</a>
       </li>
@@ -19,7 +15,7 @@
           <li><a class="dropdown-item" href="{{ route('encargado.solicitudes_alumnos') }}">Solicitudes Pendientes</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en Proceso de Prácticas</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_finalizados') }}">Alumnos que terminaron de Prácticas</a></li>
-          <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de la Empresa</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de Empresas</a></li>
           <li><a class="dropdown-item" href=" {{ route('encargado.registrar_empresa') }}">Registrar Nueva Empresa</a></li>
           <li><a class="dropdown-item" href="#">Consultar Reportes por Área</a></li>
         </ul>

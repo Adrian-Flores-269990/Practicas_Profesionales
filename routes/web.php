@@ -32,19 +32,22 @@ Route::post('/empleado/login', [LoginController::class, 'loginEmpleado'])->name(
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->group(function () {
-    //  Página de inicio del administrador
     Route::get('/inicio', fn () => view('administrador.inicio'))->name('administrador.inicio');
-      //  Panel de empleados y roles
+    Route::get('/consultar_alumno', fn () => view('administrador.consultar_alumno'))->name('administrador.consultar_alumno');
     Route::get('/empleados', [AdminController::class, 'index'])->name('administrador.empleados');
     Route::post('/empleados', [AdminController::class, 'store'])->name('administrador.empleados.store');
     Route::put('/empleados/{id}', [AdminController::class, 'update'])->name('administrador.empleados.update');
     Route::delete('/empleados/{id}', [AdminController::class, 'destroy'])->name('administrador.empleados.destroy');
-    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('admin.bitacora');
-
-
-
+    Route::get('/consultar-alumno', [AdminController::class, 'consultarAlumno'])->name('administrador.consultar_alumno');
     Route::put('/empleados/{id}/rol', [AdminController::class, 'actualizarRol'])->name('administrador.actualizarRol');
-
+    Route::get('/alumnos/filtrar', [AdminController::class, 'filtrarAlumnosPorEstado'])->name('administrador.filtrar_alumnos');
+    Route::post('/empleados/asignar-rol', [AdminController::class, 'asignarRol'])->name('administrador.empleados.asignarRol');
+    Route::post('/actualizar-imagen/{nombre}', [AdminController::class, 'actualizarImagen'])->name('admin.actualizarImagen');
+    Route::get('/encargados', [AdminController::class, 'indexEncargados'])->name('administrador.encargados');
+    Route::put('/encargados/{id}/carreras', [AdminController::class, 'updateCarreras'])->name('administrador.encargados.updateCarreras');
+    Route::get('/empresas', [AdminController::class, 'indexEmpresas'])->name('administrador.empresas');
+    Route::get('/constancias', [AdminController::class, 'constancias'])->name('administrador.constancias');
+    Route::get('/bitacora', [BitacoraController::class, 'index'])->name('admin.bitacora');
 });
 
 /*
@@ -62,6 +65,8 @@ Route::prefix('alumno')->group(function () {
     Route::get('/registro', [AlumnoController::class, 'confirmaFPP02'])->name('alumno.registro');
     Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
     Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');
+    Route::post('/generar-fpp02', [PdfController::class, 'generarFpp02'])->name('alumno.generarFpp02');
+    Route::post('/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])->name('alumno.subirFpp02Firmado');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
 
@@ -70,22 +75,40 @@ Route::prefix('alumno')->group(function () {
         Route::get('/solicitudFPP01', [SolicitudController::class, 'index'])->name('alumno.expediente.solicitudes');
         Route::get('/solicitudFPP01/{id}', [SolicitudController::class, 'show'])->name('alumno.expediente.verSolicitud');
         Route::get('/solicitudFPP01/{id}/editar', [SolicitudController::class, 'edit'])->name('alumno.expediente.solicitud.editar');
+        Route::get('/solicitudFPP01/{id}', [SolicitudController::class, 'show'])->name('solicitud.show');
         Route::post('/solicitudFPP01/store', [SolicitudController::class, 'store'])->name('alumno.expediente.store');
 
         Route::get('/registroFPP02', fn () => view('alumno.expediente.registroFPP02'))->name('alumno.expediente.registroFPP02');
         Route::get('/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
         Route::get('/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
 
-        Route::get('/cartaAceptacion', fn () => view('alumno.expediente.cartaAceptacion'))->name('alumno.expediente.cartaAceptacion');
-        Route::get('/desglosePercepciones', fn () => view('alumno.expediente.desglosePercepciones'))->name('alumno.expediente.desglosePercepciones');
-        Route::get('/reciboPago', fn () => view('alumno.expediente.reciboPago'))->name('alumno.expediente.reciboPago');
-        Route::get('/ayudaEconomica', fn () => view('alumno.expediente.ayudaEconomica'))->name('alumno.expediente.ayudaEconomica');
-
+        Route::get('/reciboPago', [\App\Http\Controllers\ReciboController::class, 'vistaReciboPago'])
+            ->name('alumno.expediente.reciboPago');
+        Route::get('/reciboPago/descargar', [\App\Http\Controllers\ReciboController::class, 'descargarReciboPago'])
+            ->name('alumno.expediente.reciboPago.descargar');
+        Route::get('/ayudaEconomica', function() {
+            $alumno = session('alumno');
+            $clave = $alumno['cve_uaslp'] ?? null;
+            if (!$clave) return redirect()->route('alumno.inicio');
+            $solicitud = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)->latest('Id_Solicitud_FPP01')->first();
+            $expediente = \App\Models\Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+            if (is_null($expediente['Carta_Desglose_Percepciones'])) {
+                return redirect()->route('desglosePercepciones.mostrar', [
+                            'claveAlumno' => $clave,
+                            'tipo' => 'Carta_Desglose_Percepciones'
+                            ])->with('error', 'Debes subir la Carta de Desglose de Percepciones primero.');
+            }
+            return view('alumno.expediente.ayudaEconomica');
+        })->name('alumno.expediente.ayudaEconomica');
+        
         // Upload PDFs
-        Route::post('/carta-aceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('alumno.carta-aceptacion.upload');
-        Route::post('/carta-aceptacion/eliminar', [PdfController::class, 'eliminarCartaAceptacion'])->name('alumno.carta-aceptacion.eliminar');
-        Route::post('/desglose-percepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('alumno.desglose-percepciones.upload');
-        Route::post('/desglose-percepciones/eliminar', [PdfController::class, 'eliminarDesglosePercepciones'])->name('alumno.desglose-percepciones.eliminar');
+        Route::get('/cartaAceptacion/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaAceptacion.mostrar');
+        Route::post('/cartaAceptacion/upload', [PdfController::class, 'subirCartaAceptacion'])->name('cartaAceptacion.upload');
+        Route::post('/cartaAceptacion/{claveAlumno}', [PdfController::class, 'eliminarDocumento'])->name('cartaAceptacion.eliminar');
+
+        Route::get('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('desglosePercepciones.mostrar');
+        Route::post('/desglosePercepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('desglosePercepciones.upload');
+        Route::post('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->defaults('tipo', 'Carta_Aceptacion')->name('desglosePercepciones.eliminar');
 
     });
 
@@ -99,8 +122,7 @@ Route::prefix('alumno')->group(function () {
     Route::get('/crear', [AlumnoController::class, 'create'])->name('alumno.create');
     Route::post('/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 });
-Route::post('/alumno/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])
-    ->name('alumno.subirFpp02Firmado');
+
 
 
 /*
@@ -118,35 +140,28 @@ Route::prefix('encargado')->group(function () {
     Route::get('/solicitud/{id}', [EncargadoController::class, 'verSolicitud'])->name('encargado.verSolicitud');
     Route::put('/solicitud/{id}/autorizar', [EncargadoController::class, 'autorizarSolicitud'])->name('encargado.autorizar');
 
-    Route::get('/solicitudes-alumnos', [EncargadoController::class, 'index'])
-        ->name('encargado.solicitudes_alumnos');
-
+    Route::get('/solicitudes-alumnos', [EncargadoController::class, 'index'])->name('encargado.solicitudes_alumnos');
     Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
-
-    Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])
-    ->name('encargado.consultar_alumno');
-
-    Route::get('/alumnos_en_proceso', [EncargadoController::class, 'alumnosEnProceso'])
-        ->name('encargado.alumnos_en_proceso');
-
-    Route::get('/alumnos_finalizados', [EncargadoController::class, 'alumnosFinalizados'])
-        ->name('encargado.alumnos_finalizados');
+    Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])->name('encargado.consultar_alumno');
+    Route::get('/alumnos_en_proceso', [EncargadoController::class, 'alumnosEnProceso'])->name('encargado.alumnos_en_proceso');
+    Route::get('/alumnos_finalizados', [EncargadoController::class, 'alumnosFinalizados'])->name('encargado.alumnos_finalizados');
 
     Route::get('/registrar-empresa', function() {
         return view('encargado.registrar_empresa');
     })->name('encargado.registrar_empresa');
 
-    // Ruta para guardar (puedes implementarla después)
     Route::post('/guardar-empresa', function() {
-        // TODO: Implementar guardado en base de datos
-
-        // Por ahora solo simular
-        return redirect()->route('encargado.inicio')->with('success', '✅ Empresa registrada exitosamente');
+        return redirect()->route('encargado.inicio')->with('success', 'Empresa registrada exitosamente');
     })->name('encargado.guardar_empresa');
 
 });
 
-// SECRETARIA
+
+/*
+|--------------------------------------------------------------------------
+| RUTAS SECRETARIA
+|--------------------------------------------------------------------------
+*/
 Route::prefix('secretaria')->group(function () {
     Route::get('/inicio', fn () => view('secretaria.inicio'))->name('secretaria.inicio');
 
@@ -215,37 +230,17 @@ Route::prefix('secretaria')->group(function () {
     })->name('secretaria.validar_constancia');
 });
 
-Route::get('/alumno/expediente/solicitudFPP01/{id}', [SolicitudController::class, 'show'])
-        ->name('solicitud.show');
-Route::get('/solicitud/create', [SolicitudController::class, 'create'])->name('solicitud.create');
-    Route::post('/solicitud', [SolicitudController::class, 'store'])->name('solicitud.store');
-/*
-|--------------------------------------------------------------------------
-| RUTAS SECRETARIA
-|--------------------------------------------------------------------------
-*/
-Route::prefix('secretaria')->group(function () {
-    Route::get('/inicio', fn () => view('secretaria.inicio'))->name('secretaria.inicio');
-});
-
 /*
 |--------------------------------------------------------------------------
 | RUTAS DSSPP
 |--------------------------------------------------------------------------
 */
-
 Route::prefix('dsspp')->group(function () {
-    //  Inicio
     Route::get('/inicio', fn () => view('dsspp.inicio'))->name('dsspp.inicio');
-
-    //  Consultar alumno (vista de búsqueda)
     Route::get('/consultar-alumno', fn () => view('dsspp.consultar_alumno'))->name('dsspp.consultar_alumno');
-
-    //  Solicitudes pendientes
     Route::get('/solicitudes', [DssppController::class, 'index'])->name('dsspp.solicitudes');
     Route::get('/solicitud/{id}', [DssppController::class, 'verSolicitud'])->name('dsspp.verSolicitud');
     Route::put('/solicitud/{id}/autorizar', [DssppController::class, 'autorizarSolicitud'])->name('dsspp.autorizarSolicitud');
-
 });
 
 
@@ -255,7 +250,5 @@ Route::prefix('dsspp')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::post('/recibo/descargar', [ReciboController::class, 'descargar'])->name('recibo.descargar');
-Route::post('/alumno/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])
-    ->name('alumno.subirFpp02Firmado');
-Route::post('/alumno/generar-fpp02', [PdfController::class, 'generarFpp02'])
-    ->name('alumno.generarFpp02');
+Route::get('/solicitud/create', [SolicitudController::class, 'create'])->name('solicitud.create');
+Route::post('/solicitud', [SolicitudController::class, 'store'])->name('solicitud.store');

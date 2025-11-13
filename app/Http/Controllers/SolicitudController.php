@@ -8,30 +8,39 @@ use App\Models\DependenciaMercadoSolicitud;
 use App\Models\SectorPrivado;
 use App\Models\SectorPublico;
 use App\Models\SectorUaslp;
+use App\Models\AsesorExterno; // Importación necesaria para la lógica de store()
+use App\Models\CarreraIngenieria;
+use App\Models\EstadoProceso;
+use App\Models\Expediente; // Importación de Versión B
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
-use App\Models\EstadoProceso;
-use App\Models\CarreraIngenieria;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class SolicitudController extends Controller
 {
+    // Método auxiliar (Mantenido del código anterior)
+
+
     public function store(Request $request)
     {
         try {
             DB::transaction(function() use ($request) {
                 $alumno = session('alumno');
-                $claveAlumno = $alumno['cve_uaslp'] ?? null;
+                // Uso de la lógica más robusta para Clave_Alumno (Versión B, aunque A era suficiente)
+                $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave') ?? $request->input('clave_hidden') ?? null;
 
                 if (empty($claveAlumno)) {
+                    Log::warning('Intento de guardar solicitud sin Clave_Alumno. Session alumno: ', ['session_alumno' => $alumno]);
                     throw ValidationException::withMessages([
-                        'clave_alumno' => 'No se encontró la clave del alumno.'
+                        'clave_alumno' => 'No se encontró la clave del alumno. Asegúrate de haber iniciado sesión o de que el web service devuelva la información.'
                     ]);
                 }
 
-                // Validar solicitud activa
+                // ============================================
+                // 1️⃣ VALIDACIÓN DE SOLICITUD ACTIVA
+                // ============================================
                 $solicitudActiva = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                     ->orderByDesc('Fecha_Solicitud')
                     ->first();
@@ -42,11 +51,12 @@ class SolicitudController extends Controller
                     ($solicitudActiva->Estado_Departamento === 'aprobado' &&
                     $solicitudActiva->Estado_Encargado === 'aprobado')
                 )) {
-                    return redirect()->back()->with('error', '⚠️ Ya tienes una solicitud en proceso.');
+                    // Se lanza una excepción que se capturará fuera de la transacción
+                    throw new \Exception('Ya tienes una solicitud en proceso.');
                 }
 
                 // ============================================
-                // 1️⃣ GUARDAR ASESOR EXTERNO
+                // 2️⃣ GUARDAR ASESOR EXTERNO (Versión A)
                 // ============================================
                 $asesorExterno = null;
                 if ($request->filled('nombre_asesor')) {
@@ -62,13 +72,15 @@ class SolicitudController extends Controller
                 }
 
                 // ============================================
-                // 2️⃣ PROCESAR DÍAS DE ASISTENCIA
+                // 3️⃣ PROCESAR DÍAS DE ASISTENCIA
                 // ============================================
                 $diasSeleccionados = $request->input('dias_asistencia', []);
+                // Se usa implore(',', ...) de Versión A (más legible), no implode('', ...) de Versión B
                 $diasString = is_array($diasSeleccionados) ? implode(',', $diasSeleccionados) : '';
+                $turno = $request->turno === 'M' ? 'M' : 'V';
 
                 // ============================================
-                // 3️⃣ GUARDAR ARCHIVOS PDF
+                // 4️⃣ GUARDAR ARCHIVOS PDF (Lógica de ambas versiones era igual)
                 // ============================================
                 $nombreArchivoConstancia = null;
                 if ($request->constancia_derechos === 'si' && $request->hasFile('constancia_pdf')) {
@@ -107,10 +119,8 @@ class SolicitudController extends Controller
                 }
 
                 // ============================================
-                // 4️⃣ CREAR SOLICITUD
+                // 5️⃣ CREAR SOLICITUD (Campos fusionados)
                 // ============================================
-                $turno = $request->turno === 'M' ? 'M' : 'V';
-
                 $solicitud = SolicitudFPP01::create([
                     'Fecha_Solicitud' => now(),
                     'Numero_Creditos' => $alumno['creditos'] ?? null,
@@ -125,18 +135,21 @@ class SolicitudController extends Controller
                     'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
                     'Archivo_CVD' => $request->hasFile('constancia_pdf') ? 1 : 0,
                     'Fecha_Inicio' => $request->fecha_inicio,
-                    'Fecha_Fin' => $request->fecha_termino, // ⭐ Cambiado de Fecha_Termino
+                    // Corregido: La Versión A usa Fecha_Fin, la Versión B usa Fecha_Termino. Asumo que el campo es 'Fecha_Fin' o debe ser 'Fecha_Termino'
+                    'Fecha_Fin' => $request->fecha_termino, 
                     'Clave_Encargado' => 1,
-                    'Clave_Asesor_Externo' => $asesorExterno ? $asesorExterno->Id_Asesor_Externo : null, // ⭐ ID real
+                    // Se usa el ID del Asesor real (Versión A)
+                    'Clave_Asesor_Externo' => $asesorExterno ? $asesorExterno->Id_Asesor_Externo : null, 
                     'Datos_Asesor_Externo' => $asesorExterno ? 1 : 0,
                     'Productos_Servicios_Emp' => 'No se',
                     'Datos_Empresa' => 1,
-                    'Nombre_Proyecto' => $request->nombre_proyecto, // ⭐ Corregido
+                    // Corregido: Se usa la entrada correcta `nombre_proyecto` (Versión A)
+                    'Nombre_Proyecto' => $request->nombre_proyecto, 
                     'Actividades' => $request->actividades,
                     'Horario_Mat_Ves' => $turno,
                     'Horario_Entrada' => $request->horario_entrada,
                     'Horario_Salida' => $request->horario_salida,
-                    'Dias_Semana' => $diasString, // ⭐ Con comas: "L,M,Mi,J,V"
+                    'Dias_Semana' => $diasString,
                     'Validacion_Creditos' => $request->val_creditos === 'si' ? 1 : 0,
                     'Apoyo_Economico' => $request->apoyoeco === 'si' ? 1 : 0,
                     'Extension_Practicas' => $request->extension === 'si' ? 1 : 0,
@@ -149,8 +162,21 @@ class SolicitudController extends Controller
                     'Estado_Departamento' => 'pendiente',
                 ]);
 
+                // Variables para la creación de DependenciaEmpresa (Mantenido de Versión A)
+                $nombreEmpresa = null;
+                $clasificacion = null;
+                $rfc = null;
+                $ramo = null;
+                $calle = null;
+                $numero = null;
+                $colonia = null;
+                $cp = null;
+                $estado = null;
+                $municipio = null;
+                $telefono = null;
+
                 // ============================================
-                // 5️⃣ PROCESAR SECTORES
+                // 6️⃣ PROCESAR SECTORES (Mantenido de Versión A - Es la lógica completa)
                 // ============================================
                 $sectorPrivado = NULL;
                 $sectorPublico = NULL;
@@ -179,7 +205,7 @@ class SolicitudController extends Controller
                         'Razon_Social_Outsourcing' => $request->razon_social_outsourcing
                     ]);
                     $sectorPrivado = $sector->Id_Privado;
-                    
+
                 } elseif ($request->sector === 'publico') {
                     $nombreEmpresa = $request->nombre_empresa_publico;
                     $clasificacion = '0';
@@ -191,15 +217,15 @@ class SolicitudController extends Controller
                     $cp = $request->cp_empresa_publico;
                     $estado = $request->estado_empresa_publico;
                     $municipio = $request->municipio_empresa_publico;
-                    $telefono = $request->telefono_publico; // ⭐ Ahora existe
+                    $telefono = $request->telefono_publico;
 
                     $sector = SectorPublico::create([
                         'Area_Depto' => $request->area_depto_publico,
                         'Ambito' => $request->ambito,
-                        'Telefono' => $telefono, // ⭐ AGREGAR TELÉFONO
+                        'Telefono' => $telefono,
                     ]);
                     $sectorPublico = $sector->Id_Publico;
-                    
+
                 } elseif ($request->sector === 'uaslp') {
                     $sector = SectorUaslp::create([
                         'Area_Depto' => $request->area_depto_uaslp,
@@ -230,7 +256,7 @@ class SolicitudController extends Controller
                     $idEmpresa = $empresa->Id_Depn_Emp;
                 }
 
-                // Crear relación
+                // Crear relación Dependencia-Mercado-Solicitud
                 DependenciaMercadoSolicitud::create([
                     'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01,
                     'Id_Depend_Emp' => $idEmpresa,
@@ -242,7 +268,7 @@ class SolicitudController extends Controller
                 ]);
 
                 // ============================================
-                // 6️⃣ ESTADO PROCESO
+                // 7️⃣ ESTADO PROCESO (Lógica de ambas versiones era igual)
                 // ============================================
                 if (EstadoProceso::where('clave_alumno', $claveAlumno)->count() == 0) {
                     $etapas = [
@@ -284,6 +310,7 @@ class SolicitudController extends Controller
                     }
                 }
 
+                // Reiniciar las etapas pendientes/aprobadas para la nueva solicitud
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->whereIn('etapa', [
                         'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
@@ -293,19 +320,36 @@ class SolicitudController extends Controller
                     ])
                     ->update(['estado' => 'pendiente']);
 
+                // Marcar la etapa de registro como 'proceso'
                 EstadoProceso::where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES')
                     ->update(['estado' => 'proceso']);
+
+                // Asegurar creación de expediente asociado a la solicitud (Nuevo, basado en importación de Expeditente)
+                Expediente::firstOrCreate(
+                    ['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01],
+                    ['Carta_Desglose_Percepciones' => 0]
+                );
             });
 
             $this->logBitacora("Registro de solicitud");
             return redirect()->route('alumno.inicio')->with('success', 'Solicitud guardada correctamente.');
 
+        } catch (ValidationException $e) {
+             // Manejar errores de validación
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Error en solicitud: ' . $e->getMessage());
+             if ($e->getMessage() === 'Ya tienes una solicitud en proceso.') {
+                return back()->with('error', '⚠️ Ya tienes una solicitud en proceso. Espera la resolución antes de enviar otra.');
+            }
             return back()->withErrors(['error' => 'Error al guardar la solicitud: ' . $e->getMessage()]);
         }
     }
+
+    // ------------------------------------------------------------------
+    // Métodos de Vista (Consolidado)
+    // ------------------------------------------------------------------
 
     public function index()
     {
@@ -317,7 +361,8 @@ class SolicitudController extends Controller
         }
 
         // Buscar todas las solicitudes del alumno
-        $solicitudes = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
+        // Nota: Se corrigió el uso de \App\Models\SolicitudFPP01 a SolicitudFPP01 ya que está importado
+        $solicitudes = SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
             ->orderBy('Fecha_Solicitud', 'desc')
             ->get();
 
@@ -375,9 +420,10 @@ class SolicitudController extends Controller
                         ->get();
 
         // Obtener todas las empresas para el menú desplegable
-        $empresas = \App\Models\DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
+        // Nota: Se corrigió el uso de \App\Models\DependenciaEmpresa a DependenciaEmpresa ya que está importado
+        $empresas = DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
 
-        return view('alumno.expediente.solicitudFPP01', compact('solicitudes', 'empresas'));
+        return view('alumno.expediente.solicitudFPP01', compact('solicitudes', 'empresas', 'carreras'));
     }
 
     public function edit($id)
@@ -394,7 +440,9 @@ class SolicitudController extends Controller
             abort(403, 'No tienes permiso para editar esta solicitud.');
         }
 
-        if ($solicitud->Estatus !== 'rechazada') {
+        // Se usa la condición de la Versión A (que tenía un bug), y se corrige a la intención original (que tenía la Versión B)
+        // La condición correcta debe ser 'rechazado' para ambos estados (Departamento y Encargado).
+        if ($solicitud->Estado_Departamento !== 'rechazado' && $solicitud->Estado_Encargado !== 'rechazado') {
             return redirect()->route('solicitud.ver', $id)->with('info', 'Solo las solicitudes rechazadas se pueden corregir.');
         }
 

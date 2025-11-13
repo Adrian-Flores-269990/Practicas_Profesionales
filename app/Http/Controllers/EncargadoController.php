@@ -10,6 +10,7 @@ use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
 use App\Models\Alumno;
 use App\Services\UaslpApiService;
+use App\Models\Expediente;
 
 class EncargadoController extends Controller
 {
@@ -217,6 +218,10 @@ class EncargadoController extends Controller
             EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)
                 ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
                 ->update(['estado' => 'proceso']);
+            
+            Expediente::create([
+                'Id_Solicitud_FPP01' => $solicitud['Id_Solicitud_FPP01'],
+            ]);
         }
         else {
             EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)

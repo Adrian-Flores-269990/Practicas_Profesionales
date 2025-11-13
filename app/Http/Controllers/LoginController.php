@@ -51,7 +51,6 @@ class LoginController extends Controller
                 $claveCarrera = implode(',', $resultadoClaveCarrera);
                 $carrera = implode(',', $resultadoCarrera);
             }
-
             Empleado::create([
                 'Nombre' => $datosEmpleado['0']['nombre'],
                 'RPE' => $datosEmpleado['0']['rpe'],
@@ -63,7 +62,6 @@ class LoginController extends Controller
                 'Correo' => $datosEmpleado['0']['correo_electronico'],
                 'Telefono' => $datosEmpleado['0']['telefono'],
             ]);
-
             return null;
         } else {
             if ($empleado->count() == 1) {
@@ -155,6 +153,7 @@ class LoginController extends Controller
         $password = $request->input('contrasena');
 
         /*
+        /* 
         |--------------------------------------------------------------------------
         | SIMULACIONES LOCALES (SIN API)
         |--------------------------------------------------------------------------

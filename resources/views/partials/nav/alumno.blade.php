@@ -32,7 +32,7 @@
         </a>
         <ul class="dropdown-menu" aria-labelledby="expedienteDropdown">
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">Solicitud de Prácticas Profesionales (FPP01)</a></li>
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.registroFPP02') }}">Registro de Solicitud de Autorización (FPP02)</a></li>
+          <li><a class="dropdown-item" href="#">Registro de Solicitud de Autorización (FPP02)</a></li>
           <li><a class="dropdown-item" href="#">Carta de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('cartaAceptacion.mostrar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Aceptacion']) }}">Carta de Aceptación</a></li>
           @if ($existe == true)

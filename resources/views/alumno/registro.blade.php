@@ -96,13 +96,11 @@
 @section('content')
 @include('partials.nav.registro')
 
-@php $alumno = $solicitud->alumno; @endphp
-
 <div class="container mt-4">
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
   </h4>
-
+  
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
     {{-- Alumno --}}
@@ -156,7 +154,6 @@
   {{-- SECCIÓN PARA SUBIR PDF FIRMADO (visible si YA imprimió) --}}
   <div id="upload-section" style="{{ $mostrarUpload ? '' : 'display:none;' }}">
     <div class="bg-white p-4 rounded shadow-sm w-100">
-      <h5 class="fw-bold mb-4 text-center"><i class="bi bi-upload"></i> Subir formato FPP02 firmado</h5>
 
       {{-- Botón para regresar a la vista previa --}}
       <div class="mb-3">
@@ -169,30 +166,7 @@
       @php
         $alumno = session('alumno');
         $claveAlumno = $alumno['cve_uaslp'] ?? null;
-        $pdfPath = null;
-        if ($claveAlumno) {
-          $files = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/fpp02-firmados');
-          $pdfs = collect($files)->filter(fn($f) => str_contains($f, $claveAlumno . '_FPP02_firmado'))->sortDesc();
-          if ($pdfs->count() > 0) $pdfPath = $pdfs->first();
-        }
       @endphp
-
-      @if($pdfPath)
-        <div class="mb-4">
-          <h6 class="fw-bold">Documento subido:</h6>
-          <iframe src="{{ asset('storage/' . $pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
-          <div class="d-flex gap-2 mt-2">
-            <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF</a>
-            <form method="POST" action="{{ route('alumno.carta-aceptacion.eliminar') }}">
-              @csrf
-              <input type="hidden" name="archivo" value="{{ $pdfPath }}">
-              <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento?')">
-                <i class="bi bi-trash"></i> Eliminar
-              </button>
-            </form>
-          </div>
-        </div>
-      @endif
 
       {{-- Mensajes de éxito y error --}}
       @if(session('success'))
@@ -210,46 +184,72 @@
       @endif
 
       {{-- Formulario de carga --}}
-      <form method="POST" action="{{ route('alumno.subirFpp02Firmado') }}" enctype="multipart/form-data" id="form-fpp02">
-        @csrf
-
-        <div class="border rounded p-4 bg-light mb-4 text-center position-relative" id="zonaSubida">
-          <div id="archivoInstrucciones">
-            <i class="bi bi-cloud-upload display-6 text-muted"></i>
-            <p class="text-muted">Arrastra y suelta tu PDF aquí o selecciónalo manualmente</p>
-            <p class="small text-danger">Solo archivos PDF menores a 20 MB</p>
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar archivo</button>
+      @if($pdfPath)
+        <div class="mb-4">
+          <h6 class="fw-bold">Documento subido:</h6>
+          <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
+          <div class="d-flex gap-2 mt-2">
+            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
+            <form method="POST" action="{{ route('registroFPP02.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Solicitud_FPP02_Firmada']) }}" style="display:inline;">
+              @csrf
+              <input type="hidden" name="archivo" value="{{ $pdfPath }}">
+              <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento actual?')">
+                <i class="bi bi-trash"></i> Eliminar PDF
+              </button>
+            </form>
           </div>
+        </div>
+      @else
+        <form method="POST" action="{{ route('registroFPP02.upload') }}" enctype="multipart/form-data" id="form-reporte">
+          @csrf
+          {{-- Área de envío de archivo --}}
+          <div class="mb-4 border rounded p-3 bg-light">
+            <h6 class="fw-bold mb-3">
+              <i class="bi bi-upload"></i> Subir documento emitido por la empresa
+            </h6>
 
-          <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
-
-          <div id="archivoPreview" class="mt-3 d-none">
-            <div class="card border-primary shadow-sm">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="mb-1" id="archivoNombre"></h6>
-                  <p class="mb-0 text-muted small" id="archivoTamaño"></p>
+            <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;" id="zonaSubida">
+              <div id="archivoInstrucciones">
+                <div class="mb-2">
+                  <i class="bi bi-cloud-upload display-6 text-muted"></i>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
-                  <i class="bi bi-trash"></i> Eliminar
-                </button>
+                <p class="text-muted">Arrastre y suelte los archivos aquí para subirlos</p>
+                <p class="small text-danger">Archivos de tamaño igual o menor a 20MB, únicamente archivos en PDF</p>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
+              </div>
+
+            <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
+
+              <div id="archivoPreview" class="mt-3 d-none">
+                <div class="card border-primary shadow-sm">
+                  <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-1" id="archivoNombre"></h6>
+                      <p class="mb-0 text-muted small" id="archivoTamaño"></p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
+                      <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-danger" id="btn-cancelar-upload">
-            <i class="bi bi-x-circle"></i> Cancelar
-          </button>
-          <button type="submit" class="btn btn-success">
-            <i class="bi bi-check-circle"></i> Subir PDF firmado
-          </button>
-        </div>
-      </form>
+        {{-- Botones --}}
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-secondary">Guardar cambios</button>
+            <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
+            <button type="submit" class="btn btn-success">Enviar</button>
+          </div>
+        </form>
+      @endif
+
     </div>
   </div>
 </div>
+
+      
 
 @push('scripts')
 <script>
@@ -359,19 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, false);
   }
+
+  function resetFormulario() {
+    const form = document.getElementById('form-fpp02');
+    const preview = document.getElementById('archivoPreview');
+    const instrucciones = document.getElementById('archivoInstrucciones');
+    const inputArchivo = document.getElementById('archivoUpload');
+
+    if (form) form.reset();
+    if (inputArchivo) inputArchivo.value = "";
+    if (preview) preview.classList.add('d-none');
+    if (instrucciones) instrucciones.classList.remove('d-none');
+  }
 });
-
-function resetFormulario() {
-  const form = document.getElementById('form-fpp02');
-  const preview = document.getElementById('archivoPreview');
-  const instrucciones = document.getElementById('archivoInstrucciones');
-  const inputArchivo = document.getElementById('archivoUpload');
-
-  if (form) form.reset();
-  if (inputArchivo) inputArchivo.value = "";
-  if (preview) preview.classList.add('d-none');
-  if (instrucciones) instrucciones.classList.remove('d-none');
-}
 </script>
 @endpush
 @endsection

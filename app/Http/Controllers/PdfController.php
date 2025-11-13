@@ -20,7 +20,7 @@ class PdfController extends Controller
     // -------------------------------------------------------
     public function mostrarDocumento($claveAlumno, $tipo)
     {
-         $pdfPath = null;
+        $pdfPath = null;
 
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                                     ->where('Autorizacion', 1)
@@ -46,6 +46,9 @@ class PdfController extends Controller
         }
         if ($tipo === 'Carta_Desglose_Percepciones') {
             return view('alumno.expediente.desglosePercepciones', compact('pdfPath'));
+        }
+        if ($tipo === 'Solicitud_FPP02_Firmada') {
+            return $this->confirmaFPP02($pdfPath);
         }
 
         return abort(404, 'Tipo de documento no válido');
@@ -337,15 +340,25 @@ class PdfController extends Controller
         $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
 
         $file = $request->file('archivo');
+        $tipoDoc = 'Solicitud_FPP02_Firmada';
         $nombreArchivo = $claveAlumno . '_FPP02_firmado_' . time() . '.pdf';
-        $rutaCarpeta = 'expedientes/fpp02-firmados';
-        $ruta = $rutaCarpeta . '/' . $nombreArchivo;
+        $rutaCarpeta = 'expedientes/' . $tipoDoc;
+        $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
 
+        // Asegurarse de que el directorio existe en el disco public
         if (!Storage::disk('public')->exists($rutaCarpeta)) {
             Storage::disk('public')->makeDirectory($rutaCarpeta);
         }
 
-        Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
+        $saved = Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
+
+        // Log para depuración
+        Log::info('Intento de guardar archivo (public disk)', [
+            'nombreArchivo' => $nombreArchivo,
+            'ruta' => $rutaCompleta,
+            'saved' => $saved,
+            'full_path' => storage_path('app/public/' . $rutaCompleta),
+        ]);
 
         // Lógica del semáforo:
         // ETAPA 4 → realizado (El alumno subió el documento)
@@ -362,7 +375,31 @@ class PdfController extends Controller
             'proceso'
         );
         
-        return back()->with('success', 'El archivo firmado fue subido correctamente.');
+        if ($saved) {
+
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                                    ->where('Autorizacion', 1)
+                                                    ->first();
+            
+            if (!$solicitud) {
+                 return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
+            }
+            
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
+                                                    ->first();
+
+            if (!$expediente) {
+                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
+            }
+                                                    
+            $expediente->update([
+                $tipoDoc => $nombreArchivo,
+            ]);
+
+            return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
+        } else {
+            return back()->withErrors(['No se pudo guardar el archivo.']);
+        }
     }
 
 
@@ -407,6 +444,61 @@ class PdfController extends Controller
                 'estado' => $estado,
             ]
         );
+    }
+
+    public function confirmaFPP02($pdfPath)
+    {
+        $alumno = session('alumno');
+        $clave = $alumno['cve_uaslp'] ?? null;
+
+        if (!$clave) {
+            return redirect()->route('alumno.inicio')
+                ->with('error', 'No se encontró la clave del alumno en la sesión.');
+        }
+
+        $solicitud = SolicitudFPP01::with([
+            'alumno',
+            'dependenciaMercadoSolicitud.dependenciaEmpresa',
+            'dependenciaMercadoSolicitud.sectorPrivado',
+            'dependenciaMercadoSolicitud.sectorPublico',
+            'dependenciaMercadoSolicitud.sectorUaslp',
+            'autorizaciones'
+        ])
+        ->where('Clave_Alumno', $clave)
+        ->latest('Id_Solicitud_FPP01')
+        ->first();
+
+        if (!$solicitud) {
+            return redirect()->route('alumno.estado')
+                ->with('error', 'No se encontró ninguna solicitud previa.');
+        }
+
+        $dependencia = $solicitud->dependenciaMercadoSolicitud;
+        $empresa = optional($dependencia)->dependenciaEmpresa;
+
+        $sector = null;
+        $tipoSector = null;
+        if ($dependencia?->Id_Privado) {
+            $sector = $dependencia->sectorPrivado;
+            $tipoSector = 'privado';
+        } elseif ($dependencia?->Id_Publico) {
+            $sector = $dependencia->sectorPublico;
+            $tipoSector = 'publico';
+        } elseif ($dependencia?->Id_UASLP) {
+            $sector = $dependencia->sectorUaslp;
+            $tipoSector = 'uaslp';
+        }
+
+        // Determinar si debe mostrar upload
+        $registroFpp02 = EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+            ->first();
+
+        $mostrarUpload =
+            session('fpp02_impreso_' . $clave, false) ||
+            ($registroFpp02 && $registroFpp02->estado === 'realizado');
+
+        return view('alumno.registro', compact('alumno', 'solicitud', 'empresa', 'sector', 'tipoSector', 'mostrarUpload', 'pdfPath'));
     }
     
     // Función auxiliar para actualizar el semáforo (marca la actual como realizado y la siguiente como pendiente)

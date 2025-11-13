@@ -84,7 +84,7 @@ if ($ultimaSolicitud) {
                 @if($bloqueoRegistro)
                     <a class="nav-link disabled text-secondary" style="pointer-events:none;">Registro</a>
                 @else
-                    <a class="nav-link {{ request()->routeIs('alumno.registro') ? 'active' : '' }}" href="{{ route('alumno.registro') }}">Registro</a>
+                    <a class="nav-link {{ request()->routeIs('registroFPP02.mostrar') ? 'active' : '' }}" href="{{ route('registroFPP02.mostrar', ['claveAlumno' => $claveAlumno, 'tipo' => 'Solicitud_FPP02_Firmada']) }}">Registro</a>
                 @endif
             </li>
 

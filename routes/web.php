@@ -68,9 +68,12 @@ Route::prefix('alumno')->group(function () {
     Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
     Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');
     Route::post('/generar-fpp02', [PdfController::class, 'generarFpp02'])->name('alumno.generarFpp02');
-    Route::post('/fpp02/subir-firmado', [\App\Http\Controllers\PdfController::class, 'subirFpp02Firmado'])->name('alumno.subirFpp02Firmado');
     Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
+
+    Route::get('/registroFPP02/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('registroFPP02.mostrar');
+    Route::post('/registroFPP02/upload', [PdfController::class, 'subirFpp02Firmado'])->name('registroFPP02.upload');
+    Route::post('/registroFPP02/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->defaults('tipo', 'Solicitud_FPP02_Firmada')->name('registroFPP02.eliminar');
 
     // Expediente
     Route::prefix('expediente')->group(function () {
@@ -80,7 +83,6 @@ Route::prefix('alumno')->group(function () {
         Route::get('/solicitudFPP01/{id}', [SolicitudController::class, 'show'])->name('solicitud.show');
         Route::post('/solicitudFPP01/store', [SolicitudController::class, 'store'])->name('alumno.expediente.store');
 
-        Route::get('/registroFPP02', fn () => view('alumno.expediente.registroFPP02'))->name('alumno.expediente.registroFPP02');
         Route::get('/reporteFinal', fn () => view('alumno.expediente.reporteFinal'))->name('alumno.expediente.reporteFinal');
         Route::get('/reportesParciales', fn () => view('alumno.expediente.reportesParciales'))->name('alumno.expediente.reportesParciales');
 
@@ -111,7 +113,6 @@ Route::prefix('alumno')->group(function () {
         Route::get('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('desglosePercepciones.mostrar');
         Route::post('/desglosePercepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('desglosePercepciones.upload');
         Route::post('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->defaults('tipo', 'Carta_Aceptacion')->name('desglosePercepciones.eliminar');
-
     });
 
     // FAQs y documentación

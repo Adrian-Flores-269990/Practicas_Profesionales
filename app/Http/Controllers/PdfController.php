@@ -10,6 +10,7 @@ use App\Models\EstadoProceso;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Models\AsesorExterno; // Asegurado de que esté presente para el FPP02
+use App\Models\Alumno;
 use Carbon\Carbon; // Asegurado de que esté presente para el FPP02
 
 class PdfController extends Controller
@@ -472,6 +473,8 @@ class PdfController extends Controller
             return redirect()->route('alumno.estado')
                 ->with('error', 'No se encontró ninguna solicitud previa.');
         }
+
+        $alumno = Alumno::where('Clave_Alumno', $clave)->first();
 
         $dependencia = $solicitud->dependenciaMercadoSolicitud;
         $empresa = optional($dependencia)->dependenciaEmpresa;

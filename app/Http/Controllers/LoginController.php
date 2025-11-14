@@ -164,49 +164,74 @@ class LoginController extends Controller
         |   - 789 / test  → Secretaría
         |   - 987 / test  → DSSPP
         */
+
+        // Encargado
         if ($rpe == 123 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
+            $empleado = [ '0' => [
                 'rpe' => $rpe,
-                'rol' => 'ENCARGADO DE PRÁCTICAS PROFESIONALES',
-                'dependencia' => 'FACULTAD DE INGENIERÍA',
-                'Id_Rol' => 2, // Encargado
+                'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
+                'cargo' => 'Catedrático',
+                'correo_electronico' => 'cambiar',
+                'telefono' => 'cambiar',
+                'clave_area' => 'cambiar',
+                'area' => 'cambiar',
+                'clave_carrera' => 'cambiar',
+                'carrera' => 'cambiar',
+                ],
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('encargado.inicio');
         }
 
+        // Administrador
         if ($rpe == 456 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
-                'rpe' => $rpe,
-                'rol' => 'ADMINISTRADOR',
-                'dependencia' => 'FACULTAD DE INGENIERÍA',
-                'Id_Rol' => 1, // Administrador
+            $empleado = [ '0' => [
+                    'rpe' => $rpe,
+                    'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
+                    'cargo' => 'Catedrático',
+                    'correo_electronico' => 'cambiar',
+                    'telefono' => 'cambiar',
+                    'clave_area' => 'cambiar',
+                    'area' => 'cambiar',
+                    'clave_carrera' => 'cambiar',
+                    'carrera' => 'cambiar',
+                ],
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('administrador.inicio');
         }
 
+        // Secretaría
         if ($rpe == 789 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
+            $empleado = [ '0' => [
                 'rpe' => $rpe,
-                'rol' => 'SECRETARÍA',
-                'dependencia' => 'FACULTAD DE INGENIERÍA',
-                'Id_Rol' => 7, // Secretaría
+                'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
+                'cargo' => 'Catedrático',
+                'correo_electronico' => 'cambiar',
+                'telefono' => 'cambiar',
+                'clave_area' => 'cambiar',
+                'area' => 'cambiar',
+                'clave_carrera' => 'cambiar',
+                'carrera' => 'cambiar',
+                ],
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('secretaria.inicio');
         }
 
+        // DSSPP
         if ($rpe == 987 && $password == 'test') {
-            $empleado = [
-                'nombre' => 'EDGAR IVAN AVALOS TORRES',
+            $empleado = [ '0' => [
                 'rpe' => $rpe,
-                'rol' => 'DSSPP',
-                'dependencia' => 'FACULTAD DE INGENIERÍA',
-                'Id_Rol' => 3, // DSSPP
+                'nombre' => 'EDGAR IVAN AVALOS TORRES',
+                'cargo' => 'Catedrático',
+                'correo_electronico' => 'cambiar',
+                'telefono' => 'cambiar',
+                'clave_area' => 'cambiar',
+                'area' => 'cambiar',
+                'clave_carrera' => 'cambiar',
+                'carrera' => 'cambiar',
+                ],
             ];
             session(['empleado' => $empleado]);
             return redirect()->route('dsspp.inicio');

@@ -205,7 +205,7 @@
           {{-- Área de envío de archivo --}}
           <div class="mb-4 border rounded p-3 bg-light">
             <h6 class="fw-bold mb-3">
-              <i class="bi bi-upload"></i> Subir documento emitido por la empresa
+              <i class="bi bi-upload"></i> Subir documento firmado por la empresa
             </h6>
 
             <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;" id="zonaSubida">

@@ -19,8 +19,6 @@
       <div class="card profile-card">
         <div class="card-body d-flex align-items-center gap-3">
 
-
-
           <div class="flex-grow-1">
             <h3 class="mb-1 nombre">
               {{ $encargado[0]['nombre'] ?? '' }}
@@ -41,6 +39,7 @@
               <div class="kv-value">{{ $encargado[0]['telefono'] ?? '-' }}</div>
             </div>
           </div>
+
         </div>
 
         <div class="card-body pt-0">
@@ -66,18 +65,25 @@
 <div class="col-lg-4">
       <div class="card status-card mb-3">
         <div class="card-body status-grid">
+
           <div class="kv kv-status">
             <div class="kv-label">Fecha</div>
             <div class="kv-value">{{ now()->format('d/m/Y') }}</div>
           </div>
+
           <div class="kv kv-status">
             <div class="kv-label">Cargo</div>
             <div class="kv-value">{{ $encargado[0]['cargo'] ?? '-' }}</div>
           </div>
+
+          <div class="kv kv-status">
+            <div class="kv-label">Rol</div>
+            <div class="kv-value">Encargado de Prácticas Profesionales</div>
+          </div>
+          
         </div>
       </div>
     </div>
-
   </div>
 </div>
 @endsection

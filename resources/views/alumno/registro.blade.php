@@ -1,6 +1,7 @@
 @extends('layouts.alumno')
 
 @section('title', 'Confirmación de datos FPP02')
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 
 @push('styles')
 <style>
@@ -96,11 +97,17 @@
 @section('content')
 @include('partials.nav.registro')
 
-<div class="container mt-4">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
-  </h4>
-  
+<div class="container-fluid my-0 p-0">
+    <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
+            </h4>
+        </div>
+    </div>
+    
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
     {{-- Alumno --}}

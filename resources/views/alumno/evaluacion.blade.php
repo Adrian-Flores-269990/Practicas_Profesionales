@@ -1,14 +1,21 @@
 @extends('layouts.alumno')
-
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 @section('title','Evaluación de la Empresa')
 
 @section('content')
 @include('partials.nav.registro')
 
+
 <div class="container-fluid my-0 p-0">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    EVALUACIÓN DE LA EMPRESA POR EL ALUMNO
-  </h4>
+    <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                EVALUACIÓN DE LA EMPRESA POR EL ALUMNO
+            </h4>
+        </div>
+    </div>
   <div class="bg-white p-4 rounded shadow-sm w-100">
     <form id="form-evaluacion">
       {{-- Datos Generales con fondo gris clarito --}}

@@ -5,19 +5,7 @@
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 <style>
-    .detalle-header {
-        background: linear-gradient(135deg, #000066 0%, #000099 100%);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    .detalle-header h4 {
-        color: red;
-        font-weight: 700;
-        margin: 0;
-        font-size: 1.75rem;
-    }
+
     
     .status-card {
         border: none;
@@ -432,6 +420,7 @@
 </style>
 @endpush
 
+
 @section('content')
 <div class="container-fluid my-0 p-0">
     <!-- Header -->
@@ -453,6 +442,9 @@
             $sectorPublico = optional($dependencia)->sectorPublico;
             $sectorUaslp = optional($dependencia)->sectorUaslp;
             
+            // Obtener datos de la sesión del webservice
+            $alumnoSession = session('alumno', []);
+            
             // Obtener asesor externo
             $asesorExterno = null;
             if ($solicitud->Clave_Asesor_Externo) {
@@ -460,12 +452,39 @@
             }
             
             $claveAlumno = $alumno->Clave_Alumno ?? null;
-            $pdfPath = null;
+            
+            // CORREGIDO: Buscar PDFs específicos de esta solicitud
+            $pdfEstadistica = null;
+            $pdfVigenciaDerechos = null;
+            $pdfCartaPasante = null;
 
             if ($claveAlumno) {
-                $files = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/carta-vigencia-derechos');
-                $pdfs = collect($files)->filter(fn($f) => str_contains($f, '0'.$claveAlumno))->sortDesc();
-                if ($pdfs->count() > 0) $pdfPath = $pdfs->first();
+                // Buscar Estadística General (solo si fue subida)
+                if ($solicitud->Estadistica_General == 1) {
+                    $filesEstadistica = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/estadistica-general');
+                    $pdfsEstadistica = collect($filesEstadistica)->filter(fn($f) => str_contains($f, '0'.$claveAlumno))->sortDesc();
+                    if ($pdfsEstadistica->count() > 0) {
+                        $pdfEstadistica = $pdfsEstadistica->first();
+                    }
+                }
+
+                // Buscar Constancia Vigencia de Derechos (solo si fue subida)
+                if ($solicitud->Constancia_Vig_Der == 1) {
+                    $filesVigencia = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/carta-vigencia-derechos');
+                    $pdfsVigencia = collect($filesVigencia)->filter(fn($f) => str_contains($f, '0'.$claveAlumno))->sortDesc();
+                    if ($pdfsVigencia->count() > 0) {
+                        $pdfVigenciaDerechos = $pdfsVigencia->first();
+                    }
+                }
+
+                // Buscar Carta Pasante (solo si fue subida)
+                if ($solicitud->Carta_Pasante == 1) {
+                    $filesCartaPasante = \Illuminate\Support\Facades\Storage::disk('public')->files('expedientes/carta-pasante');
+                    $pdfsCartaPasante = collect($filesCartaPasante)->filter(fn($f) => str_contains($f, '0'.$claveAlumno))->sortDesc();
+                    if ($pdfsCartaPasante->count() > 0) {
+                        $pdfCartaPasante = $pdfsCartaPasante->first();
+                    }
+                }
             }
         @endphp
 
@@ -593,7 +612,11 @@
                             <i class="bi bi-person"></i>
                             Nombre Completo
                         </div>
-                        <div class="form-value">{{ $alumno->Nombre ?? '' }} {{ $alumno->ApellidoP_Alumno ?? '' }} {{ $alumno->ApellidoM_Alumno ?? '' }}</div>
+                        <div class="form-value">
+                            {{ $alumnoSession['nombres'] ?? $alumno->Nombre ?? '' }} 
+                            {{ $alumnoSession['paterno'] ?? $alumno->ApellidoP_Alumno ?? '' }} 
+                            {{ $alumnoSession['materno'] ?? $alumno->ApellidoM_Alumno ?? '' }}
+                        </div>
                     </div>
                 </div>
 
@@ -603,21 +626,21 @@
                             <i class="bi bi-key"></i>
                             Clave UASLP
                         </div>
-                        <div class="form-value">{{ $alumno->Clave_Alumno ?? '' }}</div>
+                        <div class="form-value">{{ $alumnoSession['cve_uaslp'] ?? $alumno->Clave_Alumno ?? '' }}</div>
                     </div>
                     <div class="form-group">
                         <div class="form-label-custom">
                             <i class="bi bi-journal-bookmark"></i>
                             Semestre
                         </div>
-                        <div class="form-value">{{ $alumno->Semestre ?? 'N/A' }}</div>
+                        <div class="form-value">{{ $alumnoSession['semestre'] ?? $alumno->Semestre ?? 'N/A' }}</div>
                     </div>
                     <div class="form-group">
                         <div class="form-label-custom">
                             <i class="bi bi-award"></i>
                             Número de Créditos
                         </div>
-                        <div class="form-value">{{ $solicitud->Numero_Creditos ?? 'N/A' }}</div>
+                        <div class="form-value">{{ $alumnoSession['creditos'] ?? $solicitud->Numero_Creditos ?? 'N/A' }}</div>
                     </div>
                 </div>
 
@@ -627,17 +650,18 @@
                             <i class="bi bi-book"></i>
                             Carrera
                         </div>
-                        <div class="form-value">{{ $alumno->Carrera ?? '' }}</div>
+                        <div class="form-value">{{ $alumnoSession['carrera'] ?? $alumno->Carrera ?? '' }}</div>
                     </div>
                 </div>
 
                 <div class="form-row">
+                    <!-- CORREGIDO: Teléfono del alumno desde webservice -->
                     <div class="form-group">
                         <div class="form-label-custom">
                             <i class="bi bi-telephone"></i>
                             Teléfono
                         </div>
-                        <div class="form-value">{{ $alumno->Telefono ?? 'N/A' }}</div>
+                        <div class="form-value">{{ $alumnoSession['telefono_celular'] ?? $solicitud->Telefono ?? $alumno->Telefono ?? 'N/A' }}</div>
                     </div>
                     <div class="form-group">
                         <div class="form-label-custom">
@@ -806,13 +830,13 @@
                             </div>
                             <div class="form-value">{{ $empresa->RFC_Empresa ?? 'N/A' }}</div>
                         </div>
+                        <!-- CORREGIDO: Teléfono de la empresa -->
                         <div class="form-group">
                             <div class="form-label-custom">
                                 <i class="bi bi-telephone"></i>
                                 Teléfono
                             </div>
-                            <div class="form-value">{{ $empresa->Telefono ?? 'N/A' }}</div>
-                        </div>
+                            <div class="form-value">{{ $empresa->Telefono ?? 'N/A' }}</div>                        </div>
                     </div>
 
                     <div class="form-row">
@@ -984,12 +1008,13 @@
                                 @endif
                             </div>
                         </div>
+                        <!-- CORREGIDO: Teléfono del sector público -->
                         <div class="form-group">
                             <div class="form-label-custom">
                                 <i class="bi bi-telephone"></i>
                                 Teléfono
                             </div>
-                            <div class="form-value">{{ $sectorPublico->Telefono ?? 'N/A' }}</div>
+                            <div class="form-value">{{ $sectorPublico->Telefono ?? $solicitud->Telefono_Empresa ?? 'N/A' }}</div>
                         </div>
                     </div>
                 @endif
@@ -1075,6 +1100,7 @@
                             </div>
                             <div class="form-value">{{ $asesorExterno->Correo ?? 'N/A' }}</div>
                         </div>
+                        <!-- CORREGIDO: Teléfono del asesor externo -->
                         <div class="form-group">
                             <div class="form-label-custom">
                                 <i class="bi bi-telephone"></i>
@@ -1255,28 +1281,76 @@
             </div>
         </div>
 
-        <!-- DOCUMENTOS ADJUNTOS -->
-        @if($pdfPath)
-        <div class="pdf-viewer-card">
-            <div class="pdf-header">
-                <i class="bi bi-file-earmark-pdf-fill"></i>
-                Carta de Vigencia de Derechos
-            </div>
-            <div class="pdf-body">
-                <iframe src="{{ asset('storage/' . $pdfPath) }}" class="pdf-frame"></iframe>
-                <div class="d-flex gap-2">
-                    <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn-open-pdf">
-                        <i class="bi bi-box-arrow-up-right"></i>
-                        Abrir en nueva pestaña
-                    </a>
+        <!-- CORREGIDO: DOCUMENTOS ADJUNTOS - Solo muestra PDFs que fueron subidos -->
+        @if($pdfEstadistica || $pdfVigenciaDerechos || $pdfCartaPasante)
+            <div class="section-card">
+                <div class="section-header">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    Documentos Adjuntos
+                </div>
+                <div class="section-body">
+                    <!-- Estadística General -->
+                    @if($pdfEstadistica)
+                        <div class="pdf-viewer-card mb-3">
+                            <div class="pdf-header">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                Estadística General
+                            </div>
+                            <div class="pdf-body">
+                                <iframe src="{{ asset('storage/' . $pdfEstadistica) }}" class="pdf-frame"></iframe>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="{{ asset('storage/' . $pdfEstadistica) }}" target="_blank" class="btn-open-pdf">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        Abrir en nueva pestaña
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Constancia Vigencia de Derechos -->
+                    @if($pdfVigenciaDerechos)
+                        <div class="pdf-viewer-card mb-3">
+                            <div class="pdf-header">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                Constancia de Vigencia de Derechos
+                            </div>
+                            <div class="pdf-body">
+                                <iframe src="{{ asset('storage/' . $pdfVigenciaDerechos) }}" class="pdf-frame"></iframe>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="{{ asset('storage/' . $pdfVigenciaDerechos) }}" target="_blank" class="btn-open-pdf">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        Abrir en nueva pestaña
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Carta Pasante -->
+                    @if($pdfCartaPasante)
+                        <div class="pdf-viewer-card mb-3">
+                            <div class="pdf-header">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                                Carta Pasante
+                            </div>
+                            <div class="pdf-body">
+                                <iframe src="{{ asset('storage/' . $pdfCartaPasante) }}" class="pdf-frame"></iframe>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="{{ asset('storage/' . $pdfCartaPasante) }}" target="_blank" class="btn-open-pdf">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        Abrir en nueva pestaña
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
-        </div>
         @endif
 
-
-          <!-- Comentarios (si existen) -->
-        @if (!empty($solicitud->Comentarios) || !empty($solicitud->autorizacion->Comentario_Encargado))
+        <!-- Comentarios (si existen) -->
+        @if (!empty($solicitud->Comentarios) || (isset($solicitud->autorizacion) && !empty($solicitud->autorizacion->Comentario_Encargado)))
             @if (!empty($solicitud->Comentarios))
                 <div class="comment-card">
                     <div class="comment-header">
@@ -1289,7 +1363,7 @@
                 </div>
             @endif
 
-            @if (!empty($solicitud->autorizacion->Comentario_Encargado))
+            @if (isset($solicitud->autorizacion) && !empty($solicitud->autorizacion->Comentario_Encargado))
                 <div class="comment-card">
                     <div class="comment-header">
                         <i class="bi bi-chat-square-text-fill"></i>
@@ -1301,7 +1375,6 @@
                 </div>
             @endif
         @endif
-
 
         <!-- Botones de Acción -->
         <div class="action-buttons">
@@ -1319,6 +1392,4 @@
         </div>
     </div>
 </div>
-@endsection@extends('layouts.alumno')
-
-
+@endsection

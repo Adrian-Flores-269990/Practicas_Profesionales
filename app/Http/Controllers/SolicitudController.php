@@ -25,6 +25,7 @@ class SolicitudController extends Controller
 
     public function store(Request $request)
     {
+
         try {
             DB::transaction(function() use ($request) {
                 $alumno = session('alumno');
@@ -194,7 +195,7 @@ class SolicitudController extends Controller
                     $cp = $request->cp_empresa_privado;
                     $estado = $request->estado_empresa_privado;
                     $municipio = $request->municipio_empresa_privado;
-                    $telefono = $request->telefono_empresa_privado;
+                    $telefono = $request->telefono_privado;
 
                     $sector = SectorPrivado::create([
                         'Area_Depto' => $request->area_depto_privado,
@@ -239,6 +240,8 @@ class SolicitudController extends Controller
                 if ($request->filled('empresa_registrada')) {
                     $idEmpresa = $request->empresa_registrada;
                 } elseif ($request->sector === 'privado' || $request->sector === 'publico') {
+                        
+                    
                     $empresa = DependenciaEmpresa::create([
                         'Nombre_Depn_Emp' => $nombreEmpresa,
                         'Clasificacion' => $clasificacion,
@@ -254,6 +257,7 @@ class SolicitudController extends Controller
                         'Autorizada' => 0
                     ]);
                     $idEmpresa = $empresa->Id_Depn_Emp;
+
                 }
 
                 // Crear relación Dependencia-Mercado-Solicitud

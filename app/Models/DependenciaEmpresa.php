@@ -22,7 +22,7 @@ class DependenciaEmpresa extends Model
         'Cp',
         'Estado',
         'Municipio',
-        'Teléfono',
+        'Telefono',
         'Ramo',
         'RFC_Empresa', 
         'Comentario_Encargado',

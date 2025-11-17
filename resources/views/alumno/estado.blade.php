@@ -2,6 +2,9 @@
 
 @section('title', 'Estado del Alumno')
 
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
+
+
 @section('content')
 @include('partials.nav.registro')
 
@@ -158,10 +161,15 @@
 </style>
 
 <div class="container-fluid my-0 p-0">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    ESTADO DEL ALUMNO DURANTE EL PROCESO DE PRÁCTICAS PROFESIONALES
-  </h4>
-
+    <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+              ESTADO DEL ALUMNO DURANTE EL PROCESO DE PRÁCTICAS PROFESIONALES
+            </h4>
+        </div>
+    </div>
   <div class="bg-white p-4 rounded shadow-sm w-100">
 
     @if(session('error'))

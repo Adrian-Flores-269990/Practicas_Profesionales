@@ -21,8 +21,19 @@
           Registrarse
         </a>
         <ul class="dropdown-menu" aria-labelledby="registrarseDropdown">
-          <li><a class="dropdown-item" href="{{ route('alumno.estado') }}">Inscribir Prácticas Profesionales I</a></li>
-          <li><a class="dropdown-item" href="{{ route('alumno.estado') }}">Inscribir Prácticas Profesionales II</a></li>
+          <li>
+              <a class="dropdown-item"
+                href="{{ route('alumno.guardarMateria', ['nivel' => 1]) }}">
+                Inscribir Prácticas Profesionales I
+              </a>
+          </li>
+
+          <li>
+              <a class="dropdown-item"
+                href="{{ route('alumno.guardarMateria', ['nivel' => 2]) }}">
+                Inscribir Prácticas Profesionales II
+              </a>
+          </li>
         </ul>
       </li>
 

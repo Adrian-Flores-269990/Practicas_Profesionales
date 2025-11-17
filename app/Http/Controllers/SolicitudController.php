@@ -39,7 +39,7 @@ class SolicitudController extends Controller
                 }
 
                 // ============================================
-                // 1️⃣ VALIDACIÓN DE SOLICITUD ACTIVA
+                // VALIDACIÓN DE SOLICITUD ACTIVA
                 // ============================================
                 $solicitudActiva = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                     ->orderByDesc('Fecha_Solicitud')
@@ -56,7 +56,7 @@ class SolicitudController extends Controller
                 }
 
                 // ============================================
-                // 2️⃣ GUARDAR ASESOR EXTERNO (Versión A)
+                // GUARDAR ASESOR EXTERNO (Versión A)
                 // ============================================
                 $asesorExterno = null;
                 if ($request->filled('nombre_asesor')) {
@@ -72,7 +72,7 @@ class SolicitudController extends Controller
                 }
 
                 // ============================================
-                // 3️⃣ PROCESAR DÍAS DE ASISTENCIA
+                // PROCESAR DÍAS DE ASISTENCIA
                 // ============================================
                 $diasSeleccionados = $request->input('dias_asistencia', []);
                 // Se usa implore(',', ...) de Versión A (más legible), no implode('', ...) de Versión B
@@ -80,7 +80,7 @@ class SolicitudController extends Controller
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 
                 // ============================================
-                // 4️⃣ GUARDAR ARCHIVOS PDF (Lógica de ambas versiones era igual)
+                // GUARDAR ARCHIVOS PDF (Lógica de ambas versiones era igual)
                 // ============================================
                 $nombreArchivoConstancia = null;
                 if ($request->constancia_derechos === 'si' && $request->hasFile('constancia_pdf')) {
@@ -117,12 +117,26 @@ class SolicitudController extends Controller
                         Storage::disk('public')->putFileAs('expedientes/carta-pasante', $fileCartaPasante, $nombreArchivoCartaPasante);
                     }
                 }
+                
+                // ============================================
+                // OBTENER MATERIA DESDE requisito_carrera
+                // ============================================
+                $materiaSeleccionada = session('materia_practicas');
+
+                if (!$materiaSeleccionada) {
+                    throw new \Exception('No hay materia seleccionada para esta solicitud.');
+                }
+
+                if (!session('materia_practicas')) {
+                    return back()->with('error', 'No seleccionaste ninguna materia en el menú.');
+                }
 
                 // ============================================
-                // 5️⃣ CREAR SOLICITUD (Campos fusionados)
+                // CREAR SOLICITUD (Campos fusionados)
                 // ============================================
                 $solicitud = SolicitudFPP01::create([
                     'Fecha_Solicitud' => now(),
+                    'Materia' => session('materia_practicas'),
                     'Numero_Creditos' => $alumno['creditos'] ?? null,
                     'Induccion_Platicas' => $request->induccionpp === 'si' ? 1 : 0,
                     'Clave_Alumno' => $claveAlumno,
@@ -161,6 +175,9 @@ class SolicitudController extends Controller
                     'Estado_Encargado' => 'pendiente',
                     'Estado_Departamento' => 'pendiente',
                 ]);
+                
+                // Limpiar la materia de la sesión
+                session()->forget('materia_practicas');
 
                 // Variables para la creación de DependenciaEmpresa (Mantenido de Versión A)
                 $nombreEmpresa = null;
@@ -423,7 +440,9 @@ class SolicitudController extends Controller
         // Nota: Se corrigió el uso de \App\Models\DependenciaEmpresa a DependenciaEmpresa ya que está importado
         $empresas = DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
 
-        return view('alumno.expediente.solicitudFPP01', compact('solicitudes', 'empresas', 'carreras'));
+        $materiaSeleccionada = session('materia_practicas');
+
+        return view('alumno.expediente.solicitudFPP01', compact('solicitudes', 'empresas', 'carreras', 'materiaSeleccionada'));
     }
 
     public function edit($id)

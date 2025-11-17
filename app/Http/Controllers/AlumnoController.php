@@ -81,8 +81,9 @@ class AlumnoController extends Controller
 
     public function estadoAlumno()
     {
+        //dd(session('alumno'));
         $alumno = session('alumno');
-        $claveAlumno = $alumno['cve_uaslp'] ?? null;
+        $claveAlumno = $alumno['cve_uaslp'] ?? $alumno['Clave_Alumno'] ?? null;
 
         if (!$claveAlumno) {
             return redirect()->route('alumno.inicio')
@@ -134,7 +135,7 @@ class AlumnoController extends Controller
         // ============================
         //      ETAPA 4 – REGISTRO FPP02
         // ============================
-        // ✅ NO sobreescribir si ya está en proceso o realizado
+        // NO sobreescribir si ya está en proceso o realizado
         $etapa4Real = EstadoProceso::where('clave_alumno', $claveAlumno)
             ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
             ->value('estado');
@@ -157,7 +158,7 @@ class AlumnoController extends Controller
                 'etapa'  => 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
                 'estado' => $etapa3,
             ],
-            // ✅ Etapa 4 SOLO se muestra, NO se sobreescribe
+            // Etapa 4 SOLO se muestra, NO se sobreescribe
         ];
 
         foreach ($procesosToUpdate as $p) {
@@ -171,6 +172,65 @@ class AlumnoController extends Controller
         $procesos = EstadoProceso::where('clave_alumno', $claveAlumno)->get();
 
         return view('alumno.estado', compact('procesos'));
+    }
+
+    public function guardarMateria(Request $request)
+    {
+        $alumno = session('alumno');
+
+        if (!$alumno) {
+            return redirect()->route('alumno.inicio')->with('error', 'Sesión no válida.');
+        }
+
+        // Nivel: PP I o PP II
+        $nivel = $request->get('nivel');  // <----- AQUI EL ARREGLO
+
+        if (!$nivel) {
+            return redirect()->route('alumno.inicio')->with('error', 'No se envió el nivel.');
+        }
+
+        // Buscar carrera en BD
+        $carreraBD = \App\Models\CarreraIngenieria::where(
+            'Descripcion_Capitalizadas',
+            trim($alumno['carrera'])
+        )->first();
+
+        if (!$carreraBD) {
+            return back()->with('error', 'Tu carrera no está registrada en la BD.');
+        }
+
+        $idCarrera = $carreraBD->Id_Carrera_I;
+
+        $materias = \App\Models\RequisitoCarrera::where('Id_Carrera_I', $idCarrera)->get();
+
+        if ($materias->isEmpty()) {
+            return back()->with('error', 'No hay materias para tu carrera.');
+        }
+
+        // REGRA #1: PP I
+        if ($nivel == 1) {
+            $materia = $materias->first(function ($m) {
+                $n = trim($m->Espacio_de_Formacion);
+                if (str_ends_with($n, ' II')) return false;
+                if (str_ends_with($n, ' I')) return true;
+                return true;
+            });
+        }
+
+        // REGLA #2: PP II
+        if ($nivel == 2) {
+            $materia = $materias->first(function ($m) {
+                return str_ends_with(trim($m->Espacio_de_Formacion), ' II');
+            });
+        }
+
+        if (!$materia) {
+            return back()->with('error', 'No existe materia válida para este nivel.');
+        }
+
+        session(['materia_practicas' => $materia->Espacio_de_Formacion]);
+
+        return redirect()->route('alumno.estado');
     }
 
     public function aceptar(Request $request)

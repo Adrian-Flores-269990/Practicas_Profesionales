@@ -21,6 +21,8 @@
   <form action="{{ route('solicitud.store') }}" method="POST" enctype="multipart/form-data" id="formulario_solicitud">
     @csrf
 
+    <input type="hidden" name="materia" value="{{ $materia }}">
+
     <div class="accordion" id="soliAccordion">
 
       {{-- 1. Datos del solicitante --}}

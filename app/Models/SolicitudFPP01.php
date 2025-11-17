@@ -15,6 +15,7 @@ class SolicitudFPP01 extends Model
 
     protected $fillable = [
         'Fecha_Solicitud',
+        'Materia',
         'Numero_Creditos',
         'Induccion_Placticas',
         'Clave_Alumno',

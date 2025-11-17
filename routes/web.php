@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\SolicitudController;
@@ -60,10 +61,20 @@ Route::prefix('admin')->group(function () {
 Route::prefix('alumno')->group(function () {
     Route::get('/inicio', fn () => view('alumno.inicio'))->name('alumno.inicio');
     Route::get('/estado', [AlumnoController::class, 'estadoAlumno'])->name('alumno.estado');
-    Route::get('/solicitud', function () {
+    Route::get('/guardar-materia', [AlumnoController::class, 'guardarMateria'])->name('alumno.guardarMateria');
+    Route::get('/solicitud', function (Request $request) {
+        $materia = $request->materia;
+        if (!$materia) {
+            $materia = session('materia_practicas');
+        }
+        if ($materia) {
+            session(['materia_practicas' => $materia]);
+        }
+
         $empresas = \App\Models\DependenciaEmpresa::orderBy('Nombre_Depn_Emp')->get();
-        return view('alumno.solicitud', compact('empresas'));
+        return view('alumno.solicitud', compact('empresas', 'materia'));
     })->name('alumno.solicitud');
+
     Route::get('/registro', [AlumnoController::class, 'confirmaFPP02'])->name('alumno.registro');
     Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
     Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');

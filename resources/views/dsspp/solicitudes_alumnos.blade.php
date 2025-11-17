@@ -304,7 +304,7 @@
         <div class="solicitud-details">
           <div class="detail-item">
             <span class="detail-label">Materia</span>
-            <span class="detail-value">{{ $solicitud->alumno->Clave_Materia ?? '—' }}</span>
+            <span class="detail-value">{{ $solicitud->Materia ?? '—' }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Fecha de Solicitud</span>

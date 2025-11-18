@@ -6,6 +6,7 @@ use App\Services\UaslpApiService;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Models\Empleado;
+use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
@@ -30,13 +31,15 @@ class LoginController extends Controller
     // se agrega sin rol
     public function rolEmpleado($rpeEmpleado, $datosEmpleado)
     {
-        $empleado = Empleado::where('RPE', $rpeEmpleado);
+        $empleadoQuery = Empleado::where('RPE', $rpeEmpleado);
 
-        if (!$empleado->count() > 0) {
-            $carrera = NULL;
-            $area = NULL;
-            if($datosEmpleado['0']['carrera'] !== "NULL"){
-                foreach ($datosEmpleado as $item){
+        // Si no existe el empleado lo creamos y regresamos null (sin rol asignado todavía)
+        if ($empleadoQuery->count() === 0) {
+            $claveArea = null; $area = null; $claveCarrera = null; $carrera = null;
+            if (isset($datosEmpleado[0]['carrera']) && $datosEmpleado[0]['carrera'] !== 'NULL') {
+                $resultadoClaveArea = []; $resultadoArea = [];
+                $resultadoClaveCarrera = []; $resultadoCarrera = [];
+                foreach ($datosEmpleado as $item) {
                     $resultadoClaveArea[] = $item['clave_area'];
                     $resultadoArea[] = $item['area'];
                     $resultadoClaveCarrera[] = $item['clave_carrera'];
@@ -47,26 +50,37 @@ class LoginController extends Controller
                 $claveCarrera = implode(',', $resultadoClaveCarrera);
                 $carrera = implode(',', $resultadoCarrera);
             }
-            // Tanto clave_area como clave_carrera no se guardan en la base de datos
-            // porque los manejé como string, no como enteros
+
             Empleado::create([
-                'Nombre' => $datosEmpleado['0']['nombre'],
-                'RPE' => $datosEmpleado['0']['rpe'],
+                'Nombre' => $datosEmpleado[0]['nombre'] ?? '',
+                'RPE' => $datosEmpleado[0]['rpe'] ?? $rpeEmpleado,
                 'Clave_Area' => $claveArea,
                 'Area' => $area,
                 'Clave_Carrera' => $claveCarrera,
                 'Carrera' => $carrera,
-                'Cargo' => $datosEmpleado['0']['cargo'],
-                'Correo' => $datosEmpleado['0']['correo_electronico'],
-                'Telefono' => $datosEmpleado['0']['telefono'],
+                'Cargo' => $datosEmpleado[0]['cargo'] ?? '',
+                'Correo' => $datosEmpleado[0]['correo_electronico'] ?? '',
+                'Telefono' => $datosEmpleado[0]['telefono'] ?? '',
             ]);
-            return NULL;
-        } else {
-            if ($empleado->count() == 1) {
-                $rol = Empleado::where('RPE', $rpeEmpleado)->value('Id_Rol');
-                return $rol;
-            }
+            return null;
         }
+
+        // Si existe exactamente uno, intentar obtener el rol de manera segura
+        if ($empleadoQuery->count() === 1) {
+            $table = (new Empleado)->getTable(); // 'encargado'
+            // Detectar nombre de la columna de rol (Id_Rol o Rol) para evitar error SQL
+            $rolColumn = null;
+            if (Schema::hasColumn($table, 'Id_Rol')) {
+                $rolColumn = 'Id_Rol';
+            } elseif (Schema::hasColumn($table, 'Rol')) {
+                $rolColumn = 'Rol';
+            }
+            // Si no existe ninguna columna de rol, regresamos null (flujo cae al default)
+            return $rolColumn ? $empleadoQuery->value($rolColumn) : null;
+        }
+
+        // Más de uno (inconsistencia) → devolver null para no romper flujo
+        return null;
     }
 
     // --- LOGIN ALUMNO ---

@@ -10,6 +10,8 @@ use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
 use App\Models\Alumno;
 use App\Services\UaslpApiService;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EncargadoController extends Controller
 {
@@ -39,26 +41,96 @@ class EncargadoController extends Controller
     public function consultarAlumno(Request $request)
     {
         $alumnos = [];
+        $documentos = [];
 
-        // Si hay búsqueda
-        if ($request->has('busqueda') && !empty($request->busqueda)) {
+        if ($request->filled('busqueda')) {
             $busqueda = trim($request->busqueda);
+            // Variante para buscar FPP01 por clave sin el PRIMER 0 a la izquierda (si lo tiene)
+            $busquedaClaveSinPrimerCero = $busqueda;
+            if (preg_match('/^0\d+$/', $busqueda)) {
+                // quitar solo el primer 0
+                $busquedaClaveSinPrimerCero = substr($busqueda, 1);
+            }
 
-            // Buscar SOLO alumnos que tienen al menos una solicitud
-            $alumnosQuery = Alumno::whereHas('solicitudes') // Solo los que tienen solicitudes
-                ->where(function($query) use ($busqueda) {
-                    $query->where('Clave_Alumno', 'LIKE', "%{$busqueda}%")
-                        ->orWhere('ApellidoP_Alumno', 'LIKE', "%{$busqueda}%")
-                        ->orWhere('ApellidoM_Alumno', 'LIKE', "%{$busqueda}%")
-                        ->orWhere(DB::raw("CONCAT(ApellidoP_Alumno, ' ', ApellidoM_Alumno)"), 'LIKE', "%{$busqueda}%")
-                        ->orWhere(DB::raw("CONCAT(Nombre, ' ', ApellidoP_Alumno, ' ', ApellidoM_Alumno)"), 'LIKE', "%{$busqueda}%");
+            // Buscar alumnos con solicitudes que coincidan por clave o apellidos
+            $alumnosQuery = Alumno::whereHas('solicitudes')
+                ->where(function($query) use ($busqueda, $busquedaClaveSinPrimerCero) {
+                    // Clave exacta ingresada o sin el primer 0 a la izquierda
+                    $query->where(function($q) use ($busqueda, $busquedaClaveSinPrimerCero) {
+                        $q->where('Clave_Alumno', 'LIKE', "%{$busqueda}%");
+                        if ($busquedaClaveSinPrimerCero !== $busqueda) {
+                            $q->orWhere('Clave_Alumno', 'LIKE', "%{$busquedaClaveSinPrimerCero}%");
+                        }
+                    })
+                    // Búsqueda por apellidos/nombre con el texto tal cual se ingresó
+                    ->orWhere('ApellidoP_Alumno', 'LIKE', "%{$busqueda}%")
+                    ->orWhere('ApellidoM_Alumno', 'LIKE', "%{$busqueda}%")
+                    ->orWhere(DB::raw("CONCAT(ApellidoP_Alumno, ' ', ApellidoM_Alumno)"), 'LIKE', "%{$busqueda}%")
+                    ->orWhere(DB::raw("CONCAT(Nombre, ' ', ApellidoP_Alumno, ' ', ApellidoM_Alumno)"), 'LIKE', "%{$busqueda}%");
                 })
-                ->with('solicitudes') // Cargar sus solicitudes
+                ->with('solicitudes')
                 ->limit(10)
                 ->get();
 
-            // Mapear a formato esperado por la vista
-            $alumnos = $alumnosQuery->map(function($alumno) {
+            // Obtener los estados de proceso (semáforo) para todas las claves encontradas
+            $claves = $alumnosQuery->pluck('Clave_Alumno')->toArray();
+            $estadosProceso = EstadoProceso::whereIn('clave_alumno', $claves)
+                ->orderBy('clave_alumno')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('clave_alumno');
+
+            $alumnos = $alumnosQuery->map(function($alumno) use ($estadosProceso) {
+                // Obtener la última (más reciente) solicitud FPP01 del alumno para resumen
+                $solicitud = $alumno->solicitudes->load('dependenciaMercadoSolicitud.dependenciaEmpresa')
+                    ->sortByDesc(function($s){
+                        // Usa fecha solicitud si existe, si no el id como fallback
+                        return $s->Fecha_Solicitud ?? $s->Id_Solicitud_FPP01;
+                    })->first();
+
+                $resumenSolicitud = null;
+                if ($solicitud) {
+                    // Obtener nombre de empresa desde la relación
+                    $empresaNombre = null;
+                    if ($solicitud->dependenciaMercadoSolicitud && $solicitud->dependenciaMercadoSolicitud->dependenciaEmpresa) {
+                        $empresaNombre = $solicitud->dependenciaMercadoSolicitud->dependenciaEmpresa->Nombre_Depn_Emp;
+                    }
+
+                    // Construir horario desde los campos de la base de datos
+                    $horario = null;
+                    if ($solicitud->Horario_Mat_Ves || $solicitud->Horario_Entrada || $solicitud->Horario_Salida) {
+                        $turno = $solicitud->Horario_Mat_Ves === 'M' ? 'Matutino' : ($solicitud->Horario_Mat_Ves === 'V' ? 'Vespertino' : '');
+                        $horas = '';
+                        if ($solicitud->Horario_Entrada && $solicitud->Horario_Salida) {
+                            $horas = " ({$solicitud->Horario_Entrada} - {$solicitud->Horario_Salida})";
+                        }
+                        $dias = $solicitud->Dias_Semana ? " - {$solicitud->Dias_Semana}" : '';
+                        $horario = trim($turno . $horas . $dias);
+                    }
+
+                    // Construimos un resumen ligero evitando exponer todo el modelo
+                    $resumenSolicitud = [
+                        'id' => $solicitud->Id_Solicitud_FPP01 ?? null,
+                        'fecha_registro' => $solicitud->Fecha_Solicitud ?? null,
+                        'empresa' => $empresaNombre,
+                        'proyecto' => $solicitud->Nombre_Proyecto ?? null,
+                        'horario' => $horario,
+                        'estado_encargado' => $solicitud->Estado_Encargado ?? null,
+                        'autorizacion' => $solicitud->Autorizacion ?? null,
+                    ];
+                }
+
+                // Obtener estados de proceso (semáforo) del alumno
+                $semaforo = [];
+                if (isset($estadosProceso[$alumno->Clave_Alumno])) {
+                    $semaforo = $estadosProceso[$alumno->Clave_Alumno]->map(function($estado) {
+                        return [
+                            'etapa' => $estado->etapa,
+                            'estado' => $estado->estado,
+                        ];
+                    })->toArray();
+                }
+
                 return [
                     'cve_uaslp' => $alumno->Clave_Alumno,
                     'nombres' => $alumno->Nombre,
@@ -68,11 +140,93 @@ class EncargadoController extends Controller
                     'semestre' => $alumno->Semestre,
                     'creditos' => $alumno->Creditos,
                     'correo' => $alumno->CorreoElectronico,
+                    'solicitud_fpp01' => $resumenSolicitud,
+                    'semaforo' => $semaforo,
                 ];
             })->toArray();
+
+            // Si la búsqueda parece ser una clave exacta y hay al menos un alumno que coincide por clave
+            $posibleClave = $busqueda; // Para PDFs se busca TAL CUAL fue ingresada
+            $claveDirecta = null;
+            if (preg_match('/^\d{4,}$/', $posibleClave)) { // Ej. 194659
+                $claveDirecta = $posibleClave;
+            }
+
+            if ($claveDirecta) {
+                $documentos = $this->buscarDocumentosAlumno($claveDirecta);
+            }
         }
 
-        return view('encargado.consultar_alumno', compact('alumnos'));
+        return view('encargado.consultar_alumno', compact('alumnos', 'documentos'));
+    }
+
+    /**
+     * Busca en storage/public/expedientes/* los PDFs cuyo nombre inicia con la clave del alumno.
+     */
+    private function buscarDocumentosAlumno(string $claveAlumno): array
+    {
+        $base = 'expedientes';
+        if (!Storage::disk('public')->exists($base)) {
+            return [];
+        }
+
+        // Buscar recursivamente todos los archivos bajo expedientes
+        $files = Storage::disk('public')->allFiles($base);
+
+        $encontrados = [];
+        foreach ($files as $file) {
+            // Solo PDFs
+            if (!Str::endsWith(strtolower($file), '.pdf')) continue;
+
+            $filename = basename($file);
+
+            // Coincidencia: empieza con "<clave>_"
+            if (Str::startsWith($filename, $claveAlumno . '_')) {
+                $encontrados[] = [
+                    'path' => $file,
+                    'titulo' => $this->tituloDocumento($filename),
+                    'nombre' => $filename,
+                    'size_kb' => round(Storage::disk('public')->size($file) / 1024, 1),
+                    'url' => asset('storage/' . $file),
+                    'modificado' => date('Y-m-d H:i', Storage::disk('public')->lastModified($file)),
+                ];
+                continue;
+            }
+
+            // Soporte adicional: algunos FPP02 se nombran como "FPP02_<clave>_..."
+            if (Str::contains($filename, 'FPP02_' . $claveAlumno . '_')) {
+                $encontrados[] = [
+                    'path' => $file,
+                    'titulo' => $this->tituloDocumento($filename),
+                    'nombre' => $filename,
+                    'size_kb' => round(Storage::disk('public')->size($file) / 1024, 1),
+                    'url' => asset('storage/' . $file),
+                    'modificado' => date('Y-m-d H:i', Storage::disk('public')->lastModified($file)),
+                ];
+            }
+        }
+
+        return collect($encontrados)->sortByDesc('modificado')->values()->toArray();
+    }
+
+    /**
+     * Determina título legible según el nombre del archivo.
+     */
+    private function tituloDocumento(string $filename): string
+    {
+        $map = [
+            '_desglose_percepciones_' => 'Carta de Desglose de Percepciones',
+            '_carta_aceptacion_' => 'Carta de Aceptación',
+            '_carta_vigencia_derechos_' => 'Constancia Vigencia de Derechos',
+            '_estadistica_general_' => 'Estadística General',
+            '_carta_pasante_' => 'Carta Pasante',
+            '_FPP02_firmado_' => 'Formato FPP02 Firmado',
+            'FPP02_' => 'Formato FPP02 Generado',
+        ];
+        foreach ($map as $needle => $titulo) {
+            if (Str::contains($filename, $needle)) return $titulo;
+        }
+        return 'Documento';
     }
 
     public function verSolicitud($id)

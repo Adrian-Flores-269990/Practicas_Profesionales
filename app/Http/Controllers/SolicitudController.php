@@ -75,8 +75,7 @@ class SolicitudController extends Controller
                 // PROCESAR DÍAS DE ASISTENCIA
                 // ============================================
                 $diasSeleccionados = $request->input('dias_asistencia', []);
-                // Se usa implore(',', ...) de Versión A (más legible), no implode('', ...) de Versión B
-                $diasString = is_array($diasSeleccionados) ? implode(',', $diasSeleccionados) : '';
+                $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 
                 // ============================================

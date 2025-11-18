@@ -146,7 +146,7 @@ Route::prefix('alumno')->group(function () {
 */
 Route::prefix('encargado')->group(function () {
     Route::get('/inicio', fn () => view('encargado.inicio'))->name('encargado.inicio');
-    Route::get('/consultar_alumno', fn () => view('encargado.consultar_alumno'))->name('encargado.consultar_alumno');
+    // Eliminado duplicado: la ruta con nombre 'encargado.consultar_alumno' debe apuntar al controlador
 
     // Solicitudes
     Route::get('/solicitudes', [EncargadoController::class, 'index'])->name('encargado.solicitudes');
@@ -156,9 +156,14 @@ Route::prefix('encargado')->group(function () {
 
     Route::get('/solicitudes-alumnos', [EncargadoController::class, 'index'])->name('encargado.solicitudes_alumnos');
     Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
-    Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])->name('encargado.consultar_alumno');
-    Route::get('/alumnos_en_proceso', [EncargadoController::class, 'alumnosEnProceso'])->name('encargado.alumnos_en_proceso');
-    Route::get('/alumnos_finalizados', [EncargadoController::class, 'alumnosFinalizados'])->name('encargado.alumnos_finalizados');
+    Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])
+        ->name('encargado.consultar_alumno');
+
+    Route::get('/alumnos_en_proceso', [EncargadoController::class, 'alumnosEnProceso'])
+        ->name('encargado.alumnos_en_proceso');
+
+    Route::get('/alumnos_finalizados', [EncargadoController::class, 'alumnosFinalizados'])
+        ->name('encargado.alumnos_finalizados');
 
     Route::get('/registrar-empresa', function() {
         return view('encargado.registrar_empresa');

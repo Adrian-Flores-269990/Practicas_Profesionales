@@ -96,13 +96,12 @@ class LoginController extends Controller
             return back()->withErrors(['cuenta' => 'Fallo en la conexión']);
         }
 
-        /*
         // Verifica contraseña
         $loginDatos = $this->datosArray($loginResponse) ?? [];
         $conexion = $loginDatos[0]['conexion'];
         if ($conexion === false) {
             return back()->withErrors(['cuenta' => 'Datos incorrectos']);
-        }*/
+        }
 
         $tipoChar = strtolower($userRaw[0]);
         $claveReal = preg_replace('/^[au]/i', '', $userRaw);
@@ -171,12 +170,12 @@ class LoginController extends Controller
                 'rpe' => $rpe,
                 'nombre' => 'FROYLAN ELOY HERNANDEZ CASTRO',
                 'cargo' => 'Catedrático',
-                'correo_electronico' => 'cambiar',
-                'telefono' => 'cambiar',
-                'clave_area' => 'cambiar',
-                'area' => 'cambiar',
-                'clave_carrera' => 'cambiar',
-                'carrera' => 'cambiar',
+                'correo_electronico' => 'fhernand@uaslp.mx',
+                'telefono' => '4444918427',
+                'clave_area' => NULL,
+                'area' => NULL,
+                'clave_carrera' => NULL,
+                'carrera' => NULL,
                 ],
             ];
             session(['empleado' => $empleado]);
@@ -207,12 +206,12 @@ class LoginController extends Controller
                 'rpe' => $rpe,
                 'nombre' => 'MOISES ALEJANDRO TORRES TORRES',
                 'cargo' => 'Catedrático',
-                'correo_electronico' => 'cambiar',
-                'telefono' => 'cambiar',
-                'clave_area' => 'cambiar',
-                'area' => 'cambiar',
-                'clave_carrera' => 'cambiar',
-                'carrera' => 'cambiar',
+                'correo_electronico' => 'moi.alej@example.com',
+                'telefono' => '4446494863',
+                'clave_area' => NULL,
+                'area' => NULL,
+                'clave_carrera' => NULL,
+                'carrera' => NULL,
                 ],
             ];
             session(['empleado' => $empleado]);
@@ -225,12 +224,12 @@ class LoginController extends Controller
                 'rpe' => $rpe,
                 'nombre' => 'EDGAR IVAN AVALOS TORRES',
                 'cargo' => 'Catedrático',
-                'correo_electronico' => 'cambiar',
-                'telefono' => 'cambiar',
-                'clave_area' => 'cambiar',
-                'area' => 'cambiar',
-                'clave_carrera' => 'cambiar',
-                'carrera' => 'cambiar',
+                'correo_electronico' => 'edgar.ivan@example.com',
+                'telefono' => '4447412536',
+                'clave_area' => NULL,
+                'area' => NULL,
+                'clave_carrera' => NULL,
+                'carrera' => NULL,
                 ],
             ];
             session(['empleado' => $empleado]);

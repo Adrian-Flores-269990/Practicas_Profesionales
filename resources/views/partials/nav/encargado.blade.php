@@ -13,6 +13,7 @@
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
           <li><a class="dropdown-item" href="{{ route('encargado.consultar_alumno') }}">Consultar Alumno</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.solicitudes_alumnos') }}">Solicitudes Pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.registros') }}">FPP02</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en Proceso de Prácticas</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_finalizados') }}">Alumnos que terminaron de Prácticas</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de Empresas</a></li>

@@ -1,6 +1,7 @@
 @extends('layouts.alumno')
 
 @section('title', 'Confirmación de datos FPP02')
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 
 @push('styles')
 <style>
@@ -96,11 +97,17 @@
 @section('content')
 @include('partials.nav.registro')
 
-<div class="container mt-4">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
-  </h4>
-  
+<div class="container-fluid my-0 p-0">
+    <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
+            </h4>
+        </div>
+    </div>
+
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
     {{-- Alumno --}}
@@ -113,11 +120,26 @@
       </div>
     </div>
 
+    {{-- De la Asignación del Departamento de Servicio Social y Prácticas Profesionales --}}
+    <div class="seccion-card">
+      <div class="seccion-header"><i class="bi bi-person-badge"></i> DE LA ASIGNACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (DSSPP) </div>
+      <div class="seccion-body">
+        Período de Prácticas Profesionales asignado por el DSSPP
+        <div class="info-row"><span class="info-label">Periodo:</span><span class="info-value">{{ $solicitud['Fecha_Inicio'] ?? '---' }} - {{ $solicitud['Fecha_Termino'] ?? '---' }}</span></div>
+        Jornada Laboral
+        <div class="info-row"><span class="info-label">Días de la Semana:</span><span class="info-value">{{ $solicitud['Dias_Semana'] ?? '' }}</span></div>
+        <div class="info-row"><span class="info-label">Horario:</span><span class="info-value">{{ $solicitud->Horario_Entrada ?? '---' }} - {{ $solicitud->Horario_Salida ?? '---' }}</span></div>
+      </div>
+    </div>
+
     {{-- Empresa --}}
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-building"></i> DATOS DE LA EMPRESA</div>
       <div class="seccion-body">
         <div class="info-row"><span class="info-label">Nombre:</span><span class="info-value">{{ $empresa->Nombre_Depn_Emp ?? 'No disponible' }}</span></div>
+        @if($tipoSector === 'privado')
+          <div class="info-row"><span class="info-label">Razón Social:</span><span class="info-value">{{ $sector->Razon_Social ?? 'No disponible' }}</span></div>
+        @endif
         <div class="info-row"><span class="info-label">RFC:</span><span class="info-value">{{ $empresa->RFC_Empresa ?? 'No disponible' }}</span></div>
         <div class="info-row"><span class="info-label">Dirección:</span>
           <span class="info-value">
@@ -135,20 +157,50 @@
       <div class="seccion-body">
         <div class="info-row"><span class="info-label">Nombre del Proyecto:</span><span class="info-value">{{ $solicitud->Nombre_Proyecto ?? 'No disponible' }}</span></div>
         <div class="info-row"><span class="info-label">Área o Departamento:</span><span class="info-value">{{ $sector->Area_Depto ?? $empresa->Area_Depto ?? 'No disponible' }}</span></div>
-        <div class="info-row"><span class="info-label">Horario:</span><span class="info-value">{{ $solicitud->Horario_Entrada ?? '---' }} - {{ $solicitud->Horario_Salida ?? '---' }}</span></div>
       </div>
     </div>
 
-    {{-- Formulario que genera el PDF --}}
-    <form id="form-imprimir" action="{{ route('alumno.generarFpp02') }}" method="POST" style="display:none;">
-        @csrf
-    </form>
 
-    <div class="btn-row">
-        <button type="button" id="btn-imprimir" class="btn-aceptar">
-          <i class="bi bi-printer"></i> Generar y Descargar FPP02
-        </button>
-    </div>
+
+    {{-- Formulario oculto para generar el PDF --}}
+    <form id="formulario-registro" action="{{ route('alumno.generarFpp02') }}" method="POST" enctype="multipart/form-data">
+      @csrf
+
+      {{-- Datos faltantes --}}
+      <div class="seccion-card">
+        <div class="seccion-header"><i class="bi bi-person-badge"></i> REQUISITOS</div>
+        <div class="seccion-body">
+          <div class="col-md-4">
+            <label class="form-label">Servicio Social en el mismo periodo</label>
+              <div class="d-flex gap-3 mt-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="ss" id="ind-s" value="si" required>
+                  <label class="form-check-label" for="ind-s">SI</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="ss" id="ind-n" value="no" required>
+                  <label class="form-check-label" for="ind-n">NO</label>
+                </div>
+              </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Número de Meses</label>
+            <input type="text" name="num_meses" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Total de Horas</label>
+            <input type="text" name="total_horas" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" id="btn-imprimir" class="btn-aceptar">
+            <i class="bi bi-printer"></i> Generar y Descargar FPP02
+          </button>
+        </div>
+
+      </div>
+    </form>
   </div>
 
   {{-- SECCIÓN PARA SUBIR PDF FIRMADO (visible si YA imprimió) --}}
@@ -235,12 +287,11 @@
               </div>
             </div>
           </div>
-
-        {{-- Botones --}}
+          {{-- Botones --}}
           <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-secondary">Guardar cambios</button>
-            <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
-            <button type="submit" class="btn btn-success">Enviar</button>
+          <button type="button" class="btn btn-secondary">Guardar cambios</button>
+          <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
+          <button type="submit" class="btn btn-success">Enviar</button>
           </div>
         </form>
       @endif
@@ -257,19 +308,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnImprimir = document.getElementById('btn-imprimir');
   const infoSection = document.getElementById('info-section');
   const uploadSection = document.getElementById('upload-section');
-  const formImprimir = document.getElementById('form-imprimir');
+  const formImprimir = document.getElementById('formulario-registro');
   const btnVolverPreview = document.getElementById('btn-volver-preview');
   const btnCancelarUpload = document.getElementById('btn-cancelar-upload');
 
-  // Al hacer clic en Imprimir
-  if (btnImprimir) {
+  // Validar y enviar formulario
+  if (btnImprimir && formImprimir) {
     btnImprimir.addEventListener('click', () => {
-      // 1) Enviar el formulario al backend (se abre en pestaña nueva por target="_blank")
-      formImprimir.submit();
+      const requiredFields = formImprimir.querySelectorAll('[required]');
+      let isValid = true;
 
-      // 2) Mostrar la sección de subida en la pestaña actual
-      infoSection.style.display = 'none';
-      uploadSection.style.display = 'block';
+      // Validar campos de texto
+      requiredFields.forEach(field => {
+        if (field.type !== 'radio' && !field.value.trim()) {
+          isValid = false;
+          field.classList.add('is-invalid');
+        } else {
+          field.classList.remove('is-invalid');
+        }
+      });
+
+      // Validar radios por grupo
+      const radioGroups = {};
+      requiredFields.forEach(field => {
+        if (field.type === 'radio') {
+          if (!radioGroups[field.name]) {
+            radioGroups[field.name] = false;
+          }
+          if (field.checked) {
+            radioGroups[field.name] = true;
+          }
+        }
+      });
+
+      Object.values(radioGroups).forEach(isChecked => {
+        if (!isChecked) isValid = false;
+      });
+
+      if (isValid) {
+        formImprimir.submit();
+        infoSection.style.display = 'none';
+        uploadSection.style.display = 'block';
+      } else {
+        alert('Por favor completa todos los campos requeridos antes de continuar.');
+      }
     });
   }
 
@@ -351,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     zonaSubida.addEventListener('drop', (e) => {
       const dt = e.dataTransfer;
       const files = dt.files;
-      
+
       if (files.length > 0 && files[0].type === 'application/pdf') {
         inputArchivo.files = files;
         const event = new Event('change');
@@ -360,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, false);
   }
 
+  // Reset del formulario
   function resetFormulario() {
     const form = document.getElementById('form-fpp02');
     const preview = document.getElementById('archivoPreview');

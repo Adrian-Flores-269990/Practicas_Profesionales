@@ -168,6 +168,11 @@ Route::prefix('encargado')->group(function () {
         return redirect()->route('encargado.inicio')->with('success', 'Empresa registrada exitosamente');
     })->name('encargado.guardar_empresa');
 
+    //Registros
+    Route::get('/registros', [EncargadoController::class, 'verRegistros'])->name('encargado.registros');
+    Route::get('/registros/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verRegistro');
+    Route::post('/accion_registro', [EncargadoController::class, 'calificarRegistro'])->name('encargado.calificarRegistro');
+
 });
 
 

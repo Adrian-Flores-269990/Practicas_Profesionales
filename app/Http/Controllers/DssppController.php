@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\SolicitudFPP01;
+use App\Models\SolicitudFPP02;
 use App\Models\AutorizacionSolicitud;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
+use App\Models\Expediente;
 
 class DssppController extends Controller
 {
@@ -38,6 +40,7 @@ class DssppController extends Controller
         $request->validate([
             'accion' => 'required|string|in:aceptar,rechazar',
             'comentario' => 'nullable|string|max:1000',
+            'Fecha_Asignacion' => 'required|date',
         ]);
 
         $solicitud = SolicitudFPP01::with('autorizaciones')->findOrFail($id);
@@ -63,6 +66,20 @@ class DssppController extends Controller
             }
 
             $solicitud->save();
+
+            
+            // Crear o actualizar la solicitud FPP02 con la fecha de asignación
+            $registro = SolicitudFPP02::create(
+                [
+                'Fecha_Asignacion' => $request->Fecha_Asignacion,
+                ]
+            );
+            $idFPP02 = $registro->Id_Solicitud_FPP02;
+
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+            $expediente->update([
+                    'Id_Solicitud_FPP02' => $idFPP02,
+                ]);
 
             // Actualiza los estados del alumno (semaforización)
             $this->actualizarEstadoAlumnoDSSPP(

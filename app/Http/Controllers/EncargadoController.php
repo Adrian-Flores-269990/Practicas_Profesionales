@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\SolicitudFPP01;
+use App\Models\SolicitudFPP02;
 use App\Models\AutorizacionSolicitud;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
 use App\Models\Alumno;
 use App\Services\UaslpApiService;
 use App\Models\Expediente;
+use Carbon\Carbon;
 
 class EncargadoController extends Controller
 {
@@ -232,6 +234,56 @@ class EncargadoController extends Controller
         return redirect()
             ->route('encargado.solicitudes_alumnos')
             ->with('success', 'Revisión guardada correctamente.');
+    }
+
+    public function verRegistros()
+    {
+        $registros = Expediente::with('solicitud.alumno')
+                                ->whereNotNull('Solicitud_FPP02_Firmada')
+                                ->get();
+ 
+        $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
+ 
+        return view('encargado.registros_alumnos', compact('registros', 'carreras'));
+    }
+ 
+   
+   
+    public function calificarRegistro(Request $request)
+    {
+        $request->validate([
+            'seccion' => 'required|string',
+            'valor' => 'required|in:0,1',
+            'claveAlumno' => 'nullable|string'
+        ]);
+ 
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+ 
+        if (! $solicitud) {
+            return abort(404, 'Solicitud no autorizada');
+        }
+ 
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+ 
+        if ($expediente) {
+            $idRegistro = $expediente->Id_Solicitud_FPP02;
+            $registro = SolicitudFPP02::where('Id_Solicitud_FPP02', $idRegistro)->first();
+ 
+            if ($request->valor == 1) {
+                $registro->update([
+                    'Autorizacion' => 1,
+                    'Fecha_Autorizacion' => Carbon::now(),
+                ]);
+            } else {
+                $registro->update([
+                    'Autorizacion' => 0,
+                ]);
+            }
+        }
+ 
+        return redirect()->route('encargado.registros')->with('success', 'Acción realizada correctamente');
     }
 
 }

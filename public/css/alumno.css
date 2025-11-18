@@ -159,3 +159,22 @@
    .form-label { font-weight: 700; font-size: .95rem; }  /* tamaño de letra y negrita */
   .accordion-button { background:#f8fafc; color:#063; } /* color de los acordiones o secciones */
   .soli-card { box-shadow: 0 1px 0 rgba(0,0,0,.03); }
+
+
+
+    /* ==============================
+    DETALLE DE HEADERS
+    ============================== */
+    .detalle-header {
+        background: #000066;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .detalle-header h4 {
+        color: white;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.75rem;
+    }

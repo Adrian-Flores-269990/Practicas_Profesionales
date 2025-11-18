@@ -1,12 +1,19 @@
 @extends('layouts.alumno')
 
 @section('title','Solicitud de Recibo para Ayuda Económica')
+<link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 
 @section('content')
 <div class="container-fluid my-0 p-0">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA
-  </h4>
+    <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA
+            </h4>
+        </div>
+    </div>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
     <form id="form-recibo" method="POST" action="{{ route('recibo.descargar') }}">

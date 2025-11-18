@@ -23,4 +23,9 @@ class Expediente extends Model
         'Constancia',
         'Contador_Reportes',
     ];
+
+    public function solicitud()
+    {
+        return $this->belongsTo(\App\Models\SolicitudFPP01::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+    }
 }

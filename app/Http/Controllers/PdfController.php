@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\EstadoProceso;
 use App\Models\SolicitudFPP01;
+use App\Models\SolicitudFPP02;
 use App\Models\Expediente;
 use App\Models\AsesorExterno; // Asegurado de que esté presente para el FPP02
 use App\Models\Alumno;
@@ -50,6 +51,29 @@ class PdfController extends Controller
         }
         if ($tipo === 'Solicitud_FPP02_Firmada') {
             return $this->confirmaFPP02($pdfPath);
+        }
+
+        return abort(404, 'Tipo de documento no válido');
+    }
+
+    // -------------------------------------------------------
+    // MOSTRAR DOCUMENTO (Visualiza PDFs a empleados)
+    // -------------------------------------------------------
+    public function mostrarDocumentoEmpleados($claveAlumno, $tipo, $documento)
+    {
+        $pdfPath = null;
+
+        if (isset($documento)) {
+            $rutaRelativa = "expedientes/{$tipo}/" . $documento;
+
+            if (Storage::disk('public')->exists($rutaRelativa)) {
+                $pdfPath = asset('storage/' . $rutaRelativa);
+            }
+        }
+
+        // Siempre retorna la vista con pdfPath (puede ser null)
+        if ($tipo === 'Solicitud_FPP02_Firmada') {
+            return view('encargado.revisar_registro', compact('pdfPath', 'claveAlumno'));
         }
 
         return abort(404, 'Tipo de documento no válido');
@@ -209,13 +233,36 @@ class PdfController extends Controller
     // -------------------------------------------------------
     public function generarFpp02(Request $request)
     {
+        $validated = $request->validate([
+            'ss' => 'required|in:si,no',
+            'num_meses' => 'required|numeric|min:1',
+            'total_horas' => 'required|numeric|min:1',
+        ]);
+ 
         $alumnoSesion = session('alumno');
         $claveAlumno = $alumnoSesion['cve_uaslp'] ?? null;
-        
+ 
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+       
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+       
+        $idRegistro = $expediente->Id_Solicitud_FPP02;
+ 
+        $registro = SolicitudFPP02::where('Id_Solicitud_FPP02', $idRegistro)->first();
+       
+        $ss = $request->ss === 'si' ? 1 : 0;
+        $registro->update([
+            'Servicio_Social' => $ss,
+            'Num_Meses' => $request->num_meses,
+            'Total_Horas' => $request->total_horas,
+        ]);
+       
         if (!$claveAlumno) {
             return back()->withErrors(['No se encontró la sesión del alumno.']);
         }
-
+ 
         // Obtener solicitud con todas las relaciones
         $solicitud = SolicitudFPP01::with([
             'alumno',
@@ -227,11 +274,11 @@ class PdfController extends Controller
         ->where('Clave_Alumno', $claveAlumno)
         ->latest('Id_Solicitud_FPP01')
         ->first();
-
+ 
         if (!$solicitud) {
             return back()->withErrors(['No se encontró la información de la solicitud.']);
         }
-
+ 
         // Obtener datos de dependencia y sector
         $dependencia = $solicitud->dependenciaMercadoSolicitud;
         $empresa = optional($dependencia)->dependenciaEmpresa;
@@ -240,90 +287,90 @@ class PdfController extends Controller
             : ($dependencia?->Id_Publico
                 ? $dependencia->sectorPublico
                 : $dependencia?->sectorUaslp);
-
+ 
         // ⭐ OBTENER ASESOR EXTERNO SI EXISTE
         $asesorExterno = null;
         if ($solicitud->Clave_Asesor_Externo) {
             $asesorExterno = AsesorExterno::find($solicitud->Clave_Asesor_Externo);
         }
-
+ 
         // Preparar datos para el PDF con formato oficial
         $alumnoData = $solicitud->alumno;
-        
+       
         $data = [
             // Datos del alumno
             'nombreCompleto' => trim(
-                ($alumnoData->Nombre ?? '') . ' ' . 
-                ($alumnoData->ApellidoP_Alumno ?? '') . ' ' . 
+                ($alumnoData->Nombre ?? '') . ' ' .
+                ($alumnoData->ApellidoP_Alumno ?? '') . ' ' .
                 ($alumnoData->ApellidoM_Alumno ?? '')
             ),
             'claveUnica' => $alumnoData->Clave_Alumno ?? '',
             'carrera' => $alumnoData->Carrera ?? '',
-            
+           
             // Datos de la empresa
             'razonSocial' => $empresa->Nombre_Depn_Emp ?? ($sector->Nombre_Depn_Emp ?? ''),
             'direccionEmpresa' => $this->formatearDireccion($empresa, $sector),
             'rfc' => $empresa->RFC_Empresa ?? '',
             'telefono' => $empresa->Telefono ?? ($sector->Telefono ?? ''),
-            
+           
             // Datos del proyecto
             'areaDepartamento' => $sector->Area_Depto ?? ($empresa->Area_Depto ?? ''),
             'nombreProyecto' => $solicitud->Nombre_Proyecto ?? '',
-            
+           
             // ⭐ DATOS DEL ASESOR EXTERNO (desde la tabla asesor_externo)
-            'nombreAsesor' => $asesorExterno 
+            'nombreAsesor' => $asesorExterno
                 ? trim(
-                    ($asesorExterno->Nombre ?? '') . ' ' . 
-                    ($asesorExterno->Apellido_Paterno ?? '') . ' ' . 
+                    ($asesorExterno->Nombre ?? '') . ' ' .
+                    ($asesorExterno->Apellido_Paterno ?? '') . ' ' .
                     ($asesorExterno->Apellido_Materno ?? '')
-                  )
+                )
                 : '',
             'cargoAsesor' => $asesorExterno->Puesto ?? '',
             'telefonoAsesor' => $asesorExterno->Telefono ?? '',
             'emailAsesor' => $asesorExterno->Correo ?? '',
-            
+           
             // Fechas y horarios
-            'fechaInicial' => $solicitud->Fecha_Inicio 
-                ? Carbon::parse($solicitud->Fecha_Inicio)->format('d/m/Y') 
+            'fechaInicial' => $solicitud->Fecha_Inicio
+                ? Carbon::parse($solicitud->Fecha_Inicio)->format('d/m/Y')
                 : '',
-            'fechaFinal' => $solicitud->Fecha_Fin 
-                ? Carbon::parse($solicitud->Fecha_Fin)->format('d/m/Y') 
+            'fechaFinal' => $solicitud->Fecha_Fin
+                ? Carbon::parse($solicitud->Fecha_Fin)->format('d/m/Y')
                 : '',
             'horarioEntrada' => $solicitud->Horario_Entrada ?? '',
             'horarioSalida' => $solicitud->Horario_Salida ?? '',
-            
+           
             // Fecha de generación
             'fechaGeneracion' => now()->format('d/m/Y'),
-            
+           
             // Pasar objetos completos para uso en la vista (por si acaso)
             'alumno' => $alumnoData,
             'solicitud' => $solicitud,
             'empresa' => $empresa,
             'sector' => $sector,
         ];
-
+ 
         // Generar PDF con el formato oficial FPP02
         $pdf = Pdf::loadView('pdf.fpp02', $data)
             ->setPaper('letter', 'portrait');
-
+ 
         $nombreArchivo = 'FPP02_' . $claveAlumno . '_' . time() . '.pdf';
         $rutaCarpeta = 'expedientes/fpp02';
         $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
-
+ 
         // Crear carpeta si no existe
         if (!Storage::disk('public')->exists($rutaCarpeta)) {
             Storage::disk('public')->makeDirectory($rutaCarpeta);
         }
-
+ 
         // Guardar PDF en storage
         Storage::disk('public')->put($rutaCompleta, $pdf->output());
-
+ 
         // ACTUALIZAR SEMÁFORO (Usando la función actualizarSemaforo, no marcarEtapa)
         $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
-
+ 
         // Guardar sesión
         session(['fpp02_impreso_' . $claveAlumno => true]);
-
+ 
         // Descargar PDF
         return $pdf->download('Formato_FPP02.pdf');
     }

@@ -75,8 +75,7 @@ class SolicitudController extends Controller
                 // PROCESAR DÍAS DE ASISTENCIA
                 // ============================================
                 $diasSeleccionados = $request->input('dias_asistencia', []);
-                // Se usa implore(',', ...) de Versión A (más legible), no implode('', ...) de Versión B
-                $diasString = is_array($diasSeleccionados) ? implode(',', $diasSeleccionados) : '';
+                $diasString = implode('', $diasSeleccionados);
                 $turno = $request->turno === 'M' ? 'M' : 'V';
 
                 // ============================================
@@ -149,8 +148,7 @@ class SolicitudController extends Controller
                     'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
                     'Archivo_CVD' => $request->hasFile('constancia_pdf') ? 1 : 0,
                     'Fecha_Inicio' => $request->fecha_inicio,
-                    // Corregido: La Versión A usa Fecha_Fin, la Versión B usa Fecha_Termino. Asumo que el campo es 'Fecha_Fin' o debe ser 'Fecha_Termino'
-                    'Fecha_Fin' => $request->fecha_termino, 
+                    'Fecha_Termino' => $request->fecha_termino, 
                     'Clave_Encargado' => 1,
                     // Se usa el ID del Asesor real (Versión A)
                     'Clave_Asesor_Externo' => $asesorExterno ? $asesorExterno->Id_Asesor_Externo : null, 
@@ -357,7 +355,7 @@ class SolicitudController extends Controller
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Error en solicitud: ' . $e->getMessage());
-             if ($e->getMessage() === 'Ya tienes una solicitud en proceso.') {
+            if ($e->getMessage() === 'Ya tienes una solicitud en proceso.') {
                 return back()->with('error', '⚠️ Ya tienes una solicitud en proceso. Espera la resolución antes de enviar otra.');
             }
             return back()->withErrors(['error' => 'Error al guardar la solicitud: ' . $e->getMessage()]);

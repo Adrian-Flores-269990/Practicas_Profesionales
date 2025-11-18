@@ -267,6 +267,27 @@
         </div>
       </div>
 
+            {{-- FECHA DE ASIGNACIÓN --}}
+      <div class="seccion-card">
+        <div class="seccion-header">
+          <i class="bi bi-calendar3"></i>
+          Fecha de Asignación
+        </div>
+        <div class="seccion-body">
+          <label for="Fecha_Asignacion" class="fw-bold mb-2">Seleccione la fecha de asignación:</label>
+          <input 
+              type="date" 
+              id="Fecha_Asignacion" 
+              name="Fecha_Asignacion" 
+              class="form-control"
+              required
+          >
+          <small class="text-muted mt-2 d-inline-block">
+            * Este campo es obligatorio para aceptar o rechazar la solicitud.
+          </small>
+        </div>
+      </div>
+
       {{-- BOTONES FINALES --}}
       <div class="mt-4 text-center d-flex gap-3 justify-content-center">
         <button type="button" id="btn-aceptar" class="btn-aceptar">

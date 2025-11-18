@@ -14,9 +14,15 @@
 @include('partials.nav.registro')
 
 <div class="container-fluid my-0 p-0">
-  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    SOLICITUD DE REGISTRO DEL ALUMNO
-  </h4>
+  <!-- Header -->
+    <div class="detalle-header">
+        <div class="container">
+            <h4 class="text-center">
+                <i class="bi bi-file-earmark-text me-2"></i>
+                SOLICITUD DE REGISTRO DE ALUMNO
+            </h4>
+        </div>
+    </div>
 
   <form action="{{ route('solicitud.store') }}" method="POST" enctype="multipart/form-data" id="formulario_solicitud">
     @csrf
@@ -108,8 +114,8 @@
               </div>
 
               <div class="col-md-6">
-                <label class="form-label">Teléfono Local o Celular <span class="text-danger">*</span></label>
-                <input type="tel" name="telefono" class="form-control" placeholder="Ej: 4441234567" required>
+                <label class="form-label">Teléfono Celular</label>
+                <input type="tel" name="telefono" value="{{ $alumno['telefono_celular'] ?? '-' }}" readonly>
               </div>
             </div>
 
@@ -638,7 +644,7 @@
                     <label class="form-check-label" for="martes">Martes</label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="Mi" id="miercoles">
+                    <input class="form-check-input" type="checkbox" name="dias_asistencia[]" value="X" id="miercoles">
                     <label class="form-check-label" for="miercoles">Miércoles</label>
                   </div>
                   <div class="form-check form-check-inline">

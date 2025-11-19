@@ -340,9 +340,9 @@ class AdminController extends Controller
             );
         }
 
-        if ($request->fecha_fin) {
+        if ($request->fecha_termino) {
             $query->whereHas('estados', fn($q) =>
-                $q->whereDate('updated_at', '<=', $request->fecha_fin)
+                $q->whereDate('updated_at', '<=', $request->fecha_termino)
             );
         }
 

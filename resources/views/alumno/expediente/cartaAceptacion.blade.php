@@ -65,7 +65,7 @@
             <i class="bi bi-upload"></i> Subir documento emitido por la empresa
           </h6>
 
-          <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;" id="zonaSubida">
+          <div class="drop-zone" style="min-height: 180px;" id="zonaSubida">
             <div id="archivoInstrucciones">
               <div class="mb-2">
                 <i class="bi bi-cloud-upload display-6 text-muted"></i>
@@ -74,20 +74,21 @@
               <p class="small text-danger">Archivos de tamaño igual o menor a 20MB, únicamente archivos en PDF</p>
               <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
             </div>
+          </div>
 
           <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
-
-            <div id="archivoPreview" class="mt-3 d-none">
-              <div class="card border-primary shadow-sm">
-                <div class="card-body d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 class="mb-1" id="archivoNombre"></h6>
-                    <p class="mb-0 text-muted small" id="archivoTamaño"></p>
-                  </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
-                    <i class="bi bi-trash"></i> Eliminar
-                  </button>
+            
+          {{-- Vista previa del archivo seleccionado --}}
+          <div id="archivoPreview" class="mt-3 d-none">
+            <div class="card border-primary shadow-sm">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-1" id="archivoNombre"></h6>
+                  <p class="mb-0 text-muted small" id="archivoTamaño"></p>
                 </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
+                  <i class="bi bi-trash"></i> Eliminar
+                </button>
               </div>
             </div>
           </div>
@@ -125,12 +126,41 @@
     if (inputArchivo.files.length > 0) {
       const file = inputArchivo.files[0];
 
-      // Oculta instrucciones y muestra preview
       instrucciones.classList.add('d-none');
       preview.classList.remove('d-none');
       nombreArchivo.textContent = file.name;
       tamañoArchivo.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      zonaSubida.classList.add('d-none');
     }
+  });
+
+  // Cambiar estilo cuando se arrastra un archivo encima
+  zonaSubida.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zonaSubida.classList.add("dragover");
+  });
+
+  zonaSubida.addEventListener("dragleave", () => {
+    zonaSubida.classList.remove("dragover");
+  });
+
+  // Capturar archivo arrastrado
+  zonaSubida.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zonaSubida.classList.remove("dragover");
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    inputArchivo.files = dataTransfer.files;
+
+    instrucciones.classList.add('d-none');
+    preview.classList.remove('d-none');
+    nombreArchivo.textContent = file.name;
+    tamañoArchivo.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+    zonaSubida.classList.add('d-none');
   });
 
   // Eliminar archivo
@@ -138,20 +168,19 @@
     inputArchivo.value = "";
     preview.classList.add('d-none');
     instrucciones.classList.remove('d-none');
+    zonaSubida.classList.remove('d-none');
   });
 
   // Cancelar: limpia todo el formulario
   function resetFormulario() {
-  const form = document.getElementById('form-reporte');
-  form.reset();
+    const form = document.getElementById('form-reporte');
+    form.reset();
 
-  // Reset manual del input file
-  inputArchivo.value = "";
-
-  // Ocultar preview y mostrar instrucciones de nuevo
-  preview.classList.add('d-none');
-  instrucciones.classList.remove('d-none');
-}
+    inputArchivo.value = "";
+    preview.classList.add('d-none');
+    instrucciones.classList.remove('d-none');
+    zonaSubida.classList.remove('d-none');
+  }
 
 </script>
 @endpush

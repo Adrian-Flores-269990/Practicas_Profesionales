@@ -282,6 +282,7 @@ class PdfController extends Controller
         }
     }
 
+
     // -------------------------------------------------------
     // SUBIR DESGLOSE PERCEPCIONES
     // -------------------------------------------------------
@@ -325,7 +326,7 @@ class PdfController extends Controller
                                                     ->first();
 
             if (!$expediente) {
-                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
+                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
             }
                                                     
             $expediente->update([
@@ -443,8 +444,8 @@ class PdfController extends Controller
             'fechaInicial' => $solicitud->Fecha_Inicio
                 ? Carbon::parse($solicitud->Fecha_Inicio)->format('d/m/Y')
                 : '',
-            'fechaFinal' => $solicitud->Fecha_Fin
-                ? Carbon::parse($solicitud->Fecha_Fin)->format('d/m/Y')
+            'fechaFinal' => $solicitud->Fecha_Termino
+                ? Carbon::parse($solicitud->Fecha_Termino)->format('d/m/Y')
                 : '',
             'horarioEntrada' => $solicitud->Horario_Entrada ?? '',
             'horarioSalida' => $solicitud->Horario_Salida ?? '',

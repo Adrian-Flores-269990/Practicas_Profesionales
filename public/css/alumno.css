@@ -11,7 +11,7 @@
 
 
 /* ==============================
-   HEADER DE INICIO DEL ALUMNO
+  HEADER DE INICIO DEL ALUMNO
    ============================== */
 
 /* Tarjetas dentro de la home del alumno */
@@ -137,8 +137,11 @@
 
 
 
+
+
+
 /* ==============================
-   SOLICITUD Y REGISTRO DE ALUMNOS
+  SOLICITUD Y REGISTRO DE ALUMNOS
    ============================== */
   .form-label { 
     font-weight: 700; 
@@ -178,3 +181,33 @@
         margin: 0;
         font-size: 1.75rem;
     }
+
+
+
+
+
+
+  /* ===============================
+  ZONA DE DROP PARA SUBIR ARCHIVOS
+  =============================== */
+  .drop-zone {
+    border: 2px dashed #ccc;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    background-color: #fff;
+    position: relative;
+  }
+
+  .drop-zone.dragover {
+    background-color: #f0f8ff;
+    border-color: #3399ff;
+    box-shadow: 0 0 10px rgba(51, 153, 255, 0.5);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .disabled-drop {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+

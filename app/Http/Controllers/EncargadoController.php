@@ -241,14 +241,14 @@ class EncargadoController extends Controller
         $registros = Expediente::with('solicitud.alumno')
                                 ->whereNotNull('Solicitud_FPP02_Firmada')
                                 ->get();
- 
+
         $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
- 
+
         return view('encargado.registros_alumnos', compact('registros', 'carreras'));
     }
- 
-   
-   
+
+
+
     public function calificarRegistro(Request $request)
     {
         $request->validate([
@@ -256,21 +256,21 @@ class EncargadoController extends Controller
             'valor' => 'required|in:0,1',
             'claveAlumno' => 'nullable|string'
         ]);
- 
+
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
                                     ->where('Autorizacion', 1)
                                     ->first();
- 
+
         if (! $solicitud) {
             return abort(404, 'Solicitud no autorizada');
         }
- 
+
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
- 
+
         if ($expediente) {
             $idRegistro = $expediente->Id_Solicitud_FPP02;
             $registro = SolicitudFPP02::where('Id_Solicitud_FPP02', $idRegistro)->first();
- 
+
             if ($request->valor == 1) {
                 $registro->update([
                     'Autorizacion' => 1,
@@ -281,8 +281,11 @@ class EncargadoController extends Controller
                     'Autorizacion' => 0,
                 ]);
             }
+
+            $pdfController = new PDFController();
+            $pdfController->generarCartaPresentacion($request->claveAlumno, $expediente);
         }
- 
+
         return redirect()->route('encargado.registros')->with('success', 'Acción realizada correctamente');
     }
 

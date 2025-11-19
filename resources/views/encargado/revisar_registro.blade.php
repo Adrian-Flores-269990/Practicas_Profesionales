@@ -3,7 +3,7 @@
 
 @push('styles')
 <style>
-   .action-buttons {
+  .action-buttons {
     display: flex;
     gap: 1rem;
     justify-content: flex-end;

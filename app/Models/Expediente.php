@@ -22,6 +22,7 @@ class Expediente extends Model
         'Carta_Validacion',
         'Constancia',
         'Contador_Reportes',
+        'Carta_Presentacion',
     ];
 
     public function solicitud()

@@ -1,6 +1,6 @@
 @extends('layouts.alumno')
 
-@section('title','Carta de Aceptación')
+@section('title','Carta de Presentación')
 <link rel="stylesheet" href="{{ asset('css/alumno.css') }}?v={{ filemtime(public_path('css/alumno.css')) }}">
 
 @section('content')
@@ -12,7 +12,7 @@
         <div class="container">
             <h4 class="text-center">
                 <i class="bi bi-file-earmark-text me-2"></i>
-                CARTA DE ACEPTACIÓN
+                CARTA DE PRESENTACIÓN
             </h4>
         </div>
     </div>
@@ -41,28 +41,54 @@
       $claveAlumno = $alumno['Clave_Alumno'] ?? ($alumno['cve_uaslp'] ?? null);
     @endphp
 
-    @if($pdfPath)
+    {{-- Área de descarga de archivo --}}
+    <div class="mb-4 border rounded p-3 bg-light">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-download"></i> Descargar la carta de presentación
+      </h6>
+
+      <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;">
+        <div id="archivoDescarga">
+          <div class="mb-2">
+            <i class="bi bi-cloud-download display-6 text-muted"></i>
+          </div>
+
+          @if($pdfPath)
+            <p class="text-muted">Haz clic en el botón para descargar la carta de presentación</p>
+            <p class="small text-primary">Formato: PDF</p>
+            <a href="{{ asset($pdfPath) }}" class="btn btn-outline-primary btn-sm" download>
+              <i class="bi bi-file-earmark-arrow-down"></i> Descargar Carta Presentacion PDF
+            </a>
+          @else
+            <p class="text-muted mb-0">No hay recibo disponible.</p>
+          @endif
+        </div>
+      </div>
+    </div>
+
+    @if($pdfPath && $pdfPathFirmada)
       <div class="mb-4">
         <h6 class="fw-bold">Documento subido:</h6>
-        <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
+        <iframe src="{{ asset($pdfPathFirmada) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
         <div class="d-flex gap-2 mt-2">
-          <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
-          <form method="POST" action="{{ route('cartaAceptacion.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Aceptacion']) }}" style="display:inline;">
+          <a href="{{ asset($pdfPathFirmada) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
+          <form method="POST" action="{{ route('cartaPresentacion.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Presentacion_Firmada']) }}" style="display:inline;">
             @csrf
-            <input type="hidden" name="archivo" value="{{ $pdfPath }}">
+            <input type="hidden" name="archivo" value="{{ $pdfPathFirmada }}">
             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento actual?')">
               <i class="bi bi-trash"></i> Eliminar PDF
             </button>
           </form>
         </div>
       </div>
-    @else
-      <form method="POST" action="{{ route('cartaAceptacion.upload') }}" enctype="multipart/form-data" id="form-reporte">
+    @endif
+    @if($pdfPath && !$pdfPathFirmada)
+      <form method="POST" action="{{ route('cartaPresentacion.upload') }}" enctype="multipart/form-data" id="form-reporte">
         @csrf
         {{-- Área de envío de archivo --}}
         <div class="mb-4 border rounded p-3 bg-light">
           <h6 class="fw-bold mb-3">
-            <i class="bi bi-upload"></i> Subir documento emitido por la empresa
+            <i class="bi bi-upload"></i> Subir carta de presentación firmada por la empresa
           </h6>
 
           <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;" id="zonaSubida">
@@ -93,7 +119,7 @@
           </div>
         </div>
 
-      {{-- Botones --}}
+        {{-- Botones --}}
         <div class="d-flex justify-content-end gap-2">
           <button type="button" class="btn btn-secondary">Guardar cambios</button>
           <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
@@ -101,6 +127,7 @@
         </div>
       </form>
     @endif
+
   </div>
 </div>
 

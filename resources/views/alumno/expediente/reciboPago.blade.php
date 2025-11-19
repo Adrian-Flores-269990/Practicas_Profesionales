@@ -48,8 +48,8 @@
               <p class="text-muted">Haz clic en el botón para descargar tu recibo</p>
               <p class="small text-primary">Formato: PDF</p>
             <a href="{{ route('alumno.expediente.reciboPago.descargar') }}"
-               class="btn btn-outline-primary btn-sm">
-               Descargar Recibo PDF
+              class="btn btn-outline-primary btn-sm">
+              Descargar Recibo PDF
             </a>
           @else
             <p class="text-muted mb-0">No hay recibo disponible.</p>

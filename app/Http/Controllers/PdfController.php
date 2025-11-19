@@ -10,13 +10,50 @@ use App\Models\EstadoProceso;
 use App\Models\SolicitudFPP01;
 use App\Models\SolicitudFPP02;
 use App\Models\Expediente;
+use App\Models\Area;
 use App\Models\AsesorExterno; // Asegurado de que esté presente para el FPP02
 use App\Models\Alumno;
 use Carbon\Carbon; // Asegurado de que esté presente para el FPP02
 
 class PdfController extends Controller
 {
-    
+    // -------------------------------------------------------
+    // GENERAR CARTA PRESENTACIÓN (Genera la Carta de Presentación)
+    // -------------------------------------------------------
+    public function generarCartaPresentacion($claveAlumno, $expediente)
+    {
+        Carbon::setLocale('es');
+        $fechaHoy = Carbon::now()->translatedFormat('j \d\e F \d\e Y');
+        $anio = Carbon::now()->format('Y');
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                    ->where('Autorizacion', '1')
+                                    ->first();
+        $alumno = Alumno::where('Clave_Alumno', $claveAlumno)
+                                    ->first();
+        $area = Area::where('Id_Area', $alumno['Clave_Area'])
+                                    ->first();
+        $asesor = AsesorExterno::where('Id_Asesor_Externo', $solicitud['Datos_Asesor_Externo'])
+                                    ->first();
+        $fechaInicio = Carbon::createFromFormat('Y-m-d', $solicitud['Fecha_Inicio'])->translatedFormat('j \d\e F \d\e Y');
+        $fechaTermino = Carbon::createFromFormat('Y-m-d', $solicitud['Fecha_Termino'])->translatedFormat('j \d\e F \d\e Y');
+
+        $pdf = Pdf::loadView('pdf.cartaPresentacion', compact('solicitud', 'alumno', 'area', 'asesor', 'fechaHoy', 'anio', 'fechaInicio', 'fechaTermino'))
+            ->setPaper('letter');
+        $tipoDoc = 'Carta_Presentacion';
+        $nombreArchivo = $claveAlumno . '_carta_presentacion_' . time() . '.pdf';
+        $rutaCarpeta = 'expedientes/' . $tipoDoc;
+        if (!Storage::disk('public')->exists($rutaCarpeta)) {
+            Storage::disk('public')->makeDirectory($rutaCarpeta);
+        }
+        $pdf->save(storage_path('app/public/' . $rutaCarpeta . '/' . $nombreArchivo));
+
+        $expediente -> update([
+            'Carta_Presentacion' => $nombreArchivo,
+        ]);
+    }
+
+
+
     // -------------------------------------------------------
     // MOSTRAR DOCUMENTO (Visualiza PDFs del expediente)
     // -------------------------------------------------------
@@ -43,6 +80,19 @@ class PdfController extends Controller
         }
 
         // Siempre retorna la vista con pdfPath (puede ser null)
+        if ($tipo === 'Carta_Presentacion') {
+            $pdfPathFirmada = null;
+            $tipoFirmada = $tipo . '_Firmada';
+            if ($expediente && isset($expediente[$tipoFirmada])) {
+                $rutaRelativa = "expedientes/{$tipoFirmada}/" . $expediente[$tipoFirmada];
+
+                if (Storage::disk('public')->exists($rutaRelativa)) {
+                    $pdfPathFirmada = asset('storage/' . $rutaRelativa);
+                }
+            }
+            return view('alumno.expediente.cartaPresentacion', compact('pdfPath', 'pdfPathFirmada'));
+            
+        }
         if ($tipo === 'Carta_Aceptacion') {
             return view('alumno.expediente.cartaAceptacion', compact('pdfPath'));
         }
@@ -113,6 +163,66 @@ class PdfController extends Controller
     }
 
     // -------------------------------------------------------
+    // SUBIR CARTA PRESENTACIÓN
+    // -------------------------------------------------------
+    public function subirCartaPresentacion(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
+        ]);
+
+        $file = $request->file('archivo');
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+        $tipoDoc = 'Carta_Presentacion_Firmada';
+        $nombreArchivo = $claveAlumno . '_carta_presentacion_firmada_' . time() . '.' . $file->getClientOriginalExtension();
+        $rutaCarpeta = 'expedientes/' . $tipoDoc;
+        $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
+
+        // Asegurarse de que el directorio existe en el disco public
+        if (!Storage::disk('public')->exists($rutaCarpeta)) {
+            Storage::disk('public')->makeDirectory($rutaCarpeta);
+        }
+
+        $saved = Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
+
+        // Log para depuración
+        Log::info('Intento de guardar archivo (public disk)', [
+            'nombreArchivo' => $nombreArchivo,
+            'ruta' => $rutaCompleta,
+            'saved' => $saved,
+            'full_path' => storage_path('app/public/' . $rutaCompleta),
+        ]);
+
+        if ($saved) {
+
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                                    ->where('Autorizacion', 1)
+                                                    ->first();
+            
+            if (!$solicitud) {
+                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
+            }
+            
+            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
+                                                    ->first();
+            
+            if (!$expediente) {
+                 // Debería existir si la solicitud fue autorizada, pero por seguridad
+                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
+            }
+            
+            $expediente->update([
+                $tipoDoc => $nombreArchivo,
+            ]);
+
+            return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
+        } else {
+            return back()->withErrors(['No se pudo guardar el archivo.']);
+        }
+    }
+
+    // -------------------------------------------------------
     // SUBIR CARTA ACEPTACION
     // -------------------------------------------------------
     public function subirCartaAceptacion(Request $request)
@@ -151,7 +261,7 @@ class PdfController extends Controller
                                                     ->first();
             
             if (!$solicitud) {
-                 return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
+                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
             }
             
             $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
@@ -159,7 +269,7 @@ class PdfController extends Controller
             
             if (!$expediente) {
                  // Debería existir si la solicitud fue autorizada, pero por seguridad
-                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
+                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
             }
             
             $expediente->update([
@@ -238,31 +348,31 @@ class PdfController extends Controller
             'num_meses' => 'required|numeric|min:1',
             'total_horas' => 'required|numeric|min:1',
         ]);
- 
+
         $alumnoSesion = session('alumno');
         $claveAlumno = $alumnoSesion['cve_uaslp'] ?? null;
- 
+
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                                     ->where('Autorizacion', 1)
                                     ->first();
-       
+
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
-       
+
         $idRegistro = $expediente->Id_Solicitud_FPP02;
- 
+
         $registro = SolicitudFPP02::where('Id_Solicitud_FPP02', $idRegistro)->first();
-       
+
         $ss = $request->ss === 'si' ? 1 : 0;
         $registro->update([
             'Servicio_Social' => $ss,
             'Num_Meses' => $request->num_meses,
             'Total_Horas' => $request->total_horas,
         ]);
-       
+
         if (!$claveAlumno) {
             return back()->withErrors(['No se encontró la sesión del alumno.']);
         }
- 
+
         // Obtener solicitud con todas las relaciones
         $solicitud = SolicitudFPP01::with([
             'alumno',
@@ -274,11 +384,11 @@ class PdfController extends Controller
         ->where('Clave_Alumno', $claveAlumno)
         ->latest('Id_Solicitud_FPP01')
         ->first();
- 
+
         if (!$solicitud) {
             return back()->withErrors(['No se encontró la información de la solicitud.']);
         }
- 
+
         // Obtener datos de dependencia y sector
         $dependencia = $solicitud->dependenciaMercadoSolicitud;
         $empresa = optional($dependencia)->dependenciaEmpresa;
@@ -287,16 +397,16 @@ class PdfController extends Controller
             : ($dependencia?->Id_Publico
                 ? $dependencia->sectorPublico
                 : $dependencia?->sectorUaslp);
- 
+
         // ⭐ OBTENER ASESOR EXTERNO SI EXISTE
         $asesorExterno = null;
         if ($solicitud->Clave_Asesor_Externo) {
             $asesorExterno = AsesorExterno::find($solicitud->Clave_Asesor_Externo);
         }
- 
+
         // Preparar datos para el PDF con formato oficial
         $alumnoData = $solicitud->alumno;
-       
+
         $data = [
             // Datos del alumno
             'nombreCompleto' => trim(
@@ -306,17 +416,17 @@ class PdfController extends Controller
             ),
             'claveUnica' => $alumnoData->Clave_Alumno ?? '',
             'carrera' => $alumnoData->Carrera ?? '',
-           
+
             // Datos de la empresa
             'razonSocial' => $empresa->Nombre_Depn_Emp ?? ($sector->Nombre_Depn_Emp ?? ''),
             'direccionEmpresa' => $this->formatearDireccion($empresa, $sector),
             'rfc' => $empresa->RFC_Empresa ?? '',
             'telefono' => $empresa->Telefono ?? ($sector->Telefono ?? ''),
-           
+
             // Datos del proyecto
             'areaDepartamento' => $sector->Area_Depto ?? ($empresa->Area_Depto ?? ''),
             'nombreProyecto' => $solicitud->Nombre_Proyecto ?? '',
-           
+
             // ⭐ DATOS DEL ASESOR EXTERNO (desde la tabla asesor_externo)
             'nombreAsesor' => $asesorExterno
                 ? trim(
@@ -328,7 +438,7 @@ class PdfController extends Controller
             'cargoAsesor' => $asesorExterno->Puesto ?? '',
             'telefonoAsesor' => $asesorExterno->Telefono ?? '',
             'emailAsesor' => $asesorExterno->Correo ?? '',
-           
+
             // Fechas y horarios
             'fechaInicial' => $solicitud->Fecha_Inicio
                 ? Carbon::parse($solicitud->Fecha_Inicio)->format('d/m/Y')
@@ -338,39 +448,39 @@ class PdfController extends Controller
                 : '',
             'horarioEntrada' => $solicitud->Horario_Entrada ?? '',
             'horarioSalida' => $solicitud->Horario_Salida ?? '',
-           
+
             // Fecha de generación
             'fechaGeneracion' => now()->format('d/m/Y'),
-           
+
             // Pasar objetos completos para uso en la vista (por si acaso)
             'alumno' => $alumnoData,
             'solicitud' => $solicitud,
             'empresa' => $empresa,
             'sector' => $sector,
         ];
- 
+
         // Generar PDF con el formato oficial FPP02
         $pdf = Pdf::loadView('pdf.fpp02', $data)
             ->setPaper('letter', 'portrait');
- 
+
         $nombreArchivo = 'FPP02_' . $claveAlumno . '_' . time() . '.pdf';
         $rutaCarpeta = 'expedientes/fpp02';
         $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
- 
+
         // Crear carpeta si no existe
         if (!Storage::disk('public')->exists($rutaCarpeta)) {
             Storage::disk('public')->makeDirectory($rutaCarpeta);
         }
- 
+
         // Guardar PDF en storage
         Storage::disk('public')->put($rutaCompleta, $pdf->output());
- 
+
         // ACTUALIZAR SEMÁFORO (Usando la función actualizarSemaforo, no marcarEtapa)
         $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
- 
+
         // Guardar sesión
         session(['fpp02_impreso_' . $claveAlumno => true]);
- 
+
         // Descargar PDF
         return $pdf->download('Formato_FPP02.pdf');
     }
@@ -430,14 +540,14 @@ class PdfController extends Controller
                                                     ->first();
             
             if (!$solicitud) {
-                 return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
+                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
             }
             
             $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
                                                     ->first();
 
             if (!$expediente) {
-                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
+                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
             }
                                                     
             $expediente->update([

@@ -27,6 +27,11 @@ class Expediente extends Model
 
     public function solicitud()
     {
-        return $this->belongsTo(\App\Models\SolicitudFPP01::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+        return $this->belongsTo(SolicitudFPP01::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+    }
+
+    public function registro()
+    {
+        return $this->belongsTo(SolicitudFPP02::class, 'Id_Solicitud_FPP02', 'Id_Solicitud_FPP02');
     }
 }

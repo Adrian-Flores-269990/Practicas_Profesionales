@@ -392,13 +392,13 @@ class EncargadoController extends Controller
 
     public function verRegistros()
     {
-        $registros = Expediente::with('solicitud.alumno')
+        $expedientes = Expediente::with('solicitud.alumno', 'registro')
                                 ->whereNotNull('Solicitud_FPP02_Firmada')
                                 ->get();
 
         $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
 
-        return view('encargado.registros_alumnos', compact('registros', 'carreras'));
+        return view('encargado.registros_alumnos', compact('expedientes', 'carreras'));
     }
 
 

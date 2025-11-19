@@ -269,39 +269,39 @@
     </div>
 
     {{-- Lista de registros --}}
-    @forelse ($registros->reverse() as $registro)
+    @forelse ($expedientes->reverse() as $expediente)
       <div class="solicitud-card"
-      data-estado="{{ is_null($registro->Autorizacion) ? 'pendiente' : ($registro->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
-      data-fecha="{{ $registro->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($registro->solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
+      data-estado="{{ is_null($expediente->registro->Autorizacion) ? 'pendiente' : ($expediente->registro->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
+      data-fecha="{{ $expediente->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
 
         <div class="solicitud-header">
           <div class="alumno-info">
             <div class="alumno-nombre">
               <i class="bi bi-person-circle me-2"></i>
-              {{ $registro->solicitud->alumno->Nombre ?? '—' }}
-              {{ $registro->solicitud->alumno->ApellidoP_Alumno ?? '' }}
-              {{ $registro->solicitud->alumno->ApellidoM_Alumno ?? '' }}
+              {{ $expediente->solicitud->alumno->Nombre ?? '—' }}
+              {{ $expediente->solicitud->alumno->ApellidoP_Alumno ?? '' }}
+              {{ $expediente->solicitud->alumno->ApellidoM_Alumno ?? '' }}
             </div>
             <div class="alumno-clave">
-              Clave: {{ $registro->solicitud->Clave_Alumno }} |
-              {{ $registro->solicitud->alumno->Carrera ?? '—' }}
+              Clave: {{ $expediente->solicitud->Clave_Alumno }} |
+              {{ $expediente->solicitud->alumno->Carrera ?? '—' }}
             </div>
           </div>
 
-        @if (is_null($registro->solicitud->Autorizacion))
+        @if (is_null($expediente->registro->Autorizacion))
             <span class="status-badge status-pendiente">
                 <i class="bi bi-clock-fill"></i>
                 Pendiente
             </span>
-        @elseif ($registro->solicitud->Autorizacion === 1)
+        @elseif ($expediente->registro->Autorizacion === 1)
             <span class="status-badge status-aprobada">
                 <i class="bi bi-check-circle-fill"></i>
-                Aprobada
+                Aprobado
             </span>
         @else
             <span class="status-badge status-rechazada">
                 <i class="bi bi-x-circle-fill"></i>
-                Rechazada
+                Rechazado
             </span>
         @endif
         </div>
@@ -309,33 +309,33 @@
         <div class="solicitud-details">
           <div class="detail-item">
             <span class="detail-label">Materia</span>
-            <span class="detail-value">{{ $registro->solicitud->alumno->Clave_Materia ?? '—' }}</span>
+            <span class="detail-value">{{ $expediente->solicitud->alumno->Clave_Materia ?? '—' }}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Fecha de Solicitud</span>
             <span class="detail-value">
-              {{ $registro->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($registro->solicitud->Fecha_Solicitud)->format('d/m/Y') : '—' }}
+              {{ $expediente->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Solicitud)->format('d/m/Y') : '—' }}
             </span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Periodo</span>
             <span class="detail-value">
-              {{ $registro->solicitud->Fecha_Inicio ? \Carbon\Carbon::parse($registro->solicitud->Fecha_Inicio)->format('d/m/Y') : '—' }}
+              {{ $expediente->solicitud->Fecha_Inicio ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Inicio)->format('d/m/Y') : '—' }}
               -
-              {{ $registro->solicitud->Fecha_Termino ? \Carbon\Carbon::parse($registro->solicitud->Fecha_Termino)->format('d/m/Y') : '—' }}
+              {{ $expediente->solicitud->Fecha_Termino ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Termino)->format('d/m/Y') : '—' }}
             </span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Créditos</span>
-            <span class="detail-value">{{ $registro->solicitud->Numero_Creditos ?? '—' }}</span>
+            <span class="detail-value">{{ $expediente->solicitud->Numero_Creditos ?? '—' }}</span>
           </div>
         </div>
 
         <div class="action-buttons">
           <a href="{{ route('encargado.verRegistro', [
-              'claveAlumno' => $registro->solicitud->Clave_Alumno,
+              'claveAlumno' => $expediente->solicitud->Clave_Alumno,
               'tipo' => 'Solicitud_FPP02_Firmada',
-              'documento' => $registro->Solicitud_FPP02_Firmada
+              'documento' => $expediente->Solicitud_FPP02_Firmada
           ]) }}" class="btn btn-action btn-ver">
             <i class="bi bi-eye me-1"></i>
             Ver Registro Completo

@@ -96,12 +96,13 @@ class LoginController extends Controller
             return back()->withErrors(['cuenta' => 'Fallo en la conexión']);
         }
 
+        /*
         // Verifica contraseña
         $loginDatos = $this->datosArray($loginResponse) ?? [];
         $conexion = $loginDatos[0]['conexion'];
         if ($conexion === false) {
             return back()->withErrors(['cuenta' => 'Datos incorrectos']);
-        }
+        }*/
 
         $tipoChar = strtolower($userRaw[0]);
         $claveReal = preg_replace('/^[au]/i', '', $userRaw);

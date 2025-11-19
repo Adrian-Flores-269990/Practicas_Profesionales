@@ -54,12 +54,12 @@ class SolicitudFPP01 extends Model
 
     public function autorizacion()
     {
-        return $this->hasOne(\App\Models\AutorizacionSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+        return $this->hasOne(AutorizacionSolicitud::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
     }
 
     public function alumno()
     {
-        return $this->belongsTo(\App\Models\Alumno::class, 'Clave_Alumno', 'Clave_Alumno');
+        return $this->belongsTo(Alumno::class, 'Clave_Alumno', 'Clave_Alumno');
     }
 
     public function dependenciaEmpresas()

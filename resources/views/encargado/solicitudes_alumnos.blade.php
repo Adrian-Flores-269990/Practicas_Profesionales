@@ -241,18 +241,18 @@
           <select class="form-select" id="filterEstado">
             <option value="">Todos los estados</option>
             <option value="pendiente">Pendientes</option>
-            <option value="aprobada">Aprobadas</option>
-            <option value="rechazada">Rechazadas</option>
-        </select>
+            <option value="aprobada">Aprobados</option>
+            <option value="rechazada">Rechazados</option>
+          </select>
         </div>
 
         <div class="col-md-4">
           <select class="form-select" id="filterCarrera">
             <option value="">Todas las carreras</option>
             @foreach($carreras as $carrera)
-            <option value="{{ $carrera->Descripcion_Mayúsculas }}">
+              <option value="{{ $carrera->Descripcion_Mayúsculas }}">
                 {{ $carrera->Descripcion_Mayúsculas }}
-            </option>
+              </option>
             @endforeach
           </select>
         </div>
@@ -272,8 +272,8 @@
     {{-- Lista de solicitudes --}}
     @forelse ($solicitudes->reverse() as $solicitud)
       <div class="solicitud-card"
-     data-estado="{{ is_null($solicitud->Autorizacion) ? 'pendiente' : ($solicitud->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
-     data-fecha="{{ $solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
+        data-estado="{{ is_null($solicitud->Autorizacion) ? 'pendiente' : ($solicitud->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
+        data-fecha="{{ $solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
 
         <div class="solicitud-header">
           <div class="alumno-info">
@@ -289,22 +289,22 @@
             </div>
           </div>
 
-        @if (is_null($solicitud->Autorizacion))
+          @if (is_null($solicitud->Autorizacion))
             <span class="status-badge status-pendiente">
                 <i class="bi bi-clock-fill"></i>
                 Pendiente
             </span>
-        @elseif ($solicitud->Autorizacion === 1)
+          @elseif ($solicitud->Autorizacion === 1)
             <span class="status-badge status-aprobada">
                 <i class="bi bi-check-circle-fill"></i>
                 Aprobada
             </span>
-        @else
+          @else
             <span class="status-badge status-rechazada">
                 <i class="bi bi-x-circle-fill"></i>
                 Rechazada
             </span>
-        @endif
+          @endif
         </div>
 
         <div class="solicitud-details">

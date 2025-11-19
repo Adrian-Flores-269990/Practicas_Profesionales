@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="container-fluid my-0 p-0">
-  <!-- Header -->
+    <!-- Header -->
     <div class="detalle-header">
         <div class="container">
             <h4 class="text-center">

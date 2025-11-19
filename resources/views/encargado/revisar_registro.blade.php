@@ -50,7 +50,7 @@
 <div class="container-fluid my-0 p-0">
 
     <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-      PRUEBAAAAAAAA
+      REVISIÓN DE REGISTRO DE PRÁCTICAS PROFESIONALES
     </h4>
 
     <div class="bg-white p-4 rounded shadow-sm w-100">

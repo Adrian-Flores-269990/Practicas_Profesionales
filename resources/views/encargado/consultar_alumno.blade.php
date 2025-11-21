@@ -284,7 +284,7 @@
                     <div class="info-value">{{ $alumno['correo'] ?? 'N/A' }}</div>
                   </div>
                 </div>
-                 @if(!empty($alumno['solicitud_fpp01']))
+                @if(!empty($alumno['solicitud_fpp01']))
                   <hr class="my-4">
                   <div class="row g-3">
                     <div class="col-12">

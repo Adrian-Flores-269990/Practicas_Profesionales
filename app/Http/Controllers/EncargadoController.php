@@ -390,6 +390,9 @@ class EncargadoController extends Controller
             ->with('success', 'Revisión guardada correctamente.');
     }
 
+    // --------------------------------------
+    // Para ver los registros de los alumnos
+    // --------------------------------------
     public function verRegistros()
     {
         $expedientes = Expediente::with('solicitud.alumno', 'registro')
@@ -402,7 +405,9 @@ class EncargadoController extends Controller
     }
 
 
-
+    // --------------------------------------------
+    // Para calificar los registros de los alumnos
+    // --------------------------------------------
     public function calificarRegistro(Request $request)
     {
         $request->validate([
@@ -441,6 +446,110 @@ class EncargadoController extends Controller
         }
 
         return redirect()->route('encargado.registros')->with('success', 'Acción realizada correctamente');
+    }
+
+    // ---------------------------------------------------
+    // Para ver las cartas de presentación de los alumnos
+    // ---------------------------------------------------
+    public function verPresentacion()
+    {
+        $expedientes = Expediente::with('solicitud.alumno', 'registro')
+                                ->whereNotNull('Carta_Presentacion')
+                                ->get();
+
+        $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
+
+        return view('encargado.presentacion_alumnos', compact('expedientes', 'carreras'));
+    }
+
+    // ---------------------------------------------------------
+    // Para calificar las cartas de presentación de los alumnos
+    // ---------------------------------------------------------
+    public function calificarPresentacion(Request $request)
+    {
+        $request->validate([
+            'seccion' => 'required|string',
+            'valor' => 'required|in:0,1',
+            'claveAlumno' => 'nullable|string'
+        ]);
+
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+
+        if (! $solicitud) {
+            return abort(404, 'Solicitud no autorizada');
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if ($expediente) {
+
+            if ($request->valor == 1) {
+                $expediente->update([
+                    'Autorizacion_Presentacion' => 1,
+                    'Fecha_Autorizacion_Presentacion' => Carbon::now(),
+                ]);
+            } else {
+                $expediente->update([
+                    'Autorizacion_Presentacion' => 0,
+                ]);
+            }
+        }
+
+        return redirect()->route('encargado.cartasPresentacion')->with('success', 'Acción realizada correctamente');
+    }
+
+    // -------------------------------------------------
+    // Para ver las cartas de aceptación de los alumnos
+    // -------------------------------------------------
+    public function verAceptacion()
+    {
+        $expedientes = Expediente::with('solicitud.alumno', 'registro')
+                                ->whereNotNull('Carta_Aceptacion')
+                                ->get();
+
+        $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
+
+        return view('encargado.aceptacion_alumnos', compact('expedientes', 'carreras'));
+    }
+
+    // -------------------------------------------------------
+    // Para calificar las cartas de aceptación de los alumnos
+    // -------------------------------------------------------
+    public function calificarAceptacion(Request $request)
+    {
+        $request->validate([
+            'seccion' => 'required|string',
+            'valor' => 'required|in:0,1',
+            'claveAlumno' => 'nullable|string'
+        ]);
+
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
+                                    ->where('Autorizacion', 1)
+                                    ->first();
+
+        if (! $solicitud) {
+            return abort(404, 'Solicitud no autorizada');
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if ($expediente) {
+
+            if ($request->valor == 1) {
+                $expediente->update([
+                    'Autorizacion_Aceptacion' => 1,
+                    'Fecha_Autorizacion_Aceptacion' => Carbon::now(),
+                ]);
+            } else {
+                $expediente->update([
+                    'Autorizacion_Aceptacion' => 0,
+                ]);
+            }
+        }
+
+        return redirect()->route('encargado.cartasAceptacion')->with('success', 'Acción realizada correctamente');
     }
 
 }

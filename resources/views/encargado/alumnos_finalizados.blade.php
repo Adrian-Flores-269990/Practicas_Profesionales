@@ -261,7 +261,7 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                         style="width: 35px; height: 35px; font-weight: 600;">
+                        style="width: 35px; height: 35px; font-weight: 600;">
                       {{ strtoupper(substr($alumno['nombre'], 0, 1)) }}
                     </div>
                     <div>

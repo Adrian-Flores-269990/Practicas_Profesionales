@@ -219,7 +219,7 @@
 
 <div class="container-fluid my-0 p-0">
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-    REGISTROS DE PRÁCTICAS PROFESIONALES
+    CARTAS DE ACEPTACIÓN DE PRÁCTICAS PROFESIONALES
   </h4>
 
   <div class="p-4">
@@ -272,7 +272,7 @@
     {{-- Lista de registros --}}
     @forelse ($expedientes->reverse() as $expediente)
       <div class="solicitud-card"
-      data-estado="{{ is_null($expediente->registro->Autorizacion) ? 'pendiente' : ($expediente->registro->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
+      data-estado="{{ is_null($expediente->Autorizacion_Aceptacion) ? 'pendiente' : ($expediente->Autorizacion_Aceptacion === 1 ? 'aprobada' : 'rechazada') }}"
       data-fecha="{{ $expediente->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
 
         <div class="solicitud-header">
@@ -289,12 +289,12 @@
             </div>
           </div>
 
-        @if (is_null($expediente->registro->Autorizacion))
+        @if (is_null($expediente->Autorizacion_Aceptacion))
             <span class="status-badge status-pendiente">
                 <i class="bi bi-clock-fill"></i>
                 Pendiente
             </span>
-        @elseif ($expediente->registro->Autorizacion === 1)
+        @elseif ($expediente->Autorizacion_Aceptacion === 1)
             <span class="status-badge status-aprobada">
                 <i class="bi bi-check-circle-fill"></i>
                 Aprobado
@@ -333,10 +333,10 @@
         </div>
 
         <div class="action-buttons">
-          <a href="{{ route('encargado.verRegistro', [
+          <a href="{{ route('encargado.verCartaAceptacion', [
               'claveAlumno' => $expediente->solicitud->Clave_Alumno,
-              'tipo' => 'Solicitud_FPP02_Firmada',
-              'documento' => $expediente->Solicitud_FPP02_Firmada
+              'tipo' => 'Carta_Aceptacion',
+              'documento' => $expediente->Carta_Aceptacion
           ]) }}" class="btn btn-action btn-ver">
             <i class="bi bi-eye me-1"></i>
             Ver Registro Completo

@@ -13,7 +13,7 @@
     }
 
     $horario = $solicitud->Horario_Mat_Ves === 'M' ? 'Matutino' :
-               ($solicitud->Horario_Mat_Ves === 'V' ? 'Vespertino' : 'No especificado');
+              ($solicitud->Horario_Mat_Ves === 'V' ? 'Vespertino' : 'No especificado');
 
     $rel = $solicitud->dependenciaMercadoSolicitud;
     $empresa = $rel ? $rel->dependenciaEmpresa : null;

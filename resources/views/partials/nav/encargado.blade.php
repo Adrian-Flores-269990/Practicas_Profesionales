@@ -14,6 +14,8 @@
           <li><a class="dropdown-item" href="{{ route('encargado.consultar_alumno') }}">Consultar Alumno</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.solicitudes_alumnos') }}">Solicitudes Pendientes</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.registros') }}">Registros Pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.cartasPresentacion') }}">Cartas de Presentación</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.cartasAceptacion') }}">Cartas de Aceptación</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en Proceso de Prácticas</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.alumnos_finalizados') }}">Alumnos que terminaron de Prácticas</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de Empresas</a></li>

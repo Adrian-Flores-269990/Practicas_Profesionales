@@ -180,8 +180,18 @@ Route::prefix('encargado')->group(function () {
 
     //Registros
     Route::get('/registros', [EncargadoController::class, 'verRegistros'])->name('encargado.registros');
-    Route::get('/registros/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verRegistro');
+    Route::get('/registro/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verRegistro');
     Route::post('/accion_registro', [EncargadoController::class, 'calificarRegistro'])->name('encargado.calificarRegistro');
+
+    //Carta de Presentación
+    Route::get('/cartas_presentacion', [EncargadoController::class, 'verPresentacion'])->name('encargado.cartasPresentacion');
+    Route::get('/carta_presentacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaPresentacion');
+    Route::post('/accion_carta_presentacion', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
+
+    //Carta de Aceptación
+    Route::get('/cartas_aceptacion', [EncargadoController::class, 'verAceptacion'])->name('encargado.cartasAceptacion');
+    Route::get('/carta_aceptacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaAceptacion');
+    Route::post('/accion_carta_aceptacion', [EncargadoController::class, 'calificarAceptacion'])->name('encargado.calificarCartaAceptacion');
 
 });
 

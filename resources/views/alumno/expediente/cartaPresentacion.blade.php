@@ -34,7 +34,13 @@
         </ul>
       </div>
     @endif
-  
+
+    @if(!$pdfPath)
+      <div class="alert alert-warning mb-3">
+        Aún no existe un registro aprobado. Sube primero tu <strong>Registro de Solicitud</strong> firmado o espera su autorización.
+      </div>
+    @endif
+
     {{-- Mostrar PDF subido si existe --}}
     @php
       $alumno = session('alumno');
@@ -81,7 +87,7 @@
           </form>
         </div>
       </div>
-    @endif
+    @endif 
     @if($pdfPath && !$pdfPathFirmada)
       <form method="POST" action="{{ route('cartaPresentacion.upload') }}" enctype="multipart/form-data" id="form-reporte">
         @csrf

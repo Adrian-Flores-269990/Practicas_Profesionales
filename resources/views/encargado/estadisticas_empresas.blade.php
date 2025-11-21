@@ -3,30 +3,30 @@
 
 @section('content')
     <nav class="navbar" style="background-color: #000066;">
-      <div class="container-fluid justify-content-center">
+    <div class="container-fluid justify-content-center">
         <span class="navbar-text text-white mx-auto" style="font-weight: 500;">
-          Estadísticas de empresas con las que se tienen convenios para prácticas profesionales
+        Estadísticas de empresas con las que se tienen convenios para prácticas profesionales
         </span>
-      </div>
+    </div>
     </nav>
 
     <div class="container mt-4">
-      <div class="row mb-3">
+    <div class="row mb-3">
         <div class="col-md-6">
-          <label for="empresaDropdown" class="form-label fw-bold">Nombre de la empresa</label>
-          <select class="form-select" id="empresaDropdown">
+        <label for="empresaDropdown" class="form-label fw-bold">Nombre de la empresa</label>
+        <select class="form-select" id="empresaDropdown">
             <option selected disabled>Selecciona la empresa</option>
             <option value="ABB MÉXICO S.A. DE C.V.E">ABB MÉXICO S.A. DE C.V.E</option>
         </select>
         </div>
         <div class="col-md-6">
-          <label for="versionDropdown" class="form-label fw-bold">Versión</label>
-          <select class="form-select" id="versionDropdown">
+        <label for="versionDropdown" class="form-label fw-bold">Versión</label>
+        <select class="form-select" id="versionDropdown">
             <option selected disabled>Selecciona versión de cuestionario</option>
             <option value="Versión 1.1 2024-2025">Versión 1.1 2024-2025</option>
         </select>
         </div>
-      </div>
+    </div>
     </div>
     <!-- CONTENEDOR DE GRÁFICA + PREGUNTAS LATERALES -->
     <div id="statsContainer" class="container mb-5" style="display: none;">

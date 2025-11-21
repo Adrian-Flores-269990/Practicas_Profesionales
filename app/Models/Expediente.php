@@ -22,7 +22,12 @@ class Expediente extends Model
         'Carta_Validacion',
         'Constancia',
         'Contador_Reportes',
+        // Agregados por Marián Sánchez
         'Carta_Presentacion',
+        'Autorizacion_Presentacion',
+        'Autorizacion_Aceptacion',
+        'Fecha_Autorizacion_Presentacion',
+        'Fecha_Autorizacion_Aceptacion',
     ];
 
     public function solicitud()

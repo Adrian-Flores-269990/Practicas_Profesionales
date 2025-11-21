@@ -125,6 +125,12 @@ class PdfController extends Controller
         if ($tipo === 'Solicitud_FPP02_Firmada') {
             return view('encargado.revisar_registro', compact('pdfPath', 'claveAlumno'));
         }
+        if ($tipo === 'Carta_Presentacion_Firmada') {
+            return view('encargado.revisar_presentacion', compact('pdfPath', 'claveAlumno'));
+        }
+        if ($tipo === 'Carta_Aceptacion') {
+            return view('encargado.revisar_aceptacion', compact('pdfPath', 'claveAlumno'));
+        }
 
         return abort(404, 'Tipo de documento no válido');
     }

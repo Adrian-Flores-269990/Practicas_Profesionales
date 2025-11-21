@@ -18,6 +18,7 @@ class RequisitoCarrera extends Model
         'Creditos_Prerequisitos',
         'Nivel',
         'Creditos',
+        'num_reporte',
     ];
 
     // Un requisito pertenece a una carrera

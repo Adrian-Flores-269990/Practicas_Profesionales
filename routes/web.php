@@ -184,9 +184,14 @@ Route::prefix('encargado')->group(function () {
     Route::post('/accion_registro', [EncargadoController::class, 'calificarRegistro'])->name('encargado.calificarRegistro');
 
     //Carta de Presentación
-    Route::get('/cartas_presentacion', [EncargadoController::class, 'verPresentacion'])->name('encargado.cartasPresentacion');
-    Route::get('/carta_presentacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaPresentacion');
+    Route::get('/cartas_presentacion', [EncargadoController::class, 'cartasPresentacionEncargado'])->name('encargado.cartasPresentacion');
+    //Route::get('/carta_presentacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaPresentacion');
     Route::post('/accion_carta_presentacion', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
+    Route::get('/cartas_presentacion/{claveAlumno}', [EncargadoController::class, 'revisarCartaPresentacion'])->name('encargado.verCartaPresentacion');
+    Route::post('/carta/accion',[EncargadoController::class, 'accionCartaPresentacion'])->name('encargado.cartaPresentacion.accion');
+    //Route::post('/cartas/calificar', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
+
+
 
     //Carta de Aceptación
     Route::get('/cartas_aceptacion', [EncargadoController::class, 'verAceptacion'])->name('encargado.cartasAceptacion');
@@ -280,6 +285,12 @@ Route::prefix('dsspp')->group(function () {
     Route::get('/solicitudes', [DssppController::class, 'index'])->name('dsspp.solicitudes');
     Route::get('/solicitud/{id}', [DssppController::class, 'verSolicitud'])->name('dsspp.verSolicitud');
     Route::put('/solicitud/{id}/autorizar', [DssppController::class, 'autorizarSolicitud'])->name('dsspp.autorizarSolicitud');
+
+    Route::get('/carta', [DssppController::class, 'lista'])->name('dsspp.carta');
+    Route::post('/carta/generar/{clave}', [DssppController::class, 'generarCarta'])->name('dsspp.carta.generar');
+    Route::post('/carta/aprobar/{clave}', [DssppController::class, 'aprobar'])->name('dsspp.carta.aprobar');
+    Route::post('/carta/rechazar/{clave}', [DssppController::class, 'rechazar'])->name('dsspp.carta.rechazar');
+    Route::get('/carta/preview/{clave}', [DssppController::class, 'previewCarta'])->name('dsspp.carta.preview');
 });
 
 

@@ -1,69 +1,123 @@
 @include('partials.modals')
 
 @php
-  $alumno = session('alumno');
-  $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $alumno['cve_uaslp'])
-            ->where('Autorizacion', 1)
-            ->where('Apoyo_Economico', 1)
-            ->count();
+    $alumno = session('alumno');
+    $clave = $alumno['cve_uaslp'];
+
+    // Etapas del semáforo
+    $estadoFPP01 = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
+                ->value('estado');
+
+    $estadoFPP02 = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)')
+                ->value('estado');
+
+    $estadoCartaAlumno = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE PRESENTACIÓN (ALUMNO)')
+                ->value('estado');
+
+    $estadoCartaAceptacion = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE ACEPTACIÓN (ALUMNO)')
+                ->value('estado');
+
+    // Para validar ayuda económica
+    $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
+                ->where('Autorizacion', 1)
+                ->where('Apoyo_Economico', 1)
+                ->count();
 @endphp
 
 <nav class="alumno-navbar navbar bg-light border-bottom mb-4">
   <div class="container justify-content-center">
     <ul class="nav">
 
+      {{-- INICIO --}}
       <li class="nav-item">
         <a class="nav-link" href="{{ route('alumno.inicio') }}">Inicio</a>
       </li>
 
+      {{-- REGISTRARSE --}}
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="registrarseDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
           Registrarse
         </a>
-        <ul class="dropdown-menu" aria-labelledby="registrarseDropdown">
-          <li>
-              <a class="dropdown-item"
-                href="{{ route('alumno.guardarMateria', ['nivel' => 1]) }}">
-                Inscribir Prácticas Profesionales I
-              </a>
-          </li>
-
-          <li>
-              <a class="dropdown-item"
-                href="{{ route('alumno.guardarMateria', ['nivel' => 2]) }}">
-                Inscribir Prácticas Profesionales II
-              </a>
-          </li>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ route('alumno.guardarMateria', ['nivel'=>1]) }}">Inscribir Prácticas Profesionales I</a></li>
+          <li><a class="dropdown-item" href="{{ route('alumno.guardarMateria', ['nivel'=>2]) }}">Inscribir Prácticas Profesionales II</a></li>
         </ul>
       </li>
 
+      {{-- EXPEDIENTE --}}
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="expedienteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
           Expediente del Alumno
         </a>
-        <ul class="dropdown-menu" aria-labelledby="expedienteDropdown">
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">Solicitud de Prácticas Profesionales (FPP01)</a></li>
-          <li><a class="dropdown-item" href="#">Registro de Solicitud de Autorización (FPP02)</a></li>
-          <li><a class="dropdown-item" href="{{ route('cartaPresentacion.mostrar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Presentacion']) }}">Carta de Presentación</a></li>
-          <li><a class="dropdown-item" href="{{ route('cartaAceptacion.mostrar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Aceptacion']) }}">Carta de Aceptación</a></li>
-          @if ($existe == true)
-          <li><a class="dropdown-item" href="{{ route('desglosePercepciones.mostrar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Desglose_Percepciones']) }}">Carta de Desglose de Percepciones</a></li>
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">Solicitud de Recibo para Ayuda Económica</a></li>
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">Recibo de Pago</a></li>
+
+        <ul class="dropdown-menu">
+
+          {{-- FPP01 siempre visible (el alumno puede entrar aunque no la haya enviado) --}}
+          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">
+            Solicitud de Prácticas Profesionales (FPP01)
+          </a></li>
+
+          {{-- REGISTRO FPP02 solo si ya envió FPP01 y DSSPP puso PROCESO --}}
+          @if($estadoFPP01 === 'proceso' || $estadoFPP02 === 'pendiente' || $estadoFPP02 === 'proceso' || $estadoFPP02 === 'realizado')
+            <li>
+              <a class="dropdown-item"
+                 href="{{ route('registroFPP02.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Solicitud_FPP02_Firmada']) }}">
+                Registro de Solicitud de Autorización (FPP02)
+              </a>
+            </li>
           @endif
+
+          {{-- CARTA DE PRESENTACIÓN solo cuando la etapa del alumno está en PROCESO --}}
+          @if($estadoCartaAlumno === 'proceso' || $estadoCartaAlumno === 'realizado')
+          <li>
+            <a class="dropdown-item"
+               href="{{ route('cartaPresentacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Presentacion']) }}">
+              Carta de Presentación
+            </a>
+          </li>
+          @endif
+
+          {{-- CARTA DE ACEPTACIÓN solo cuando el alumno está en su etapa "CARTA DE ACEPTACIÓN (ALUMNO)" --}}
+          @if($estadoCartaAceptacion === 'proceso' || $estadoCartaAceptacion === 'realizado')
+          <li>
+            <a class="dropdown-item"
+               href="{{ route('cartaAceptacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Aceptacion']) }}">
+              Carta de Aceptación
+            </a>
+          </li>
+          @endif
+
+          {{-- AYUDA ECONÓMICA (solo si aplica) --}}
+          @if ($existe)
+              <li><a class="dropdown-item"
+                     href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
+                Carta de Desglose de Percepciones
+              </a></li>
+
+              <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">
+                Solicitud de Recibo para Ayuda Económica
+              </a></li>
+
+              <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">
+                Recibo de Pago
+              </a></li>
+          @endif
+
+          {{-- REPORTES --}}
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reportesParciales') }}">Reportes Parciales</a></li>
           <li><a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">Reporte Final</a></li>
-          <li><a class="dropdown-item" href="#">Carta de Término</a></li>
-          <li><a class="dropdown-item" href="#">Constancia de Validación de Prácticas Profesionles</a></li>
-          <li><a class="dropdown-item" href="#">Otros Archivos</a></li>
+
         </ul>
       </li>
 
+      {{-- PROCESO --}}
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="procesoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-          Proceso
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="procesoDropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Proceso</a>
+        <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#diagrama">Diagrama de Proceso</a></li>
           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#proceso">Proceso Prácticas Profesionales</a></li>
           <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modal">Formato de Reporte (anexo 1)</a></li>
@@ -73,10 +127,12 @@
         </ul>
       </li>
 
+      {{-- AYUDA --}}
       <li class="nav-item">
         <a class="nav-link" href="https://servicios.ing.uaslp.mx/secretaria_academica/practicas_prof/Ayuda/index.php">Ayuda</a>
       </li>
 
+      {{-- LOGOUT --}}
       <li class="nav-item">
         <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>

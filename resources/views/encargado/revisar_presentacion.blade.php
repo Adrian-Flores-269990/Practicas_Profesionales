@@ -1,87 +1,107 @@
 @extends('layouts.encargado')
-@section('title','Carta de Presentación')
+@section('title','Revisión de Carta de Presentación')
 
 @push('styles')
 <style>
   .action-buttons {
     display: flex;
     gap: 1rem;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
+    justify-content: center;
+    margin-top: 1.5rem;
   }
 
   .btn-aceptar {
-    background: #1f8950ff;
+    background: #1f8950;
     color: white;
-    border: none;
-    padding: 0.65rem 1.5rem;
+    padding: 0.7rem 1.6rem;
     border-radius: 8px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    border: none;
+    transition: 0.3s;
   }
-
   .btn-aceptar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(72,187,120,0.4);
-    color: white;
+    background: #166b3d;
   }
 
   .btn-rechazar {
-    background: #f01a1aff;
+    background: #d93030;
     color: white;
-    border: none;
-    padding: 0.65rem 1.5rem;
+    padding: 0.7rem 1.6rem;
     border-radius: 8px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    border: none;
+    transition: 0.3s;
+  }
+  .btn-rechazar:hover {
+    background: #b82121;
   }
 
-  .btn-rechazar:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245,101,101,0.4);
+  .btn-volver {
+    background: #6c757d;
     color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
   }
 </style>
 @endpush
 
 @section('content')
-
 <div class="container-fluid my-0 p-0">
 
-    <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-      REVISIÓN DE CARTA DE PRESENTACIÓN DE PRÁCTICAS PROFESIONALES
-    </h4>
+  <h4 class="text-center fw-bold text-white py-3" style="background-color:#000066;">
+    REVISAR CARTA DE PRESENTACIÓN (ENCARGADO)
+  </h4>
 
-    <div class="bg-white p-4 rounded shadow-sm w-100">
+  <div class="bg-white p-4 rounded shadow-sm">
 
-      @if($pdfPath)
-        <div class="mb-4">
-          <h6 class="fw-bold">Documento subido:</h6>
-          <iframe src="{{ asset($pdfPath) }}" style="border:1px solid #4583B7; display:block; margin:auto; width:816px; height:1100px; max-width:100%; max-height:100%;"></iframe>
-          <div class="d-flex gap-2 mt-2">
-            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
-          </div>
-          
-          <form action="{{ route('encargado.calificarCartaPresentacion') }}" method="POST" class="d-flex gap-2">
-            @csrf
-            <input type="hidden" name="seccion" value="solicitante">
-            <input type="hidden" name="claveAlumno" value="{{ $claveAlumno }}">
+    <h5 class="fw-bold mb-3">
+      Alumno: {{ $alumno->Nombre }} {{ $alumno->ApellidoP_Alumno }} ({{ $claveAlumno }})
+    </h5>
 
-            <button type="submit" name="valor" value="1" class="btn btn-aceptar btn-accion">
-                <i class="bi bi-check-lg me-1"></i> Aceptar
-            </button>
+    @if($pdfPath)
+      <iframe src="{{ asset($pdfPath) }}" 
+              style="border:1px solid #4361ee; width:100%; height:900px;"></iframe>
 
-            <button type="submit" name="valor" value="0" class="btn btn-rechazar btn-accion">
-                <i class="bi bi-x-lg me-1"></i> Rechazar
-            </button>
-          </form>
+      <div class="mt-3 text-center">
+        <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-primary">
+          Abrir en nueva pestaña
+        </a>
+      </div>
+
+      {{-- FORMULARIO DE ACCIONES --}}
+      <form action="{{ route('encargado.cartaPresentacion.accion') }}" method="POST">
+        @csrf
+        <input type="hidden" name="claveAlumno" value="{{ $claveAlumno }}">
+
+        <div class="action-buttons">
+
+          <button name="accion" value="aprobar" class="btn-aceptar">
+            Aceptar
+          </button>
+
+          <button name="accion" value="rechazar" class="btn-rechazar">
+            Rechazar
+          </button>
+
+          <a href="{{ route('encargado.cartasPresentacion') }}" class="btn-volver">
+            ← Volver al listado
+          </a>
+
         </div>
-      @endif    
-    </div>
-  </div>
+      </form>
 
+    @else
+      <div class="alert alert-danger text-center">
+        No existe archivo de carta generado.
+      </div>
+    @endif
+
+  </div>
+</div>
 @endsection
+
 
 @push('scripts')
 <script>

@@ -52,57 +52,149 @@ class PdfController extends Controller
         ]);
     }
 
-
-
     // -------------------------------------------------------
     // MOSTRAR DOCUMENTO (Visualiza PDFs del expediente)
     // -------------------------------------------------------
+    // public function mostrarDocumento($claveAlumno, $tipo)
+    // {
+    //     Log::info("MOSTRAR DOCUMENTO", [
+    //         'claveAlumno' => $claveAlumno,
+    //         'tipoSolicitado' => $tipo
+    //     ]);
+    //     $pdfPath = null;
+    //     $pdfPathFirmada = null;
+
+    //     $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+    //         ->where('Autorizacion', 1)
+    //         ->first();
+
+    //     if (! $solicitud) {
+    //         return abort(404, 'Solicitud no autorizada');
+    //     }
+
+    //     $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+    //     // ----------------------------------------------------
+    //     // CARTA DE PRESENTACIÓN (GENERADA)
+    //     // ----------------------------------------------------
+    //     if ($expediente && $expediente->Carta_Presentacion) {
+
+    //         $rutaGenerada = "expedientes/Carta_Presentacion/" . $expediente->Carta_Presentacion;
+
+    //         if (Storage::disk('public')->exists($rutaGenerada)) {
+    //             $pdfPath = asset("storage/" . $rutaGenerada);
+    //         }
+    //     }
+
+    //     // ----------------------------------------------------
+    //     // CARTA DE PRESENTACIÓN FIRMADA (ALUMNO)
+    //     // ----------------------------------------------------
+    //     if ($expediente && $expediente->Carta_Presentacion_Firmada) {
+
+    //         $rutaFirmada = "expedientes/Carta_Presentacion_Firmada/" . $expediente->Carta_Presentacion_Firmada;
+
+    //         if (Storage::disk('public')->exists($rutaFirmada)) {
+    //             $pdfPathFirmada = asset("storage/" . $rutaFirmada);
+    //         }
+    //     }
+
+    //     return view('alumno.expediente.cartaPresentacion', compact('pdfPath','pdfPathFirmada','claveAlumno'));
+    // }
+
     public function mostrarDocumento($claveAlumno, $tipo)
     {
-        $pdfPath = null;
+        Log::info(" mostrarDocumento llamado", [
+            'claveAlumno' => $claveAlumno,
+            'tipo' => $tipo
+        ]);
 
+        $pdfPath = null;
+        $pdfPathFirmada = null;
+
+        // Buscar solicitud autorizada
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                    ->where('Autorizacion', 1)
-                                    ->first();
+            ->where('Autorizacion', 1)
+            ->first();
 
         if (! $solicitud) {
+            Log::warning(" No existe solicitud autorizada");
             return abort(404, 'Solicitud no autorizada');
         }
 
+        // Buscar expediente
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
 
-        if ($expediente && isset($expediente[$tipo])) {
-            $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
+        if (! $expediente) {
+            Log::warning(" No existe expediente");
+            return abort(404, 'No se encontró expediente');
+        }
 
-            if (Storage::disk('public')->exists($rutaRelativa)) {
-                $pdfPath = asset('storage/' . $rutaRelativa);
+        // ===============================
+        // ARCHIVO PRINCIPAL
+        // ===============================
+
+        if (isset($expediente[$tipo]) && $expediente[$tipo] !== null) {
+
+            $ruta = "expedientes/{$tipo}/" . $expediente[$tipo];
+
+            Log::info("➡ Revisando archivo principal", ['ruta' => $ruta]);
+
+            if (Storage::disk('public')->exists($ruta)) {
+                $pdfPath = asset("storage/" . $ruta);
+                Log::info("✔ Archivo principal encontrado", ['url' => $pdfPath]);
+            } else {
+                Log::warning("⚠ Archivo principal no existe en storage");
             }
         }
 
-        // Siempre retorna la vista con pdfPath (puede ser null)
+        // ===============================
+        // CARTA PRESENTACIÓN (FIRMADA)
+        // ===============================
         if ($tipo === 'Carta_Presentacion') {
-            $pdfPathFirmada = null;
-            $tipoFirmada = $tipo . '_Firmada';
-            if ($expediente && isset($expediente[$tipoFirmada])) {
-                $rutaRelativa = "expedientes/{$tipoFirmada}/" . $expediente[$tipoFirmada];
 
-                if (Storage::disk('public')->exists($rutaRelativa)) {
-                    $pdfPathFirmada = asset('storage/' . $rutaRelativa);
+            $firmadaCampo = 'Carta_Presentacion_Firmada';
+
+            if ($expediente->$firmadaCampo) {
+                $rutaFirmada = "expedientes/{$firmadaCampo}/" . $expediente->$firmadaCampo;
+
+                Log::info("➡ Revisando archivo firmado", ['rutaFirmada' => $rutaFirmada]);
+
+                if (Storage::disk('public')->exists($rutaFirmada)) {
+                    $pdfPathFirmada = asset("storage/" . $rutaFirmada);
+                    Log::info("✔ Archivo firmado encontrado", ['url' => $pdfPathFirmada]);
                 }
             }
-            return view('alumno.expediente.cartaPresentacion', compact('pdfPath', 'pdfPathFirmada'));
-            
+
+            return view('alumno.expediente.cartaPresentacion', [
+                'pdfPath' => $pdfPath,
+                'pdfPathFirmada' => $pdfPathFirmada,
+                'claveAlumno' => $claveAlumno
+            ]);
         }
+
+        // ===============================
+        // CARTA ACEPTACIÓN
+        // ===============================
         if ($tipo === 'Carta_Aceptacion') {
-            return view('alumno.expediente.cartaAceptacion', compact('pdfPath'));
+            return view('alumno.expediente.cartaAceptacion', compact('pdfPath', 'claveAlumno'));
         }
+
+        // ===============================
+        // DESGLOSE DE PERCEPCIONES
+        // ===============================
         if ($tipo === 'Carta_Desglose_Percepciones') {
-            return view('alumno.expediente.desglosePercepciones', compact('pdfPath'));
+            return view('alumno.expediente.desglosePercepciones', compact('pdfPath', 'claveAlumno'));
         }
+
+        // ===============================
+        // FPP02 FIRMADO
+        // ===============================
         if ($tipo === 'Solicitud_FPP02_Firmada') {
+            Log::info(" Mostrando FPP02 Firmado");
             return $this->confirmaFPP02($pdfPath);
         }
 
+        Log::error(" Tipo de documento no válido", ['tipo' => $tipo]);
         return abort(404, 'Tipo de documento no válido');
     }
 
@@ -141,31 +233,75 @@ class PdfController extends Controller
     public function eliminarDocumento(Request $request, $claveAlumno, $tipo)
     {
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                    ->where('Autorizacion', 1)
-                                    ->first();
+            ->where('Autorizacion', 1)
+            ->first();
 
-        if (! $solicitud) {
-            return abort(404, 'Solicitud no autorizada');
+        if (! $solicitud) return back()->with('error','Solicitud no autorizada');
+
+        $exp = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if (! isset($exp[$tipo]) || $exp[$tipo] == null)
+            return back()->with('error','El documento no existe.');
+
+        $ruta = "expedientes/$tipo/" . $exp[$tipo];
+
+        if (Storage::disk('public')->exists($ruta)) {
+            Storage::disk('public')->delete($ruta);
         }
 
-        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+        $exp->$tipo = null;
+        $exp->save();
 
-        if (! $expediente || ! isset($expediente[$tipo]) || $expediente[$tipo] === null) {
-            return redirect()->back()->with('error', 'No se encontró el documento a eliminar.');
+        // REVERTIR ESTADO
+        if ($tipo === 'Carta_Presentacion_Firmada') {
+
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'CARTA DE PRESENTACIÓN (ALUMNO)'
+                ],
+                [
+                    'estado' => 'proceso'
+                ]
+            );
+            EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+            ],
+            ['estado' => 'pendiente']
+        );
         }
 
-        $rutaRelativa = "expedientes/{$tipo}/" . $expediente[$tipo];
+        // ----------------------------------------------
+        // REVERTIR ESTADOS SI SE ELIMINA CARTA ACEPTACIÓN
+        // ----------------------------------------------
+        if ($tipo === 'Carta_Aceptacion') {
 
-        // Eliminar del storage si existe
-        if (Storage::disk('public')->exists($rutaRelativa)) {
-            Storage::disk('public')->delete($rutaRelativa);
+            // 1️⃣ Regresar CARTA DE ACEPTACIÓN (ALUMNO) a PROCESO (amarillo)
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+                ],
+                [
+                    'estado' => 'proceso'
+                ]
+            );
+
+            // 2️⃣ Regresar CARTA DE ACEPTACIÓN (ENCARGADO...) a PENDIENTE (rojo)
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+                ],
+                [
+                    'estado' => 'pendiente'
+                ]
+            );
         }
 
-        // Quitar el nombre en la base de datos
-        $expediente->$tipo = null;
-        $expediente->save();
-
-        return redirect()->back()->with('success', 'Documento eliminado correctamente.');
+        return back()->with('success','Documento eliminado correctamente.');
     }
 
     // -------------------------------------------------------
@@ -174,58 +310,57 @@ class PdfController extends Controller
     public function subirCartaPresentacion(Request $request)
     {
         $request->validate([
-            'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
+            'archivo' => 'required|mimes:pdf|max:20480',
+            'claveAlumno' => 'required'
         ]);
 
+        $clave = $request->claveAlumno;
+
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $clave)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        if (! $solicitud) {
+            return back()->with('error','No se encontró solicitud autorizada');
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        // Guardar archivo
         $file = $request->file('archivo');
-        $alumno = session('alumno');
-        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
-        $tipoDoc = 'Carta_Presentacion_Firmada';
-        $nombreArchivo = $claveAlumno . '_carta_presentacion_firmada_' . time() . '.' . $file->getClientOriginalExtension();
-        $rutaCarpeta = 'expedientes/' . $tipoDoc;
-        $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
+        $nombreArchivo = $clave . "_carta_presentacion_firmada_" . time() . ".pdf";
+        $ruta = "expedientes/Carta_Presentacion_Firmada";
 
-        // Asegurarse de que el directorio existe en el disco public
-        if (!Storage::disk('public')->exists($rutaCarpeta)) {
-            Storage::disk('public')->makeDirectory($rutaCarpeta);
-        }
+        Storage::disk('public')->makeDirectory($ruta);
+        Storage::disk('public')->putFileAs($ruta, $file, $nombreArchivo);
 
-        $saved = Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
+        // Actualizar expediente
+        $expediente->Carta_Presentacion_Firmada = $nombreArchivo;
+        $expediente->save();
 
-        // Log para depuración
-        Log::info('Intento de guardar archivo (public disk)', [
-            'nombreArchivo' => $nombreArchivo,
-            'ruta' => $rutaCompleta,
-            'saved' => $saved,
-            'full_path' => storage_path('app/public/' . $rutaCompleta),
-        ]);
+        // Cambiar estado a REALIZADO
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $clave,
+                'etapa' => 'CARTA DE PRESENTACIÓN (ALUMNO)'
+            ],
+            [
+                'estado' => 'realizado'
+            ]
+        );
 
-        if ($saved) {
+        // Siguiente etapa → pendiente
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $clave,
+                'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+            ],
+            [
+                'estado' => 'proceso'
+            ]
+        );
 
-            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                                    ->where('Autorizacion', 1)
-                                                    ->first();
-            
-            if (!$solicitud) {
-                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
-            }
-            
-            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
-                                                    ->first();
-            
-            if (!$expediente) {
-                 // Debería existir si la solicitud fue autorizada, pero por seguridad
-                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
-            }
-            
-            $expediente->update([
-                $tipoDoc => $nombreArchivo,
-            ]);
-
-            return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
-        } else {
-            return back()->withErrors(['No se pudo guardar el archivo.']);
-        }
+        return back()->with('success','Carta firmada subida correctamente.');
     }
 
     // -------------------------------------------------------
@@ -234,60 +369,88 @@ class PdfController extends Controller
     public function subirCartaAceptacion(Request $request)
     {
         $request->validate([
-            'archivo' => 'required|file|mimes:pdf|max:20480', // 20MB
+            'archivo' => 'required|file|mimes:pdf|max:20480',
         ]);
 
         $file = $request->file('archivo');
         $alumno = session('alumno');
-        $claveAlumno = $alumno['cve_uaslp'] ?? 'sinclave';
+        $claveAlumno = $alumno['cve_uaslp'] ?? null;
+
+        if (!$claveAlumno) {
+            return back()->withErrors(['No se encontró la sesión del alumno.']);
+        }
+
+        // --------------------------
+        //   DATOS DEL ARCHIVO
+        // --------------------------
         $tipoDoc = 'Carta_Aceptacion';
         $nombreArchivo = $claveAlumno . '_carta_aceptacion_' . time() . '.' . $file->getClientOriginalExtension();
-        $rutaCarpeta = 'expedientes/' . $tipoDoc;
-        $rutaCompleta = $rutaCarpeta . '/' . $nombreArchivo;
+        $rutaCarpeta = "expedientes/$tipoDoc";
 
-        // Asegurarse de que el directorio existe en el disco public
+        // Crear carpeta si no existe
         if (!Storage::disk('public')->exists($rutaCarpeta)) {
             Storage::disk('public')->makeDirectory($rutaCarpeta);
         }
 
+        // Guardar archivo
         $saved = Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
 
-        // Log para depuración
-        Log::info('Intento de guardar archivo (public disk)', [
-            'nombreArchivo' => $nombreArchivo,
-            'ruta' => $rutaCompleta,
-            'saved' => $saved,
-            'full_path' => storage_path('app/public/' . $rutaCompleta),
-        ]);
-
-        if ($saved) {
-
-            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                                    ->where('Autorizacion', 1)
-                                                    ->first();
-            
-            if (!$solicitud) {
-                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
-            }
-            
-            $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
-                                                    ->first();
-            
-            if (!$expediente) {
-                 // Debería existir si la solicitud fue autorizada, pero por seguridad
-                $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
-            }
-            
-            $expediente->update([
-                $tipoDoc => $nombreArchivo,
-            ]);
-
-            return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
-        } else {
+        if (!$saved) {
             return back()->withErrors(['No se pudo guardar el archivo.']);
         }
-    }
 
+        // --------------------------
+        //   GUARDAR EN EXPEDIENTE
+        // --------------------------
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        if (!$solicitud) {
+            return back()->withErrors(['No se encontró la solicitud autorizada.']);
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if (!$expediente) {
+            $expediente = Expediente::create([
+                'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01
+            ]);
+        }
+
+        // Se guarda correctamente en la BD
+        $expediente->update([
+            'Carta_Aceptacion' => $nombreArchivo
+        ]);
+
+        // --------------------------
+        //   ACTUALIZAR SEMÁFORO
+        // --------------------------
+
+        // 1️⃣ CARTA DE ACEPTACIÓN (ALUMNO) → REALIZADO (verde)
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+            ],
+            [
+                'estado' => 'realizado'
+            ]
+        );
+
+        // 2️⃣ Siguiente etapa → CARTA DE ACEPTACIÓN (ENCARGADO...) → PROCESO (amarillo)
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+            ],
+            [
+                'estado' => 'proceso'
+            ]
+        );
+
+        return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
+    }
 
     // -------------------------------------------------------
     // SUBIR DESGLOSE PERCEPCIONES
@@ -481,9 +644,6 @@ class PdfController extends Controller
 
         // Guardar PDF en storage
         Storage::disk('public')->put($rutaCompleta, $pdf->output());
-
-        // ACTUALIZAR SEMÁFORO (Usando la función actualizarSemaforo, no marcarEtapa)
-        $this->actualizarSemaforo($claveAlumno, 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES');
 
         // Guardar sesión
         session(['fpp02_impreso_' . $claveAlumno => true]);

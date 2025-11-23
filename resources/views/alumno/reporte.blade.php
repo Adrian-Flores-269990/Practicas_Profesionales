@@ -17,46 +17,58 @@
     </div>
 
   <div class="bg-white p-4 rounded shadow-sm w-100">
-    <form id="form-reporte">
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <div id="mensajeAlerta" class="alert d-none" role="alert"></div>
+
+    <form id="form-reporte" enctype="multipart/form-data">
+      @csrf
       {{-- Número de Reporte y Fechas --}}
       <div class="row mb-3 align-items-end">
         <div class="col-md-4">
-          <label for="numero_reporte" class="form-label fw-bold">Número de Reporte:</label>
-          <select id="numero_reporte" class="form-select">
-            <option selected>Seleccione...</option>
-            <option value="1">Reporte 1</option>
-            <option value="2">Reporte 2</option>
-            <option value="3">Reporte 3</option>
+          <label for="numero_reporte" class="form-label fw-bold">Número de Reporte: <span class="text-danger">*</span></label>
+          <select id="numero_reporte" name="numero_reporte" class="form-select" required>
+            <option value="">Seleccione...</option>
+            @for($i = 1; $i <= 12; $i++)
+              <option value="{{ $i }}">Reporte {{ $i }}</option>
+            @endfor
           </select>
         </div>
 
         <div class="col-md-4">
-            <label class="form-label fw-bold">Periodo:</label>
+            <label class="form-label fw-bold">Periodo: <span class="text-danger">*</span></label>
             <div class="d-flex gap-2">
-                <input type="date" class="form-control" id="fechaInicio" name="fechaInicio">
+                <input type="date" class="form-control" id="fechaInicio" name="fecha_inicio" required>
                 <span class="pt-2 align-self-center">a</span>
-                <input type="date" class="form-control" id="fechaFin" name="fechaFin">
+                <input type="date" class="form-control" id="fechaFin" name="fecha_fin" required>
             </div>
         </div>
 
         <div class="col-md-4 text-end">
           <div class="mb-2">
-            <strong>Clave:</strong> 194659
+            <strong>Clave:</strong> {{ $alumno['cve_uaslp'] ?? 'N/A' }}
           </div>
-          <small class="text-muted">Pendientes: miércoles 29 de octubre del 2025, 23:59</small>
+          <small class="text-muted">Reportes enviados: {{ $reportesExistentes->count() }}</small>
         </div>
       </div>
 
       {{-- Resumen --}}
       <div class="mb-4">
-        <label for="resumen" class="form-label fw-bold">Resumen de las actividades:</label>
-        <textarea id="resumen" rows="4" class="form-control"></textarea>
+        <label for="resumen" class="form-label fw-bold">Resumen de las actividades: <span class="text-danger">*</span></label>
+        <textarea id="resumen" name="resumen" rows="4" class="form-control" required 
+                  placeholder="Describa las actividades realizadas durante el periodo..."></textarea>
+        <small class="text-muted">Máximo 5000 caracteres</small>
       </div>
 
       {{-- Checkbox --}}
       <div class="mb-4">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="reporteFinal">
+          <input class="form-check-input" type="checkbox" id="reporteFinal" name="reporte_final" value="1">
           <label class="form-check-label fw-semibold" for="reporteFinal">
             Reporte Final <small>(Seleccione en caso de que este sea su último reporte a subir)</small>
           </label>
@@ -79,7 +91,7 @@
             <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
           </div>
 
-          <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf">
+          <input type="file" class="form-control d-none" id="archivoUpload" name="archivo_pdf" accept=".pdf">
 
           <div id="archivoPreview" class="mt-3 d-none">
             <div class="card border-primary shadow-sm">
@@ -99,9 +111,13 @@
 
       {{-- Botones --}}
       <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-secondary">Guardar cambios</button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ route('alumno.reportes.lista') }}'">
+          <i class="bi bi-list"></i> Ver mis reportes
+        </button>
         <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
-        <button type="submit" class="btn btn-success">Enviar</button>
+        <button type="submit" class="btn btn-success" id="btnEnviar">
+          <i class="bi bi-send"></i> Enviar
+        </button>
       </div>
     </form>
   </div>
@@ -117,6 +133,8 @@
   const tamañoArchivo = document.getElementById('archivoTamaño');
   const btnEliminar = document.getElementById('btnEliminarArchivo');
   const zonaSubida = document.getElementById('zonaSubida');
+  const mensajeAlerta = document.getElementById('mensajeAlerta');
+  const btnEnviar = document.getElementById('btnEnviar');
 
   // Mostrar input al hacer clic en el botón
   botonSubir.addEventListener('click', () => {
@@ -127,6 +145,20 @@
   inputArchivo.addEventListener('change', () => {
     if (inputArchivo.files.length > 0) {
       const file = inputArchivo.files[0];
+
+      // Validar tamaño (20MB máximo)
+      if (file.size > 20 * 1024 * 1024) {
+        mostrarAlerta('El archivo supera el tamaño máximo de 20MB', 'danger');
+        inputArchivo.value = "";
+        return;
+      }
+
+      // Validar tipo
+      if (file.type !== 'application/pdf') {
+        mostrarAlerta('Solo se permiten archivos PDF', 'danger');
+        inputArchivo.value = "";
+        return;
+      }
 
       // Oculta instrucciones y muestra preview
       instrucciones.classList.add('d-none');
@@ -145,17 +177,124 @@
 
   // Cancelar: limpia todo el formulario
   function resetFormulario() {
-  const form = document.getElementById('form-reporte');
-  form.reset();
+    const form = document.getElementById('form-reporte');
+    form.reset();
 
-  // Reset manual del input file
-  inputArchivo.value = "";
+    // Reset manual del input file
+    inputArchivo.value = "";
 
-  // Ocultar preview y mostrar instrucciones de nuevo
-  preview.classList.add('d-none');
-  instrucciones.classList.remove('d-none');
-}
+    // Ocultar preview y mostrar instrucciones de nuevo
+    preview.classList.add('d-none');
+    instrucciones.classList.remove('d-none');
 
+    // Ocultar alertas
+    mensajeAlerta.classList.add('d-none');
+  }
+
+  // Función para mostrar alertas
+  function mostrarAlerta(mensaje, tipo) {
+    mensajeAlerta.textContent = mensaje;
+    mensajeAlerta.className = `alert alert-${tipo}`;
+    mensajeAlerta.classList.remove('d-none');
+
+    // Auto-ocultar después de 5 segundos
+    setTimeout(() => {
+      mensajeAlerta.classList.add('d-none');
+    }, 5000);
+  }
+
+  // Submit del formulario con AJAX
+  document.getElementById('form-reporte').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validar que se haya seleccionado un número de reporte
+    const numeroReporte = document.getElementById('numero_reporte').value;
+    if (!numeroReporte) {
+      mostrarAlerta('Por favor seleccione el número de reporte', 'warning');
+      return;
+    }
+
+    // Validar fechas
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    const fechaFin = document.getElementById('fechaFin').value;
+    if (!fechaInicio || !fechaFin) {
+      mostrarAlerta('Por favor ingrese el periodo completo', 'warning');
+      return;
+    }
+
+    if (new Date(fechaFin) < new Date(fechaInicio)) {
+      mostrarAlerta('La fecha de fin debe ser posterior o igual a la fecha de inicio', 'warning');
+      return;
+    }
+
+    // Validar resumen
+    const resumen = document.getElementById('resumen').value.trim();
+    if (!resumen) {
+      mostrarAlerta('Por favor ingrese el resumen de actividades', 'warning');
+      return;
+    }
+
+    // Deshabilitar botón de envío
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando...';
+
+    // Preparar FormData
+    const formData = new FormData(this);
+
+    // Enviar con AJAX
+    fetch('{{ route("alumno.reportes.store") }}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        mostrarAlerta(data.message || 'Reporte enviado exitosamente', 'success');
+        
+        // Limpiar formulario después de 2 segundos
+        setTimeout(() => {
+          resetFormulario();
+          // Opcional: redirigir a la lista de reportes
+          // window.location.href = '{{ route("alumno.reportes.lista") }}';
+        }, 2000);
+      } else {
+        mostrarAlerta(data.error || 'Error al enviar el reporte', 'danger');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      mostrarAlerta('Error al enviar el reporte. Por favor intente de nuevo.', 'danger');
+    })
+    .finally(() => {
+      // Rehabilitar botón
+      btnEnviar.disabled = false;
+      btnEnviar.innerHTML = '<i class="bi bi-send"></i> Enviar';
+    });
+  });
+
+  // Drag and drop
+  zonaSubida.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zonaSubida.classList.add('border-primary');
+  });
+
+  zonaSubida.addEventListener('dragleave', () => {
+    zonaSubida.classList.remove('border-primary');
+  });
+
+  zonaSubida.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zonaSubida.classList.remove('border-primary');
+    
+    if (e.dataTransfer.files.length > 0) {
+      inputArchivo.files = e.dataTransfer.files;
+      inputArchivo.dispatchEvent(new Event('change'));
+    }
+  });
 </script>
 @endpush
 @endsection

@@ -25,4 +25,9 @@ class Reporte extends Model
         'Observaciones',
         'Nombre_Archivo'
     ];
+
+    public function expediente()
+    {
+        return $this->belongsTo(Expediente::class, 'Id_Expediente', 'Id_Expediente');
+    }
 }

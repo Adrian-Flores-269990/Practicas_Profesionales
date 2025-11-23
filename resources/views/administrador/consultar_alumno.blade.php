@@ -89,6 +89,7 @@
     color: #212529;
     transition: all 0.2s ease;
     margin-bottom: 0.75rem;
+    cursor: pointer;
   }
 
   .formulario-btn:hover {
@@ -128,9 +129,87 @@
     border-radius: 4px;
     margin-bottom: 2rem;
   }
+
+  .documentos-expediente {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+  }
+
+  .documentos-expediente.show {
+    display: block;
+  }
+
+  .semaforo-estado {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+  }
+
+  .semaforo-estado.show {
+    display: block;
+  }
+
+  .etapa-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+    border-left: 4px solid transparent;
+  }
+
+  .etapa-item.realizado {
+    background: #d4edda;
+    border-left-color: #28a745;
+  }
+
+  .etapa-item.proceso {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+  }
+
+  .etapa-item.pendiente {
+    background: #f8f9fa;
+    border-left-color: #6c757d;
+  }
+
+  .etapa-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+
+  .etapa-icon.realizado {
+    color: #28a745;
+  }
+
+  .etapa-icon.proceso {
+    color: #ffc107;
+  }
+
+  .etapa-icon.pendiente {
+    color: #6c757d;
+  }
+
+  .etapa-texto {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .etapa-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
 </style>
 @endpush
-
 @section('content')
 
 <div class="container-fluid my-0 p-0">
@@ -140,13 +219,16 @@
 
   <div class="bg-white p-4 rounded shadow-sm">
 
-    {{-- Buscador --}}
+    {{-- Contenedor del buscador --}}
     <div class="search-container mb-4">
+
+      {{-- Info --}}
       <div class="search-info">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Busca por:</strong> Clave única o Apellidos
+        <strong>Busca por:</strong> Clave única o nombre del alumno
       </div>
 
+      {{-- Buscador --}}
       <form action="{{ route('administrador.consultar_alumno') }}" method="GET">
         <div class="search-box">
           <i class="bi bi-search search-icon"></i>
@@ -157,11 +239,27 @@
             value="{{ request('busqueda') }}"
           >
         </div>
+
         <button type="submit" class="btn btn-primary w-100 mt-3 py-2">
           <i class="bi bi-search me-2"></i> Buscar Alumno
         </button>
       </form>
+
+      {{-- Botones de filtros 50/50 --}}
+      <div class="d-flex gap-3 mt-3 filter-buttons">
+        <a href="{{ route('administrador.filtrar_alumnos', ['tipo' => 'proceso']) }}"
+           class="btn btn-warning flex-fill d-flex justify-content-center align-items-center">
+          <i class="bi bi-hourglass-split me-2"></i> En Proceso
+        </a>
+
+        <a href="{{ route('administrador.filtrar_alumnos', ['tipo' => 'terminado']) }}"
+           class="btn btn-success flex-fill d-flex justify-content-center align-items-center">
+          <i class="bi bi-check-circle me-2"></i> Terminados
+        </a>
+      </div>
+
     </div>
+  </div>
 
     {{-- Resultados --}}
     @if(isset($alumnos))
@@ -169,12 +267,13 @@
         <div class="mt-4">
           <h5 class="mb-3">
             <i class="bi bi-person-check-fill text-primary me-2"></i>
-            Resultados encontrados: <span class="badge bg-primary">{{ count($alumnos) }}</span>
+                Alumnos encontrados: <span class="badge bg-primary">{{ count($alumnos) }}</span>
           </h5>
 
           @foreach($alumnos as $alumno)
             <div class="alumno-card mb-4">
-              {{-- Header del alumno --}}
+
+              {{-- Header --}}
               <div class="alumno-header">
                 <div class="d-flex justify-content-between align-items-start">
                   <div>
@@ -192,50 +291,92 @@
                 </div>
               </div>
 
-              {{-- Información del alumno --}}
+              {{-- Info --}}
               <div class="alumno-info">
                 <div class="row g-3">
                   <div class="col-md-3">
                     <div class="info-label">Semestre</div>
                     <div class="info-value">{{ $alumno['semestre'] ?? 'N/A' }}</div>
                   </div>
-                  <div class="col-md-3">
-                    <div class="info-label">Créditos</div>
-                    <div class="info-value">{{ $alumno['creditos'] ?? 'N/A' }}</div>
-                  </div>
                   <div class="col-md-6">
                     <div class="info-label">Correo</div>
                     <div class="info-value">{{ $alumno['correo'] ?? 'N/A' }}</div>
                   </div>
                 </div>
-              </div>
 
-              {{-- Formularios disponibles --}}
+                @if(!empty($alumno['solicitud_fpp01']))
+                  <hr class="my-4">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-text me-2"></i>Resumen Solicitud FPP01</h6>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="info-label">ID Solicitud</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['id'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="info-label">Fecha Registro</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['fecha_registro'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="info-label">Empresa</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['empresa'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="info-label">Proyecto</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['proyecto'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="info-label">Horario</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['horario'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="info-label">Estado Administrador</div>
+                      <div class="info-value">{{ $alumno['solicitud_fpp01']['administrador'] ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="col-md-3">
+                      <div class="info-label">Autorización</div>
+                      @php
+                        $aut = $alumno['solicitud_fpp01']['autorizacion'];
+                        $autText = $aut === 1 ? 'Aprobada' : ($aut === 0 ? 'Rechazada' : 'Pendiente');
+                      @endphp
+                      {{ $autText }}
+                    </div>
+                  </div>
+                </div>
+              @endif
+            </div>
+
+              {{-- Formularios --}}
               <div class="formularios-section">
-                <h6 class="mb-3 fw-bold">
-                  <i class="bi bi-file-earmark-text me-2"></i>
-                  Documentos y Formularios
-                </h6>
+                <h6 class="mb-3 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Documentos y Formularios</h6>
 
                 <div class="row g-2">
                   <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
+                    <div class="formulario-btn" onclick="toggleExpediente('{{ $alumno['cve_uaslp'] }}')">
                       <div>
-                        <i class="bi bi-file-earmark-check me-2"></i>
-                        <strong>Solicitud FPP01</strong>
+                        <i class="bi bi-folder2-open me-2"></i>
+                        <strong>Expediente</strong>
                       </div>
-                      <span class="badge badge-status bg-success">Completado</span>
-                    </a>
+                      <span class="badge badge-status bg-primary">Ver documentos</span>
+                    </div>
                   </div>
 
                   <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
+                    <div class="formulario-btn" onclick="toggleSemaforo('{{ $alumno['cve_uaslp'] }}')">
                       <div>
                         <i class="bi bi-clipboard-data me-2"></i>
                         <strong>Estado del Alumno</strong>
                       </div>
                       <span class="badge badge-status bg-info">Ver detalles</span>
-                    </a>
+                    </div>
                   </div>
 
                   <div class="col-md-6">
@@ -251,16 +392,6 @@
                   <div class="col-md-6">
                     <a href="#" class="formulario-btn">
                       <div>
-                        <i class="bi bi-file-earmark-bar-graph me-2"></i>
-                        <strong>Reportes Mensuales</strong>
-                      </div>
-                      <span class="badge badge-status bg-primary">3 reportes</span>
-                    </a>
-                  </div>
-
-                  <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
-                      <div>
                         <i class="bi bi-star me-2"></i>
                         <strong>Evaluación de Empresa</strong>
                       </div>
@@ -268,43 +399,103 @@
                     </a>
                   </div>
 
-                  <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
-                      <div>
-                        <i class="bi bi-folder2-open me-2"></i>
-                        <strong>Expediente Completo</strong>
-                      </div>
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </div>
                 </div>
-              </div>
-            </div>
+
+                {{-- Expediente --}}
+                <div id="expediente-{{ $alumno['cve_uaslp'] }}" class="documentos-expediente">
+                  <h6 class="mb-3">
+                    <i class="bi bi-file-earmark-pdf text-danger me-2"></i> Documentos en expediente
+                  </h6>
+
+                  @if(isset($documentos) && count($documentos) > 0)
+                    <div class="list-group">
+                      @foreach($documentos as $doc)
+                        <a href="{{ $doc['url'] }}" target="_blank"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                          <div>
+                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                            <strong>{{ $doc['titulo'] }}</strong>
+                            <span class="text-muted"> — {{ $doc['nombre'] }}</span>
+                          </div>
+                          <small class="text-muted">{{ $doc['size_kb'] }} KB · {{ $doc['modificado'] }}</small>
+                        </a>
+                      @endforeach
+                    </div>
+                  @else
+                    <div class="alert alert-light border mb-0">
+                      <i class="bi bi-info-circle me-2"></i>
+                      No se encontraron documentos en el expediente.
+                    </div>
+                  @endif
+                </div>
+
+                {{-- Semáforo --}}
+                <div id="semaforo-{{ $alumno['cve_uaslp'] }}" class="semaforo-estado">
+                  <h6 class="mb-3">
+                    <i class="bi bi-traffic-light text-warning me-2"></i> Estado del Proceso
+                  </h6>
+
+                  @if(!empty($alumno['semaforo']))
+                    @foreach($alumno['semaforo'] as $etapa)
+                      <div class="etapa-item {{ $etapa['estado'] }}">
+                        <div class="etapa-icon {{ $etapa['estado'] }}">
+                          @if($etapa['estado'] === 'realizado')
+                            <i class="bi bi-check-circle-fill"></i>
+                          @elseif($etapa['estado'] === 'proceso')
+                            <i class="bi bi-arrow-repeat"></i>
+                          @else
+                            <i class="bi bi-circle"></i>
+                          @endif
+                        </div>
+
+                        <div class="etapa-texto">{{ $etapa['etapa'] }}</div>
+
+                        <span class="badge etapa-badge
+                          @if($etapa['estado']==='realizado') bg-success
+                          @elseif($etapa['estado']==='proceso') bg-warning text-dark
+                          @else bg-secondary @endif">
+                          @if($etapa['estado']==='realizado') Completado
+                          @elseif($etapa['estado']==='proceso') En proceso
+                          @else Pendiente @endif
+                        </span>
+                      </div>
+                    @endforeach
+                  @else
+                    <div class="alert alert-light border mb-0">
+                      <i class="bi bi-info-circle me-2"></i>
+                      No hay información disponible.
+                    </div>
+                  @endif
+
+                </div> {{-- fin semaforo --}}
+              </div> {{-- fin formularios --}}
+            </div> {{-- fin alumno card --}}
           @endforeach
         </div>
-      @elseif(request('busqueda'))
-        {{-- No se encontraron resultados SOLO si hubo búsqueda --}}
+      @else
         <div class="no-results">
-            <i class="bi bi-search"></i>
-            <h5>No se encontraron resultados</h5>
-            <p>No hay alumnos que coincidan con "<strong>{{ request('busqueda') }}</strong>"</p>
-            <p class="text-muted">Intenta con otra clave o apellidos</p>
+          <i class="bi bi-search"></i>
+          <h5>No se encontraron alumnos</h5>
+          <p class="text-muted">Intenta con otra clave o apellidos</p>
         </div>
       @endif
     @endif
-    </div>
-    {{-- BOTONES DE FILTRO POR ESTADO --}}
-    <div class="text-center mt-4">
-        <a href="{{ route('administrador.filtrar_alumnos', ['tipo' => 'proceso']) }}"
-        class="btn btn-warning mx-2">
-            <i class="bi bi-hourglass-split"></i> Alumnos en Proceso
-        </a>
 
-        <a href="{{ route('administrador.filtrar_alumnos', ['tipo' => 'terminado']) }}"
-        class="btn btn-success mx-2">
-            <i class="bi bi-check-circle"></i> Alumnos que Terminaron
-        </a>
-    </div>
-</div>
+  </div>
+</div> {{-- fin container-fluid --}}
 
 @endsection
+
+@push('scripts')
+<script>
+  function toggleExpediente(clave) {
+    const div = document.getElementById('expediente-' + clave);
+    if (div) div.classList.toggle('show');
+  }
+
+  function toggleSemaforo(clave) {
+    const div = document.getElementById('semaforo-' + clave);
+    if (div) div.classList.toggle('show');
+  }
+</script>
+@endpush

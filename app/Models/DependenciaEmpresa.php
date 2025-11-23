@@ -24,8 +24,13 @@ class DependenciaEmpresa extends Model
         'Municipio',
         'Teléfono',
         'Ramo',
-        'RFC_Empresa', 
+        'RFC_Empresa',
         'Comentario_Encargado',
         'Autorizada'
     ];
+
+    public function evaluaciones()
+    {
+        return $this->hasMany(Evaluacion::class, 'Id_Depn_Emp', 'Id_Depn_Emp');
+    }
 }

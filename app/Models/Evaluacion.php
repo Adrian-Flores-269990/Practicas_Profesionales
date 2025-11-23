@@ -19,4 +19,10 @@ class Evaluacion extends Model
         'Id_Depn_Emp',
         'Estado'
     ];
+
+    public function respuestas()
+    {
+        return $this->hasMany(Respuesta::class, 'Id_Evaluacion', 'Id_Evaluacion');
+    }
+
 }

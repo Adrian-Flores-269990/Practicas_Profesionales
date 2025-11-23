@@ -148,7 +148,7 @@ class EncargadoController extends Controller
                     'semaforo' => $semaforo,
                 ];
             })->toArray();
-        
+
             // Si la búsqueda parece ser una clave exacta y hay al menos un alumno que coincide por clave
             $posibleClave = $busqueda; // Para PDFs se busca TAL CUAL fue ingresada
             $claveDirecta = null;
@@ -163,7 +163,7 @@ class EncargadoController extends Controller
 
         return view('encargado.consultar_alumno', compact('alumnos', 'documentos'));
     }
-    
+
     /**
      * Busca en storage/public/expedientes/* los PDFs cuyo nombre inicia con la clave del alumno.
      */
@@ -374,7 +374,7 @@ class EncargadoController extends Controller
             EstadoProceso::where('clave_alumno', $solicitud->Clave_Alumno)
                 ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
                 ->update(['estado' => 'proceso']);
-            
+
             Expediente::create([
                 'Id_Solicitud_FPP01' => $solicitud['Id_Solicitud_FPP01'],
             ]);

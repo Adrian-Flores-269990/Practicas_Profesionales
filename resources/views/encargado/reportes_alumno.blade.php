@@ -5,7 +5,7 @@
 @push('styles')
 <style>
   .reportes-header {
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
+    background: #000066;
     color: white;
     padding: 2rem;
     border-radius: 8px;
@@ -27,7 +27,7 @@
   }
   
   .reporte-card.pendiente {
-    border-left: 4px solid #ffc107;
+    border-left: 4px solid #000066;
   }
   
   .reporte-card.calificado {
@@ -47,7 +47,7 @@
   }
   
   .btn-revisar {
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
+    background: #000066 ;
     border: none;
     color: white;
     padding: 0.5rem 1.5rem;
@@ -93,7 +93,7 @@
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     REPORTES MENSUALES - {{ strtoupper($alumno['nombre_completo']) }}
   </h4>
-  
+   
   <div class="bg-white p-4 rounded shadow-sm">
     
     {{-- Información del alumno --}}
@@ -115,29 +115,6 @@
       </div>
     </div>
 
-    {{-- Estadísticas --}}
-    <div class="estadisticas">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="estadistica-item">
-            <div class="estadistica-numero">{{ $reportes->count() }}</div>
-            <div class="estadistica-label">Total de Reportes</div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="estadistica-item">
-            <div class="estadistica-numero text-success">{{ $reportes->whereNotNull('Calificacion')->count() }}</div>
-            <div class="estadistica-label">Calificados</div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="estadistica-item">
-            <div class="estadistica-numero text-warning">{{ $reportes->whereNull('Calificacion')->count() }}</div>
-            <div class="estadistica-label">Pendientes</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     {{-- Listado de reportes --}}
     @if($reportes->count() > 0)
@@ -198,11 +175,6 @@
                     {{ $reporte->Calificacion }}
                   </span>
                   <div class="text-muted small">Calificación</div>
-                </div>
-              @else
-                <div class="text-warning">
-                  <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
-                  <div class="small">Sin calificar</div>
                 </div>
               @endif
             </div>

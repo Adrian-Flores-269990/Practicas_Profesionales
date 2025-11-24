@@ -19,18 +19,19 @@
   </div>
   @endif
 
-  <div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover align-middle table-bordered">
+  <div class="table-responsive shadow-sm rounded" style="overflow-x: auto;">
+    <table class="table table-hover align-middle table-bordered" style="min-width: 1300px;">
 
       <thead style="background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);">
         <tr>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">RPE</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Nombre</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Carreras Asignadas</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Solicitudes</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Reportes</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Evaluaciones</th>
-          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px;">Acciones</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">RPE</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Nombre</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Reportes por Alumno</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Carreras Asignadas</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Solicitudes Asignadas</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Reportes Asignados</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Evaluaciones Asignados</th>
+          <th class="text-center text-uppercase text-white fw-bold" style="background: transparent; font-size: 1.1rem; padding: 15px; white-space: nowrap;">Acciones</th>
         </tr>
       </thead>
 
@@ -41,6 +42,10 @@
             <td class="text-center fw-bold">{{ $encargado->RPE }}</td>
 
             <td class="text-center">{{ $encargado->Nombre }}</td>
+
+            <td class="text-center" style="color:#000;">
+                {{ $encargado->reportes_requeridos[0] ?? '-' }}
+            </td>
 
             {{-- CARRERAS --}}
             <td class="text-center">
@@ -55,15 +60,15 @@
             </td>
 
             <td class="text-center" style="color:#000;">
-                {{ $encargado->pendientes_solicitudes }}
+                {{ $encargado->solicitudes_asignadas }}
             </td>
 
             <td class="text-center" style="color:#000;">
-                {{ $encargado->pendientes_reportes }}
+                {{ $encargado->reportes_asignados }}
             </td>
 
             <td class="text-center" style="color:#000;">
-                {{ $encargado->pendientes_evaluaciones }}
+                {{ $encargado->evaluaciones_asignadas }}
             </td>
 
             <td class="text-center">
@@ -81,52 +86,67 @@
           <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
             <form action="{{ route('administrador.encargados.updateCarreras', $encargado->Id_Encargado) }}" method="POST">
-            @csrf
-            @method('PUT')
+                @csrf
+                @method('PUT')
 
                 {{-- HEADER --}}
                 <div class="modal-header text-white py-3" style="background: linear-gradient(90deg, #00124E, #003B95);">
-                <h5 class="modal-title fw-bold">
-                    <i class="bi bi-briefcase-fill me-2"></i> EDITAR CARRERAS ASIGNADAS
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-briefcase-fill me-2"></i> EDITAR CARRERAS ASIGNADAS
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
                 {{-- BODY --}}
                 <div class="modal-body px-4">
 
-                <p class="text-muted mb-3 fw-bold" style="font-size: 1rem;">
-                    Selecciona las carreras que estarán a cargo del encargado:
-                </p>
+                    <p class="text-muted mb-3 fw-bold" style="font-size: 1rem;">
+                        Selecciona las carreras que estarán a cargo del encargado:
+                    </p>
 
-                <div class="d-flex flex-column gap-2">
-                    @foreach($carreras as $c)
-                    <div class="form-check d-flex align-items-center py-1">
-                        <input class="form-check-input me-2"
-                            type="checkbox"
-                            name="carreras[]"
-                            value="{{ $c->Descripcion_Capitalizadas }}"
-                            id="carrera{{ $encargado->Id_Encargado }}_{{ $loop->index }}"
-                            {{ in_array($c->Descripcion_Capitalizadas, $encargado->listaCarreras ?? []) ? 'checked' : '' }}>
+                    <div class="d-flex flex-column gap-2 mb-3">
+                        @foreach($carreras as $c)
+                        <div class="form-check d-flex align-items-center py-1">
 
-                        <label class="form-check-label w-100" for="carrera{{ $encargado->Id_Encargado }}_{{ $loop->index }}">
-                        {{ $c->Descripcion_Capitalizadas }}
-                        </label>
+                            <input
+                                class="form-check-input me-2"
+                                type="checkbox"
+                                name="carreras[]"
+                                value="{{ mb_strtoupper($c->Descripcion_Mayúsculas) }}"
+                                id="carrera{{ $encargado->Id_Encargado }}_{{ $loop->index }}"
+                                {{ in_array(mb_strtoupper($c->Descripcion_Mayúsculas), $encargado->listaCarreras ?? []) ? 'checked' : '' }}>
+
+                            <label class="form-check-label w-100"
+                                for="carrera{{ $encargado->Id_Encargado }}_{{ $loop->index }}">
+                                {{ $c->Descripcion_Mayúsculas }}
+                            </label>
+                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
+
+                    {{-- NUEVO CAMPO: Número de reportes --}}
+                    <p class="text-muted mb-2 fw-bold">Número de reportes requeridos por alumno:</p>
+
+                    <input type="number"
+                        name="numero_reportes"
+                        class="form-control form-control-lg mb-2"
+                        style="border-radius: 12px;"
+                        min="1"
+                        max="10"
+                        value="{{ $encargado->reportes_requeridos[0] ?? 1 }}"
+                        required>
                 </div>
 
                 {{-- FOOTER --}}
                 <div class="modal-footer border-0 px-4 pb-3">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg me-1"></i> Cancelar
-                </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i> Cancelar
+                    </button>
 
-                <button type="submit" class="btn text-white rounded-pill px-4"
-                        style="background:#0053A9; transition: 0.2s;">
-                    <i class="bi bi-check-lg me-1"></i> Guardar Cambios
-                </button>
+                    <button type="submit" class="btn text-white rounded-pill px-4"
+                            style="background:#0053A9; transition: 0.2s;">
+                        <i class="bi bi-check-lg me-1"></i> Guardar Cambios
+                    </button>
                 </div>
             </form>
             </div>

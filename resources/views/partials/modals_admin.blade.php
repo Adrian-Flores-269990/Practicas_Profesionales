@@ -39,7 +39,7 @@
             </div>
             <div class="modal-body">
                 <div class="d-flex justify-content-center">
-                    <img src="{{ asset('images/diagrama-proceso.png') }}" alt="Diagrama del Proceso">
+                    <img src="{{ asset('storage/images/diagrama-proceso.png') }}?{{ time() }}" alt="Diagrama del Proceso">
                 </div>
             </div>
             <div class="modal-footer">
@@ -62,7 +62,7 @@
             </div>
             <div class="modal-body">
                 <div class="d-flex justify-content-center">
-                    <img src="{{ asset('images/proceso-practicas.png') }}" alt="Proceso">
+                    <img src="{{ asset('storage/images/proceso-practicas.png') }}?{{ time() }}" alt="Proceso">
                 </div>
             </div>
             <div class="modal-footer">
@@ -187,14 +187,16 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form>
-          <label class="form-label">Seleccionar nuevo diagrama</label>
-          <input type="file" class="form-control" accept="image/*">
+        <form method="POST" action="{{ route('modals.update', 'diagrama-proceso') }}" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <label class="form-label">Seleccionar nuevo diagrama</label>
+            <input type="file" name="imagen" class="form-control" accept="image/*" required>
+            <div class="mt-3">
+                <button class="btn btn-success" type="submit">Guardar Cambios</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+            </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-success">Guardar Cambios</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
       </div>
     </div>
   </div>
@@ -208,14 +210,16 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form>
-          <label class="form-label">Seleccionar nueva imagen del proceso</label>
-          <input type="file" class="form-control" accept="image/*">
+        <form method="POST" action="{{ route('modals.update', 'proceso-practicas') }}" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <label class="form-label">Seleccionar nueva imagen del proceso</label>
+            <input type="file" name="imagen" class="form-control" accept="image/*" required>
+            <div class="mt-3">
+                <button class="btn btn-success" type="submit">Guardar Cambios</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancelar</button>
+            </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-success">Guardar Cambios</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
       </div>
     </div>
   </div>

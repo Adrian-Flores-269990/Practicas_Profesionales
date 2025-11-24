@@ -18,9 +18,9 @@
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
           <li><a class="dropdown-item" href="{{ route('administrador.encargados') }}">Encargados de Prácticas Profesionales</a></li>
           <li><a class="dropdown-item" href="{{ route('administrador.consultar_alumno') }}">Consultar Alumno</a></li>
-          <li><a class="dropdown-item" href="#">Autorizaciones Pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('administrador.autorizaciones') }}">Autorizaciones Pendientes</a></li>
           <li><a class="dropdown-item" href="{{ route('administrador.empresas') }}">Empresas Registradas</a></li>
-          <li><a class="dropdown-item" href="#">Estadísticas de Empresas</a></li>
+          <li><a class="dropdown-item" href="{{ route('estadisticas-empresas.index') }}">Estadísticas de Empresas</a></li>
           <li><a class="dropdown-item" href="{{ route('administrador.constancias') }}">Constancia de Validación</a></li>
           <li><a class="dropdown-item" href="{{ route('admin.bitacora') }}">Bitácora</a></li>
         </ul>

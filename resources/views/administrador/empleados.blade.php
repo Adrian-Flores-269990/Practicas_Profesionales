@@ -25,7 +25,7 @@
       {{-- ENCABEZADOS CON GRADIENTE --}}
       <thead style="background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);">
         <tr>
-          @php $ths = ['RPE','Nombre','Correo','Cargo','Área','Carrera','Rol Actual','Acciones']; @endphp
+          @php $ths = ['RPE','Nombre','Correo','Cargo','Área','Carrera','Rol','Acciones']; @endphp
           @foreach($ths as $th)
             <th class="text-center text-uppercase text-white fw-bold"
                 style="background: transparent; font-size: 1.1rem; padding: 15px;">

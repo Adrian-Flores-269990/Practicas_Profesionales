@@ -7,6 +7,7 @@ use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\EncargadoController;
+use App\Http\Controllers\EstadisticaController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DssppController;
 use App\Http\Controllers\AdminController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ReporteController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
+use App\Http\Controllers\ModalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,8 @@ Route::post('/', [LoginController::class, 'login'])->name('login');
 // Login empleado/encargado
 Route::view('/empleado/login', 'auth.loginEmpleado')->name('empleado.login');
 Route::post('/empleado/login', [LoginController::class, 'loginEmpleado'])->name('empleado.login.post');
+
+Route::put('/modals/{modal}', [ModalController::class, 'update'])->name('modals.update');
 
 /*
 |--------------------------------------------------------------------------
@@ -50,8 +54,12 @@ Route::prefix('admin')->group(function () {
     Route::get('/encargados', [AdminController::class, 'indexEncargados'])->name('administrador.encargados');
     Route::put('/encargados/{id}/carreras', [AdminController::class, 'updateCarreras'])->name('administrador.encargados.updateCarreras');
     Route::get('/empresas', [AdminController::class, 'indexEmpresas'])->name('administrador.empresas');
+    Route::delete('/empresas/{id}', [AdminController::class, 'destroyEmpresa'])->name('administrador.empresa.destroy');
     Route::get('/constancias', [AdminController::class, 'constancias'])->name('administrador.constancias');
     Route::get('/bitacora', [BitacoraController::class, 'index'])->name('admin.bitacora');
+    Route::get('/autorizaciones', [AdminController::class, 'autorizacionesPendientes'])->name('administrador.autorizaciones');
+    Route::get('/estadisticas-empresas', [EstadisticaController::class, 'index'])->name('estadisticas-empresas.index');
+    Route::get('/estadisticas-empresas/get-datos', [EstadisticaController::class, 'getDatos'])->name('estadisticas-empresas.getDatos');
 });
 
 /*
@@ -122,7 +130,7 @@ Route::prefix('alumno')->group(function () {
             }
             return view('alumno.expediente.ayudaEconomica');
         })->name('alumno.expediente.ayudaEconomica');
-        
+
         // Carta Presentación
         Route::get('/cartaPresentacion/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaPresentacion.mostrar');
         Route::post('/cartaPresentacion/upload', [PdfController::class, 'subirCartaPresentacion'])->name('cartaPresentacion.upload');
@@ -149,8 +157,6 @@ Route::prefix('alumno')->group(function () {
     Route::post('/guardar', [AlumnoController::class, 'store'])->name('alumno.store');
 });
 
-
-
 /*
 |--------------------------------------------------------------------------
 | RUTAS ENCARGADO
@@ -158,7 +164,6 @@ Route::prefix('alumno')->group(function () {
 */
 Route::prefix('encargado')->group(function () {
     Route::get('/inicio', fn () => view('encargado.inicio'))->name('encargado.inicio');
-    // Eliminado duplicado: la ruta con nombre 'encargado.consultar_alumno' debe apuntar al controlador
 
     // Solicitudes
     Route::get('/solicitudes', [EncargadoController::class, 'index'])->name('encargado.solicitudes');
@@ -167,7 +172,7 @@ Route::prefix('encargado')->group(function () {
     Route::put('/solicitud/{id}/autorizar', [EncargadoController::class, 'autorizarSolicitud'])->name('encargado.autorizar');
 
     Route::get('/solicitudes-alumnos', [EncargadoController::class, 'index'])->name('encargado.solicitudes_alumnos');
-    Route::get('/estadisticas_empresas', fn () => view('encargado.estadisticas_empresas'))->name('encargado.estadisticas_empresas');
+    Route::get('/estadisticas-empresas', fn () => view('encargado.estadisticas-empresas'))->name('encargado.estadisticas_empresas');
     Route::get('/consultar-alumno', [EncargadoController::class, 'consultarAlumno'])
         ->name('encargado.consultar_alumno');
 

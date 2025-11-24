@@ -37,7 +37,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-            <div class="d-flex justify-content-center"><img src="{{ asset('images/diagrama-proceso.png') }}" alt="Diagrama de Proceso" class=""></div>
+            <div class="d-flex justify-content-center">< <img src="{{ asset('storage/images/diagrama-proceso.png') }}?{{ time() }}" alt="Diagrama del Proceso"></div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -54,7 +54,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
-            <div class="d-flex justify-content-center"><img src="{{ asset('images/proceso-practicas.png') }}" alt="Proceso Prácticas Profesionales" class=""></div>
+            <div class="d-flex justify-content-center"><img src="{{ asset('storage/images/proceso-practicas.png') }}?{{ time() }}" alt="Proceso"></div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

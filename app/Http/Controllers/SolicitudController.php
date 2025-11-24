@@ -324,6 +324,12 @@ class SolicitudController extends Controller
                                     'etapa' => $etapa,
                                     'estado' => 'deshabilitado'
                                 ]);
+                            }else{
+                                EstadoProceso::create([
+                                    'clave_alumno' => $claveAlumno,
+                                    'etapa' => $etapa,
+                                    'estado' => 'pendiente'
+                                ]);
                             }
                         }else{
                             EstadoProceso::create([

@@ -11,15 +11,26 @@
     padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
   }
-  .info-row:last-child { border-bottom: none; }
-  .info-label { font-weight: 500; color: #555; }
-  .info-value { color: #222; }
+
+  .info-row:last-child { 
+    border-bottom: none; 
+  }
+
+  .info-label { 
+    font-weight: 500; color: #555; 
+  }
+
+  .info-value { 
+    color: #222; 
+  }
+
   .btn-row {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-top: 2rem;
   }
+
   .btn-aceptar {
     background: #004795;
     color: white;
@@ -29,7 +40,11 @@
     cursor: pointer;
     transition: 0.2s;
   }
-  .btn-aceptar:hover { background: #003b70; }
+
+  .btn-aceptar:hover { 
+    background: #003b70; 
+  }
+
   .seccion-card {
     background: white;
     border-radius: 12px;
@@ -39,28 +54,45 @@
     border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
   }
-  .seccion-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+  .seccion-card:hover { 
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12); 
+  }
+
   .seccion-header {
-    background: #c3cfe2;
-    padding: 1.25rem 1.5rem;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: #2d3748;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background: #000066;
+    color: white;
+    padding: 1.25rem 2rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
-  .seccion-header i { font-size: 1.2rem; }
-  .seccion-body { padding: 1.5rem; }
+
+  .seccion-header i { 
+    font-size: 1.2rem; 
+  }
+
+  .seccion-body { 
+    padding: 1.5rem; 
+  }
+
   .dato-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 1.5rem;
   }
-  .dato-item { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .dato-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
   .dato-label {
     font-weight: 600;
     color: #4a5568;
@@ -68,7 +100,12 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .dato-valor { color: #2d3748; font-size: 1rem; font-weight: 500; }
+
+  .dato-valor {
+    color: #2d3748;
+    font-size: 1rem;
+    font-weight: 500;
+  }
 
   /* Estilos de la zona de subida */
   .zona-subida {
@@ -79,7 +116,11 @@
     background: #f8f9fa;
     transition: 0.3s ease;
   }
-  .zona-subida:hover { background: #eef3fb; }
+
+  .zona-subida:hover { 
+    background: #eef3fb; 
+  }
+
   .btn-subir {
     background: #004795;
     color: #fff;
@@ -89,7 +130,61 @@
     cursor: pointer;
     transition: 0.3s;
   }
-  .btn-subir:hover { background: #003b70; }
+  
+  .btn-subir:hover { 
+    background: #003b70; 
+    }
+
+
+    .btn-open-pdf {
+        background: #17a2b8;
+        color: white;
+        padding: 0.65rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .btn-open-pdf:hover {
+        background: #17a2b8;
+        color: white;
+        transform: translateX(4px);
+    }
+
+    .btn-eliminar-pdf {
+        background: #dc3545;
+        color: white;
+        padding: 0.65rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+        min-width: 250px;
+        justify-content: center;
+        .btn-eliminar-pdf {
+    appearance: none;
+    -webkit-appearance: none;
+    line-height: 1; /* clave */
+    box-sizing: border-box;
+}
+
+    }
+    
+    .btn-eliminar-pdf:hover {
+        background: #bb2b3aff;
+        color: white;
+        transform: translateX(4px);
+    }    
+
 </style>
 @endpush
 
@@ -97,8 +192,11 @@
 @section('content')
 @include('partials.nav.registro')
 
-<div class="container-fluid my-0 p-0">
-    <!-- Header -->
+
+
+
+ <div class="container-fluid my-0 p-0">
+  <!-- Header -->
     <div class="detalle-header">
         <div class="container">
             <h4 class="text-center">
@@ -107,10 +205,13 @@
             </h4>
         </div>
     </div>
+</div>
 
+<div class="container py-4">
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
-    {{-- Alumno --}}
+    
+  {{-- Alumno --}}
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-person-badge"></i> DATOS DE ALUMNO</div>
       <div class="seccion-body">
@@ -239,18 +340,32 @@
       @if($pdfPath)
         <div class="mb-4">
           <h6 class="fw-bold">Documento subido:</h6>
+
           <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
+
           <div class="d-flex gap-2 mt-2">
-            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
-            <form method="POST" action="{{ route('registroFPP02.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Solicitud_FPP02_Firmada']) }}" style="display:inline;">
+
+            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn-open-pdf">
+              <i class="bi bi-box-arrow-up-right"></i>
+              Abrir en nueva pestaña
+            </a>
+
+            <a href="#" onclick="event.preventDefault(); document.getElementById('formEliminarPDF').submit();" 
+              class="btn-eliminar-pdf">
+              <i class="bi bi-trash"></i>
+              Eliminar PDF
+            </a>
+
+            <form id="formEliminarPDF" method="POST"
+                  action="{{ route('registroFPP02.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Solicitud_FPP02_Firmada']) }}">
               @csrf
               <input type="hidden" name="archivo" value="{{ $pdfPath }}">
-              <button type="submit" class="btn btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar el documento actual?')">
-                <i class="bi bi-trash"></i> Eliminar PDF
-              </button>
             </form>
+
           </div>
         </div>
+
+
       @else
         <form method="POST" action="{{ route('registroFPP02.upload') }}" enctype="multipart/form-data" id="form-reporte">
           @csrf

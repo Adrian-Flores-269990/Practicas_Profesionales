@@ -34,8 +34,18 @@ class Expediente extends Model
         return $this->belongsTo(SolicitudFPP01::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
     }
 
+    public function solicitudFPP01()
+    {
+        return $this->belongsTo(SolicitudFPP01::class, 'Id_Solicitud_FPP01', 'Id_Solicitud_FPP01');
+    }
+
     public function registro()
     {
         return $this->belongsTo(SolicitudFPP02::class, 'Id_Solicitud_FPP02', 'Id_Solicitud_FPP02');
+    }
+
+    public function reportes()
+    {
+        return $this->hasMany(Reporte::class, 'Id_Expediente', 'Id_Expediente');
     }
 }

@@ -23,15 +23,21 @@
   }
 
   .stat-card.pendientes {
-    border-left-color: #ffc107;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;  
   }
 
   .stat-card.aprobadas {
-    border-left-color: #28a745;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
   }
 
   .stat-card.rechazadas {
-    border-left-color: #dc3545;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
   }
 
   .stat-number {
@@ -51,14 +57,18 @@
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 3rem;
     transition: all 0.3s ease;
   }
+
+  /*
+  HACE QUE CUANDO ACERCAS EL CURSOR LA TARJETA TENGA UN EFECTO
 
   .solicitud-card:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     transform: translateY(-2px);
   }
+*/
 
   .solicitud-header {
     display: flex;
@@ -66,7 +76,7 @@
     align-items: start;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 3px solid #000066;
   }
 
   .alumno-info {
@@ -146,11 +156,25 @@
     flex-wrap: wrap;
   }
 
-  .btn-ver {
-    background: #007bff;
-    color: white;
-    border: none;
-  }
+    .btn-ver-detalle {
+        background: #000066;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .btn-ver-detalle:hover {
+        background: #000099;
+        color: white;
+    }
 
   .btn-action {
     padding: 0.5rem 1.2rem;
@@ -332,12 +356,15 @@
           </div>
         </div>
 
-        <div class="action-buttons">
-          <a href="{{ route('encargado.verSolicitud', $solicitud->Id_Solicitud_FPP01) }}" class="btn btn-action btn-ver">
-            <i class="bi bi-eye me-1"></i>
-            Ver Solicitud Completa
-          </a>
+        <div class="col-12">
+          <div class="d-flex justify-content-end gap-2 flex-wrap btn-actions mt-2">
+            <a href="{{ route('encargado.verSolicitud', $solicitud->Id_Solicitud_FPP01) }}" class="btn-ver-detalle">
+              Ver Solicitud Completa
+            </a>
+          </div>
         </div>
+
+
       </div>
     @empty
       <div class="empty-state">

@@ -1,8 +1,43 @@
 @extends('layouts.encargado')
-@section('title','FPP02 - Revisar Registro')
+@section('title', 'FPP02 - Revisar Registro')
 
 @push('styles')
 <style>
+  .seccion-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+  }
+
+  .seccion-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  .seccion-header {
+    background: #17a2b8;
+    color: white;
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .seccion-header i {
+    font-size: 1.2rem;
+  }
+
+  .seccion-body {
+    padding: 1.5rem;
+  }
+
   .action-buttons {
     display: flex;
     gap: 1rem;
@@ -42,45 +77,103 @@
     box-shadow: 0 4px 12px rgba(245,101,101,0.4);
     color: white;
   }
+
+  .btn-regresar {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.85rem 2.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-regresar:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateX(-4px);
+  }
+
+  .btn-open-pdf {
+    background: #17a2b8;
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    text-decoration: none;
+  }
+  
+  .btn-open-pdf:hover {
+    background: #138496;
+    color: white;
+    transform: translateX(4px);
+  }
 </style>
 @endpush
 
 @section('content')
-
 <div class="container-fluid my-0 p-0">
+  <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
+    REVISIÓN DE REGISTRO DE PRÁCTICAS PROFESIONALES
+  </h4>
 
-    <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
-      REVISIÓN DE REGISTRO DE PRÁCTICAS PROFESIONALES
-    </h4>
+  <div class="container py-4">
+    <form action="{{ route('encargado.calificarRegistro') }}" method="POST" id="form-revision">
+      @csrf
 
-    <div class="bg-white p-4 rounded shadow-sm w-100">
-
-      @if($pdfPath)
-        <div class="mb-4">
-          <h6 class="fw-bold">Documento subido:</h6>
-          <iframe src="{{ asset($pdfPath) }}" style="border:1px solid #4583B7; display:block; margin:auto; width:816px; height:1100px; max-width:100%; max-height:100%;"></iframe>
-          <div class="d-flex gap-2 mt-2">
-            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn btn-outline-primary">Abrir PDF en nueva pestaña</a>
-          </div>
-          
-          <form action="{{ route('encargado.calificarRegistro') }}" method="POST" class="d-flex gap-2">
-            @csrf
-            <input type="hidden" name="seccion" value="solicitante">
-            <input type="hidden" name="claveAlumno" value="{{ $claveAlumno }}">
-
-            <button type="submit" name="valor" value="1" class="btn btn-aceptar btn-accion">
-                <i class="bi bi-check-lg me-1"></i> Aceptar
-            </button>
-
-            <button type="submit" name="valor" value="0" class="btn btn-rechazar btn-accion">
-                <i class="bi bi-x-lg me-1"></i> Rechazar
-            </button>
-          </form>
+      {{-- PREVIEW DEL PDF --}}
+      <div class="seccion-card">
+        <div class="seccion-header">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          Documento de Registro
         </div>
-      @endif    
-    </div>
-  </div>
+        <div class="seccion-body">
+          @if($pdfPath)
+            <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7; border-radius:8px;"></iframe>
+            <div class="d-flex gap-2 mt-2">
+              <a href="{{ asset($pdfPath) }}" target="_blank" class="btn-open-pdf">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Abrir en nueva pestaña
+              </a>
+            </div>
+          @else
+            <div class="alert alert-warning mb-0">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              No se encontró el documento de registro.
+            </div>
+          @endif
+        </div>
+      </div>
 
+      {{-- BOTONES FINALES --}}
+      <div class="mt-4 text-center d-flex gap-3 justify-content-center">
+        <input type="hidden" name="seccion" value="solicitante">
+        <input type="hidden" name="claveAlumno" value="{{ $claveAlumno }}">
+        
+        <button type="submit" name="valor" value="1" class="btn-aceptar">
+          <i class="bi bi-check-circle-fill me-2"></i>
+          Aceptar
+        </button>
+
+        <button type="submit" name="valor" value="0" class="btn-rechazar">
+          <i class="bi bi-x-circle-fill me-2"></i>
+          Rechazar
+        </button>
+
+        <a href="{{ route('encargado.inicio') }}" class="btn-regresar">
+          <i class="bi bi-arrow-left me-2"></i>
+          Regresar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
 @endsection
 
 @push('scripts')

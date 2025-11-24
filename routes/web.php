@@ -12,6 +12,7 @@ use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\DssppController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BitacoraController;
+use App\Http\Controllers\ReporteController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Http\Controllers\ModalController;
@@ -87,7 +88,13 @@ Route::prefix('alumno')->group(function () {
     Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
     Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');
     Route::post('/generar-fpp02', [PdfController::class, 'generarFpp02'])->name('alumno.generarFpp02');
-    Route::get('/reporte', fn () => view('alumno.reporte'))->name('alumno.reporte');
+    
+    // Reportes
+    Route::get('/reporte', [\App\Http\Controllers\ReporteController::class, 'create'])->name('alumno.reporte');
+    Route::post('/reporte', [\App\Http\Controllers\ReporteController::class, 'store'])->name('alumno.reportes.store');
+    Route::get('/reportes', [\App\Http\Controllers\ReporteController::class, 'index'])->name('alumno.reportes.lista');
+    Route::get('/reportes/{id}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargar'])->name('alumno.reportes.descargar');
+    
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
 
     Route::get('/registroFPP02/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('registroFPP02.mostrar');
@@ -189,14 +196,26 @@ Route::prefix('encargado')->group(function () {
     Route::post('/accion_registro', [EncargadoController::class, 'calificarRegistro'])->name('encargado.calificarRegistro');
 
     //Carta de Presentación
-    Route::get('/cartas_presentacion', [EncargadoController::class, 'verPresentacion'])->name('encargado.cartasPresentacion');
-    Route::get('/carta_presentacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaPresentacion');
+    Route::get('/cartas_presentacion', [EncargadoController::class, 'cartasPresentacionEncargado'])->name('encargado.cartasPresentacion');
+    //Route::get('/carta_presentacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaPresentacion');
     Route::post('/accion_carta_presentacion', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
+    Route::get('/cartas_presentacion/{claveAlumno}', [EncargadoController::class, 'revisarCartaPresentacion'])->name('encargado.verCartaPresentacion');
+    Route::post('/carta/accion',[EncargadoController::class, 'accionCartaPresentacion'])->name('encargado.cartaPresentacion.accion');
+    //Route::post('/cartas/calificar', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
+
+
 
     //Carta de Aceptación
     Route::get('/cartas_aceptacion', [EncargadoController::class, 'verAceptacion'])->name('encargado.cartasAceptacion');
     Route::get('/carta_aceptacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaAceptacion');
     Route::post('/accion_carta_aceptacion', [EncargadoController::class, 'calificarAceptacion'])->name('encargado.calificarCartaAceptacion');
+
+    // Reportes
+    Route::get('/reportes/pendientes', [ReporteController::class, 'reportesPendientes'])->name('encargado.reportes.pendientes');
+    Route::get('/reportes/alumno/{clave}', [ReporteController::class, 'reportesAlumno'])->name('encargado.reportes_alumno');
+    Route::get('/reportes/{id}/revisar', [ReporteController::class, 'revisar'])->name('encargado.reportes.revisar');
+    Route::post('/reportes/{id}/aprobar', [ReporteController::class, 'aprobar'])->name('encargado.reportes.aprobar');
+    Route::get('/reportes/{id}/descargar', [ReporteController::class, 'descargarEncargado'])->name('encargado.reportes.descargar');
 
 });
 
@@ -285,6 +304,12 @@ Route::prefix('dsspp')->group(function () {
     Route::get('/solicitudes', [DssppController::class, 'index'])->name('dsspp.solicitudes');
     Route::get('/solicitud/{id}', [DssppController::class, 'verSolicitud'])->name('dsspp.verSolicitud');
     Route::put('/solicitud/{id}/autorizar', [DssppController::class, 'autorizarSolicitud'])->name('dsspp.autorizarSolicitud');
+
+    Route::get('/carta', [DssppController::class, 'lista'])->name('dsspp.carta');
+    Route::post('/carta/generar/{clave}', [DssppController::class, 'generarCarta'])->name('dsspp.carta.generar');
+    Route::post('/carta/aprobar/{clave}', [DssppController::class, 'aprobar'])->name('dsspp.carta.aprobar');
+    Route::post('/carta/rechazar/{clave}', [DssppController::class, 'rechazar'])->name('dsspp.carta.rechazar');
+    Route::get('/carta/preview/{clave}', [DssppController::class, 'previewCarta'])->name('dsspp.carta.preview');
 });
 
 

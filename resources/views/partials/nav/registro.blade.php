@@ -32,17 +32,34 @@ if ($ultimaSolicitud) {
 
     // 🟧 BLOQUEO REGISTRO
     // Se desbloquea si la solicitud fue aprobada por ambos
-    if ($dep == 'aprobado' && $enc == 'aprobado') {
-        $bloqueoRegistro = false;
-    }
-
-    // 🟨 BLOQUEO REPORTE
-    // Se desbloquea si el registro fue aprobado o realizado
     $registro = EstadoProceso::where('clave_alumno', $claveAlumno)
         ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
         ->first();
 
-    if ($registro && in_array($registro->estado, ['aprobado', 'realizado'])) {
+    if ($dep === 'aprobado' && $enc === 'aprobado') {
+        // Si aún NO ha hecho el registro -> puede entrar
+        if (!$registro || !in_array($registro->estado, ['realizado', 'aprobado'])) {
+            $bloqueoRegistro = false;
+        } else {
+            // Si ya lo hizo -> se bloquea otra vez
+            $bloqueoRegistro = true;
+        }
+    }
+
+    // 🟨 BLOQUEO REPORTE
+    // Se desbloquea si el registro fue aprobado o realizado
+    $estadoRecibo = EstadoProceso::where('clave_alumno', $claveAlumno)
+        ->where('etapa', 'RECIBO DE PAGO')
+        ->value('estado');
+
+    $estadoCartaEnc = EstadoProceso::where('clave_alumno', $claveAlumno)
+        ->where('etapa', 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
+        ->value('estado');
+
+    if (
+        in_array($estadoRecibo, ['realizado', 'aprobado']) ||
+        in_array($estadoCartaEnc, ['realizado', 'aprobado'])
+    ) {
         $bloqueoReporte = false;
     }
 

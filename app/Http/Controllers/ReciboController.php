@@ -180,5 +180,5 @@ class ReciboController extends Controller
         $pdf = Pdf::loadView('pdf.recibo_pago', compact('data'));
         return $pdf->download('recibo-pago.pdf');
 
-}
+    }
 }

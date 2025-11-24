@@ -14,6 +14,7 @@ use App\Services\UaslpApiService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Expediente;
+use App\Models\Reporte;
 use Carbon\Carbon;
 
 class EncargadoController extends Controller
@@ -93,6 +94,9 @@ class EncargadoController extends Controller
                     })->first();
 
                 $resumenSolicitud = null;
+                $contadorReportes = 0;
+                $reportesPendientes = 0;
+                
                 if ($solicitud) {
                     // Obtener nombre de empresa desde la relación
                     $empresaNombre = null;
@@ -110,6 +114,15 @@ class EncargadoController extends Controller
                         }
                         $dias = $solicitud->Dias_Semana ? " - {$solicitud->Dias_Semana}" : '';
                         $horario = trim($turno . $horas . $dias);
+                    }
+
+                    // Obtener información de reportes
+                    $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+                    if ($expediente) {
+                        $contadorReportes = Reporte::where('Id_Expediente', $expediente->Id_Expediente)->count();
+                        $reportesPendientes = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+                            ->whereNull('Calificacion')
+                            ->count();
                     }
 
                     // Construimos un resumen ligero evitando exponer todo el modelo
@@ -135,6 +148,25 @@ class EncargadoController extends Controller
                     })->toArray();
                 }
 
+                // Agregar información de reportes al semáforo si existe expediente
+                if ($expediente && $contadorReportes > 0) {
+                    $reportesCalificados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+                        ->whereNotNull('Calificacion')
+                        ->count();
+                    
+                    $estadoReportes = 'pendiente';
+                    if ($reportesCalificados == $contadorReportes && $contadorReportes > 0) {
+                        $estadoReportes = 'realizado';
+                    } elseif ($reportesCalificados > 0) {
+                        $estadoReportes = 'proceso';
+                    }
+                    
+                    $semaforo[] = [
+                        'etapa' => "Reportes mensuales ({$reportesCalificados}/{$contadorReportes} calificados)",
+                        'estado' => $estadoReportes,
+                    ];
+                }
+
                 return [
                     'cve_uaslp' => $alumno->Clave_Alumno,
                     'nombres' => $alumno->Nombre,
@@ -146,6 +178,8 @@ class EncargadoController extends Controller
                     'correo' => $alumno->CorreoElectronico,
                     'solicitud_fpp01' => $resumenSolicitud,
                     'semaforo' => $semaforo,
+                    'contador_reportes' => $contadorReportes,
+                    'reportes_pendientes' => $reportesPendientes,
                 ];
             })->toArray();
 
@@ -441,63 +475,68 @@ class EncargadoController extends Controller
                 ]);
             }
 
+            // ---------------------------------------------
+            // SEMAFORIZACIÓN — AUTORIZACIÓN FPP02
+            // ---------------------------------------------
+            $clave = $request->claveAlumno;
+
+            // ACEPTADO
+            if ($request->valor == 1) {
+
+                // Etapa 5: Autorización del Encargado (FPP02) -> VERDE
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)'
+                    ],
+                    [
+                        'estado' => 'realizado'
+                    ]
+                );
+
+                // Etapa 6: Carta de Presentación DSSPP -> AMARILLO
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)'
+                    ],
+                    [
+                        'estado' => 'proceso'
+                    ]
+                );
+            }
+
+            // RECHAZADO
+            else {
+
+                // Etapa 5: Autorización del Encargado (FPP02) -> ROJO
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)'
+                    ],
+                    [
+                        'estado' => 'pendiente'
+                    ]
+                );
+
+                // Etapa 4: Registro FPP02 -> AMARILLO
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES'
+                    ],
+                    [
+                        'estado' => 'proceso'
+                    ]
+                );
+            }
+
             $pdfController = new PDFController();
             $pdfController->generarCartaPresentacion($request->claveAlumno, $expediente);
         }
 
         return redirect()->route('encargado.registros')->with('success', 'Acción realizada correctamente');
-    }
-
-    // ---------------------------------------------------
-    // Para ver las cartas de presentación de los alumnos
-    // ---------------------------------------------------
-    public function verPresentacion()
-    {
-        $expedientes = Expediente::with('solicitud.alumno', 'registro')
-                                ->whereNotNull('Carta_Presentacion')
-                                ->get();
-
-        $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
-
-        return view('encargado.presentacion_alumnos', compact('expedientes', 'carreras'));
-    }
-
-    // ---------------------------------------------------------
-    // Para calificar las cartas de presentación de los alumnos
-    // ---------------------------------------------------------
-    public function calificarPresentacion(Request $request)
-    {
-        $request->validate([
-            'seccion' => 'required|string',
-            'valor' => 'required|in:0,1',
-            'claveAlumno' => 'nullable|string'
-        ]);
-
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
-                                    ->where('Autorizacion', 1)
-                                    ->first();
-
-        if (! $solicitud) {
-            return abort(404, 'Solicitud no autorizada');
-        }
-
-        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
-
-        if ($expediente) {
-
-            if ($request->valor == 1) {
-                $expediente->update([
-                    'Autorizacion_Presentacion' => 1,
-                    'Fecha_Autorizacion_Presentacion' => Carbon::now(),
-                ]);
-            } else {
-                $expediente->update([
-                    'Autorizacion_Presentacion' => 0,
-                ]);
-            }
-        }
-
-        return redirect()->route('encargado.cartasPresentacion')->with('success', 'Acción realizada correctamente');
     }
 
     // -------------------------------------------------
@@ -525,6 +564,8 @@ class EncargadoController extends Controller
             'claveAlumno' => 'nullable|string'
         ]);
 
+        $clave = $request->claveAlumno;
+
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
                                     ->where('Autorizacion', 1)
                                     ->first();
@@ -549,7 +590,223 @@ class EncargadoController extends Controller
             }
         }
 
+        // ========================================
+        // 🔵 SEMAFORIZACIÓN
+        // ========================================
+        
+        if ($request->valor == 1) {
+
+            // 🟢 ENCARGADO aprobó (verde)
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+                ],
+                ['estado' => 'realizado']
+            );
+
+            // 🟡 El alumno ya pasó (amarillo)
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+                ],
+                ['estado' => 'realizado']
+            );
+
+            // 🟡 PASAMOS A REPORTE PARCIAL NO. X
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'REPORTE PARCIAL NO. X'
+                ],
+                ['estado' => 'proceso']
+            );
+
+        } else {
+
+            // 🔴 Rechazado (rojo)
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+                ],
+                ['estado' => 'pendiente']
+            );
+
+            // 🟡 Volver a permitir al alumno subir carta
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE ACEPTACIÓN (ALUMNO)'
+                ],
+                ['estado' => 'proceso']
+            );
+        }
+
         return redirect()->route('encargado.cartasAceptacion')->with('success', 'Acción realizada correctamente');
     }
 
+    public function calificarCartaPresentacion(Request $request)
+    {
+        $request->validate([
+            'valor' => 'required|in:0,1',
+            'claveAlumno' => 'required'
+        ]);
+
+        $clave = $request->claveAlumno;
+
+        // Obtener expediente
+        $sol = SolicitudFPP01::where('Clave_Alumno', $clave)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        $exp = Expediente::where('Id_Solicitud_FPP01', $sol->Id_Solicitud_FPP01)->first();
+
+        // Guardar decisión del encargado
+        $exp->update([
+            'Autorizacion_Presentacion' => $request->valor
+        ]);
+
+        // SEMÁFORO
+        if ($request->valor == 1) {
+            // ACEPTADO
+            EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
+                ->update(['estado' => 'realizado']);
+
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE PRESENTACIÓN (ALUMNO)'
+                ],
+                ['estado' => 'proceso']
+            );
+        }
+        else {
+            // RECHAZADO
+            EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
+                ->update(['estado' => 'pendiente']);
+
+            EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)')
+                ->update(['estado' => 'proceso']);
+        }
+
+        return redirect()->route('encargado.cartasPresentacion')
+                        ->with('success', 'Acción realizada correctamente.');
+    }
+
+    public function revisarCartaPresentacion($claveAlumno)
+    {
+        $alumno = Alumno::where('Clave_Alumno', $claveAlumno)->firstOrFail();
+
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->where('Autorizacion', 1)
+            ->firstOrFail();
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->firstOrFail();
+
+        if (!$expediente->Carta_Presentacion) {
+            abort(404, "No existe carta generada");
+        }
+
+        $pdfPath = 'storage/expedientes/Carta_Presentacion/' . $expediente->Carta_Presentacion;
+
+        return view('encargado.revisar_presentacion', [
+            'alumno' => $alumno,
+            'claveAlumno' => $claveAlumno,
+            'pdfPath' => $pdfPath
+        ]);
+    }
+
+    public function accionCartaPresentacion(Request $request)
+    {
+        $clave = $request->claveAlumno;
+        $accion = $request->accion; // aprobar | rechazar
+
+        $sol = SolicitudFPP01::where('Clave_Alumno', $clave)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        $exp = Expediente::where('Id_Solicitud_FPP01', $sol->Id_Solicitud_FPP01)->first();
+
+        if ($accion === 'aprobar') {
+
+            $exp->update([
+                'Autorizacion_Presentacion' => 1,
+                'Fecha_Autorizacion_Presentacion' => now(),
+            ]);
+
+            // Semaforización
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+                ],
+                ['estado' => 'realizado']
+            );
+
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $clave,
+                    'etapa' => 'CARTA DE PRESENTACIÓN (ALUMNO)'
+                ],
+                ['estado' => 'proceso']
+            );
+
+            return back()->with('success','Carta aprobada correctamente.');
+        }
+
+        // Si rechazó
+        $exp->update([
+            'Autorizacion_Presentacion' => 0,
+        ]);
+
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $clave,
+                'etapa' => 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+            ],
+            ['estado' => 'pendiente']
+        );
+
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $clave,
+                'etapa' => 'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)'
+            ],
+            ['estado' => 'proceso']
+        );
+
+        return back()->with('success','Carta rechazada correctamente.');
+    }
+
+    public function cartasPresentacionEncargado()
+    {
+        // Traer TODOS los expedientes que tengan carta
+        $expedientes = Expediente::with('solicitud.alumno')
+            ->whereNotNull('Carta_Presentacion')
+            ->get();
+
+        // Convertir a lista amigable para la vista
+        $alumnos = $expedientes->map(function($exp){
+            $al = $exp->solicitud->alumno;
+
+            // Buscar estado real de semaforización
+            $estadoProceso = \App\Models\EstadoProceso::where('clave_alumno', $al->Clave_Alumno)
+                ->where('etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
+                ->value('estado') ?? 'pendiente';
+
+            return (object)[
+                'clave_alumno' => $al->Clave_Alumno,
+                'nombre'       => $al->Nombre . ' ' . $al->ApellidoP_Alumno,
+                'carrera'      => $al->Carrera,
+                'estado'       => strtolower($estadoProceso)
+            ];
+        });
+
+        return view('encargado.cartas_presentacion', compact('alumnos'));
+    }
 }

@@ -47,7 +47,7 @@
   }
   
   .alumno-header {
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
+    background: #000066;
     color: white;
     padding: 1.5rem;
     border-radius: 8px 8px 0 0;
@@ -224,7 +224,7 @@
     <div class="search-container mb-4">
       <div class="search-info">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Busca por:</strong> Clave única (incluye 0 al inicio)
+        <strong>Busca por:</strong> Clave única
       </div>
       
       <form action="{{ route('encargado.consultar_alumno') }}" method="GET">
@@ -377,12 +377,15 @@
                   </div>
                   
                   <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
+                    <a href="{{ route('encargado.reportes_alumno', ['clave' => $alumno['cve_uaslp'] ?? '']) }}" class="formulario-btn">
                       <div>
                         <i class="bi bi-file-earmark-bar-graph me-2"></i>
                         <strong>Reportes Mensuales</strong>
+                        @if(isset($alumno['reportes_pendientes']) && $alumno['reportes_pendientes'] > 0)
+                          <span class="badge bg-danger ms-2">{{ $alumno['reportes_pendientes'] }} pendientes</span>
+                        @endif
                       </div>
-                      <span class="badge badge-status bg-primary">3 reportes</span>
+                      <span class="badge badge-status bg-primary">{{ $alumno['contador_reportes'] ?? 0 }} reportes</span>
                     </a>
                   </div>
                   

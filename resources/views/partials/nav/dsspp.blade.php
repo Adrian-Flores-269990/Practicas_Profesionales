@@ -18,6 +18,7 @@
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
           <li><a class="dropdown-item"  href="{{ route('dsspp.consultar_alumno') }}">Consultar Alumno</a></li>
           <li><a class="dropdown-item" href="{{ route('dsspp.solicitudes') }}">Solicitudes Pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('dsspp.carta') }}">Cartas de Presentacion Pendientes</a></li>
         </ul>
       </li>
 

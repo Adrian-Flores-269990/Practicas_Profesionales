@@ -51,13 +51,8 @@
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1rem;
-    transition: all 0.3s ease;
   }
 
-  .solicitud-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-  }
 
   .solicitud-header {
     display: flex;
@@ -65,7 +60,8 @@
     align-items: start;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 3px solid #000066;
+;
   }
 
   .alumno-info {
@@ -95,18 +91,21 @@
   }
 
   .status-pendiente {
-    background-color: #fff3cd;
+    background: #fff3cd;
     color: #856404;
+    border: 1px solid #ffeaa7;
   }
 
   .status-aprobada {
-    background-color: #d4edda;
+    background: #d4edda;
     color: #155724;
+    border: 1px solid #c3e6cb;
   }
 
   .status-rechazada {
-    background-color: #f8d7da;
+    background: #f8d7da;
     color: #721c24;
+    border: 1px solid #f5c6cb;
   }
 
   .solicitud-details {
@@ -134,29 +133,24 @@
     color: #212529;
   }
 
-  .action-buttons {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
   .btn-ver {
-    background: #007bff;
+    background: #000066;
     color: white;
     border: none;
-  }
-
-  .btn-action {
-    padding: 0.5rem 1.2rem;
+    padding: 0.5rem 1.25rem;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 0.9rem;
   }
 
-  .btn-action:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  .btn-ver:hover {
+    background: #000099;
+    color: white;
   }
 
   .empty-state {
@@ -326,12 +320,15 @@
           </div>
         </div>
 
-        <div class="action-buttons">
-          <a href="{{ route('dsspp.verSolicitud', $solicitud->Id_Solicitud_FPP01) }}" class="btn btn-action btn-ver">
-            <i class="bi bi-eye me-1"></i>
-            Ver Constancia de Vigencia de Derechos
+        <div class="d-flex justify-content-end gap-2 flex-wrap btn-actions mt-2">
+          <a href="{{ route('dsspp.verSolicitud', $solicitud->Id_Solicitud_FPP01) }}" class="btn-ver">
+              Ver Constancia de Vigencia de Derechos
           </a>
         </div>
+
+
+
+        
       </div>
     @empty
       <div class="empty-state">

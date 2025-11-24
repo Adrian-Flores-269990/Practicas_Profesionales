@@ -282,29 +282,6 @@ class AlumnoController extends Controller
         ]);
 
         // =====================
-        // ACTUALIZAR SEMÁFORO
-        // =====================
-        try {
-            $updated = EstadoProceso::updateOrCreate(
-                [
-                    'clave_alumno' => $clave,
-                    'etapa' => 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
-                ],
-                [
-                    'estado' => 'realizado',
-                ]
-            );
-
-            Log::info('EstadoProceso actualizado correctamente al imprimir', [
-                'clave_alumno' => $clave,
-                'etapa' => $updated->etapa,
-                'nuevo_estado' => $updated->estado
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error al actualizar EstadoProceso al imprimir: ' . $e->getMessage());
-        }
-
-        // =====================
         // GENERAR PDF
         // =====================
         $pdf = PDF::loadView('pdf.fpp02', compact('alumno', 'solicitud'))

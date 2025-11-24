@@ -137,15 +137,53 @@ class EncargadoController extends Controller
                     ];
                 }
 
-                // Obtener estados de proceso (semáforo) del alumno
+                $ordenEtapas = [
+                    'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+                    'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+                    'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+                    'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+                    'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)',
+                    'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)',
+                    'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                    'CARTA DE PRESENTACIÓN (ALUMNO)',
+                    'CARTA DE ACEPTACIÓN (ALUMNO)',
+                    'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+                    'CARTA DE DESGLOSE DE PERCEPCIONES',
+                    'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
+                    'RECIBO DE PAGO',
+                    'REPORTE PARCIAL NO. X',
+                    'REVISIÓN REPORTE PARCIAL NO. X',
+                    'CORRECCIÓN REPORTE PARCIAL NO. X',
+                    'REPORTE FINAL',
+                    'REVISIÓN REPORTE FINAL',
+                    'CORRECCIÓN REPORTE FINAL',
+                    'CALIFICACIÓN REPORTE FINAL',
+                    'CARTA DE TÉRMINO',
+                    'EVALUACIÓN DE LA EMPRESA',
+                    'CALIFICACIÓN FINAL',
+                    'EVALUACIÓN DEL ALUMNO',
+                    'LIBERACIÓN DEL ALUMNO',
+                    'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES',
+                    'DOCUMENTO EXTRA (EJEMPLO)',
+                ];
+
+                // Obtener estados y ORDENARLOS
                 $semaforo = [];
+
                 if (isset($estadosProceso[$alumno->Clave_Alumno])) {
-                    $semaforo = $estadosProceso[$alumno->Clave_Alumno]->map(function($estado) {
-                        return [
-                            'etapa' => $estado->etapa,
-                            'estado' => $estado->estado,
-                        ];
-                    })->toArray();
+
+                    $semaforo = $estadosProceso[$alumno->Clave_Alumno]
+                        ->sortBy(function ($item) use ($ordenEtapas) {
+                            return array_search($item->etapa, $ordenEtapas);
+                        })
+                        ->map(function ($estado) {
+                            return [
+                                'etapa' => $estado->etapa,
+                                'estado' => $estado->estado,
+                            ];
+                        })
+                        ->values()
+                        ->toArray();
                 }
 
                 // Agregar información de reportes al semáforo si existe expediente
@@ -545,8 +583,11 @@ class EncargadoController extends Controller
     public function verAceptacion()
     {
         $expedientes = Expediente::with('solicitud.alumno', 'registro')
-                                ->whereNotNull('Carta_Aceptacion')
-                                ->get();
+            ->join('solicitud_fpp01', 'expediente.Id_Solicitud_FPP01', '=', 'solicitud_fpp01.Id_Solicitud_FPP01')
+            ->whereNotNull('expediente.Carta_Aceptacion')
+            ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')  // 👈 AQUÍ ORDENAS POR FECHA REAL
+            ->select('expediente.*')
+            ->get();
 
         $carreras = CarreraIngenieria::orderBy('Descripcion_Capitalizadas')->get();
 
@@ -788,6 +829,9 @@ class EncargadoController extends Controller
         // Traer TODOS los expedientes que tengan carta
         $expedientes = Expediente::with('solicitud.alumno')
             ->whereNotNull('Carta_Presentacion')
+            ->join('solicitud_fpp01', 'expediente.Id_Solicitud_FPP01', '=', 'solicitud_fpp01.Id_Solicitud_FPP01')
+            ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')
+            ->select('expediente.*')
             ->get();
 
         // Convertir a lista amigable para la vista

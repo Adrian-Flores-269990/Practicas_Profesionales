@@ -171,6 +171,40 @@ class AlumnoController extends Controller
         // Obtener todas las etapas reales del alumno
         $procesos = EstadoProceso::where('clave_alumno', $claveAlumno)->get();
 
+        $ordenEtapas = [
+            'REGISTRO DE SOLICITUD DE PRÁCTICAS PROFESIONALES',
+            'AUTORIZACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (FPP01)',
+            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP01)',
+            'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
+            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)',
+            'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)',
+            'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+            'CARTA DE PRESENTACIÓN (ALUMNO)',
+            'CARTA DE ACEPTACIÓN (ALUMNO)',
+            'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
+            'CARTA DE DESGLOSE DE PERCEPCIONES',
+            'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
+            'RECIBO DE PAGO',
+            'REPORTE PARCIAL NO. X',
+            'REVISIÓN REPORTE PARCIAL NO. X',
+            'CORRECCIÓN REPORTE PARCIAL NO. X',
+            'REPORTE FINAL',
+            'REVISIÓN REPORTE FINAL',
+            'CORRECCIÓN REPORTE FINAL',
+            'CALIFICACIÓN REPORTE FINAL',
+            'CARTA DE TÉRMINO',
+            'EVALUACIÓN DE LA EMPRESA',
+            'CALIFICACIÓN FINAL',
+            'EVALUACIÓN DEL ALUMNO',
+            'LIBERACIÓN DEL ALUMNO',
+            'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES',
+            'DOCUMENTO EXTRA (EJEMPLO)'
+        ];
+
+        $procesos = $procesos->sortBy(function ($item) use ($ordenEtapas) {
+            return array_search($item->etapa, $ordenEtapas);
+        })->values();
+
         return view('alumno.estado', compact('procesos'));
     }
 

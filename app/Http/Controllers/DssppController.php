@@ -143,7 +143,11 @@ class DssppController extends Controller
     {
         $etapaPendiente = 'CARTA DE PRESENTACIÓN (DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES)';
 
-        $alumnos = EstadoProceso::where('etapa', $etapaPendiente)->get();
+        $alumnos = EstadoProceso::where('etapa', $etapaPendiente)
+            ->join('solicitud_fpp01', 'solicitud_fpp01.Clave_Alumno', '=', 'estado_proceso.clave_alumno')
+            ->orderBy('solicitud_fpp01.Fecha_Solicitud', 'desc')
+            ->select('estado_proceso.*')
+            ->get();
 
         return view('dsspp.listaCarta', compact('alumnos'));
     }

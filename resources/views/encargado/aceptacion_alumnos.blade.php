@@ -1,6 +1,6 @@
 @extends('layouts.encargado')
 
-@section('title','Gestión de Solicitudes')
+@section('title','Gestión de Carta Aceptacion')
 
 @push('styles')
 <style>
@@ -270,7 +270,7 @@
     </div>
 
     {{-- Lista de registros --}}
-    @forelse ($expedientes->reverse() as $expediente)
+    @forelse ($expedientes as $expediente)
       <div class="solicitud-card"
       data-estado="{{ is_null($expediente->Autorizacion_Aceptacion) ? 'pendiente' : ($expediente->Autorizacion_Aceptacion === 1 ? 'aprobada' : 'rechazada') }}"
       data-fecha="{{ $expediente->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">

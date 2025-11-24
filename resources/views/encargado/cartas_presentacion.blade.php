@@ -338,6 +338,22 @@
               {{ $sol && $sol->Fecha_Solicitud ? \Carbon\Carbon::parse($sol->Fecha_Solicitud)->format('d/m/Y') : '—' }}
             </span>
           </div>
+          <div class="detail-item">
+            <span class="detail-label">Materia</span>
+            <span class="detail-value">{{ $sol->Materia ?? '—' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Periodo</span>
+            <span class="detail-value">
+              {{ $sol && $sol->Fecha_Inicio ? \Carbon\Carbon::parse($sol->Fecha_Inicio)->format('d/m/Y') : '—' }}
+              -
+              {{ $sol && $sol->Fecha_Termino ? \Carbon\Carbon::parse($sol->Fecha_Termino)->format('d/m/Y') : '—' }}
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Créditos</span>
+            <span class="detail-value">{{ $sol->Numero_Creditos ?? '—' }}</span>
+          </div>
         </div>
 
         <div class="col-12">

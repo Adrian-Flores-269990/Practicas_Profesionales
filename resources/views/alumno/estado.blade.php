@@ -89,6 +89,7 @@
 .bg-success { background-color: #198754 !important; color: #fff; }
 .bg-warning { background-color: #ffc107 !important; color: #000; }
 .bg-danger  { background-color: #dc3545 !important; color: #fff; }
+.bg-disable { background-color: #656565ff !important; color: #000; }
 
 .bg-success.arrow-right::after { border-left-color: #198754; }
 .bg-success.arrow-left::before { border-right-color: #198754; }
@@ -215,6 +216,7 @@
               $colorClass = match($proceso->estado) {
                   'realizado' => 'bg-success',
                   'proceso' => 'bg-warning',
+                  'deshabilitado' => 'bg-disable',
                   default => 'bg-danger',
               };
             @endphp

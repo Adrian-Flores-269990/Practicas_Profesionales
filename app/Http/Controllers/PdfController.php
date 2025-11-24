@@ -502,6 +502,23 @@ class PdfController extends Controller
                 $tipoDoc => $nombreArchivo,
             ]);
 
+            $alumno = session('alumno');
+            $claveAlumno = $alumno['cve_uaslp'];
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'CARTA DE DESGLOSE DE PERCEPCIONES'
+                ],
+                ['estado' => 'realizado']
+            );
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA'
+                ],
+                ['estado' => 'proceso']
+            );
+
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {
             return back()->withErrors(['No se pudo guardar el archivo.']);

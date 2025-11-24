@@ -317,11 +317,21 @@ class SolicitudController extends Controller
                     ];
 
                     foreach ($etapas as $etapa) {
-                        EstadoProceso::create([
-                            'clave_alumno' => $claveAlumno,
-                            'etapa' => $etapa,
-                            'estado' => 'pendiente'
-                        ]);
+                        if($request->apoyoeco !== 'si'){
+                            if($etapa === 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA' || $etapa === 'CARTA DE DESGLOSE DE PERCEPCIONES' || $etapa === 'RECIBO DE PAGO'){
+                                EstadoProceso::create([
+                                    'clave_alumno' => $claveAlumno,
+                                    'etapa' => $etapa,
+                                    'estado' => 'deshabilitado'
+                                ]);
+                            }
+                        }else{
+                            EstadoProceso::create([
+                                'clave_alumno' => $claveAlumno,
+                                'etapa' => $etapa,
+                                'estado' => 'pendiente'
+                            ]);
+                        }
                     }
                 }
 

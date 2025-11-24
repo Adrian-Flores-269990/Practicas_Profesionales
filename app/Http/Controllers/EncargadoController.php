@@ -873,6 +873,8 @@ class EncargadoController extends Controller
             ->select('expediente.*')
             ->get();
 
-        return view('encargado.cartas_presentacion', compact('expedientes'));
+        $alumnos = Alumno::all();
+        return view('encargado.cartas_presentacion', compact('expedientes', 'alumnos'));
+
     }
 }

@@ -289,7 +289,13 @@
     {{-- Lista de registros --}}
     @forelse ($expedientes->reverse() as $expediente)
       <div class="solicitud-card"
-      data-estado="{{ is_null($expediente->registro->Autorizacion) ? 'pendiente' : ($expediente->registro->Autorizacion === 1 ? 'aprobada' : 'rechazada') }}"
+      data-estado="{{
+                  is_null($expediente->registro->Autorizacion)
+                      ? 'proceso'
+                      : ($expediente->registro->Autorizacion == 1
+                          ? 'aprobada'
+                          : 'proceso')
+              }}"
       data-fecha="{{ $expediente->solicitud->Fecha_Solicitud ? \Carbon\Carbon::parse($expediente->solicitud->Fecha_Solicitud)->format('Y-m-d') : '' }}">
 
         <div class="solicitud-header">
@@ -306,20 +312,24 @@
             </div>
           </div>
 
-        @if (is_null($expediente->registro->Autorizacion))
+        @php
+            $estado = $expediente->registro->Autorizacion;
+        @endphp
+
+        @if (is_null($estado))
             <span class="status-badge status-pendiente">
                 <i class="bi bi-clock-fill"></i>
-                Pendiente
+                En proceso
             </span>
-        @elseif ($expediente->registro->Autorizacion === 1)
+        @elseif ($estado === 1)
             <span class="status-badge status-aprobada">
                 <i class="bi bi-check-circle-fill"></i>
                 Aprobado
             </span>
-        @else
-            <span class="status-badge status-rechazada">
-                <i class="bi bi-x-circle-fill"></i>
-                Rechazado
+        @elseif ($estado === 0)
+            <span class="status-badge status-revision">
+                <i class="bi bi-hourglass-split"></i>
+                En revisión
             </span>
         @endif
         </div>

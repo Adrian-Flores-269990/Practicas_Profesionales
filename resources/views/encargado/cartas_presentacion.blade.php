@@ -237,9 +237,8 @@
 
   <div class="p-4">
 
-    {{-- Filtros de búsqueda --}}
+    {{-- Filtros --}}
     <div class="filter-section">
-
       <div class="row g-3 mb-3">
         <div class="col-md-12">
           <div class="search-box">
@@ -263,93 +262,78 @@
           <select class="form-select" id="filtroCarrera">
             <option value="">Todas las carreras</option>
             @foreach(\App\Models\CarreraIngenieria::all() as $c)
-              <option value="{{ strtolower($c->Descripcion_Mayúsculas) }}">
-                {{ $c->Descripcion_Mayúsculas }}
-              </option>
+              <option value="{{ strtolower($c->Descripcion_Mayúsculas) }}">{{ $c->Descripcion_Mayúsculas }}</option>
             @endforeach
           </select>
         </div>
       </div>
     </div>
 
-    {{-- Lista de cartas --}}
-    @forelse ($alumnos as $a)
-      @php 
-        $alumno = \App\Models\Alumno::find($a->clave_alumno);
+    {{-- LISTA REAL --}}
+    @forelse ($expedientes as $expediente)
 
-        $sol = \App\Models\SolicitudFPP01::where('Clave_Alumno', $a->clave_alumno)
-            ->where('Autorizacion', 1)
-            ->first();
+      @php
+        $alumno = $expediente->solicitud->alumno;
+        $sol = $expediente->solicitud;
 
-        $exp = $sol
-            ? \App\Models\Expediente::where('Id_Solicitud_FPP01', $sol->Id_Solicitud_FPP01)->first()
-            : null;
+        // Estado de carta del encargado
+        $estadoCarta = \App\Models\EstadoProceso::where('clave_alumno', $alumno->Clave_Alumno)
+                        ->where('etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
+                        ->value('estado') ?? 'pendiente';
 
-        $tieneCarta = $exp && $exp->Carta_Presentacion;
-
-        $estado = strtolower($a->estado);
+        $tieneCarta = $expediente->Carta_Presentacion !== null;
       @endphp
 
       <div class="solicitud-card filaCarta"
-        data-busqueda="{{ strtolower($alumno->Nombre . ' ' . $alumno->ApellidoP_Alumno . ' ' . $alumno->Clave_Alumno) }}"
-        data-estado="{{ $estado }}"
+        data-busqueda="{{ strtolower($alumno->Nombre . ' ' . $alumno->ApellidoP_Alumno . ' ' . $alumno->ApellidoM_Alumno . ' ' . $alumno->Clave_Alumno) }}"
+        data-estado="{{ strtolower($estadoCarta) }}"
         data-carrera="{{ strtolower($alumno->Carrera) }}">
 
         <div class="solicitud-header">
           <div class="alumno-info">
             <div class="alumno-nombre">
               <i class="bi bi-person-circle me-2"></i>
-              {{ $alumno->Nombre }}
-              {{ $alumno->ApellidoP_Alumno }}
+              {{ $alumno->Nombre }} {{ $alumno->ApellidoP_Alumno }}
             </div>
             <div class="alumno-clave">
-              Clave: {{ $alumno->Clave_Alumno }} |
-              {{ $alumno->Carrera }}
+              Clave: {{ $alumno->Clave_Alumno }} | {{ $alumno->Carrera }}
             </div>
           </div>
 
-          @if($estado === 'pendiente')
-            <span class="status-badge status-pendiente">
-              <i class="bi bi-clock-fill"></i>
-              Pendiente
-            </span>
-          @elseif($estado === 'realizado')
-            <span class="status-badge status-realizado">
-              <i class="bi bi-check-circle-fill"></i>
-              Aprobado
-            </span>
-          @elseif($estado === 'rechazado')
-            <span class="status-badge status-rechazado">
-              <i class="bi bi-x-circle-fill"></i>
-              Rechazado
-            </span>
-          @elseif($estado === 'proceso')
-            <span class="status-badge status-proceso">
-              <i class="bi bi-arrow-repeat"></i>
-              En Proceso
-            </span>
+          {{-- BADGES --}}
+          @if ($estadoCarta === 'pendiente')
+            <span class="status-badge status-pendiente"><i class="bi bi-clock-fill"></i>Pendiente</span>
+          @elseif ($estadoCarta === 'realizado')
+            <span class="status-badge status-realizado"><i class="bi bi-check-circle-fill"></i>Aprobado</span>
+          @elseif ($estadoCarta === 'rechazado')
+            <span class="status-badge status-rechazado"><i class="bi bi-x-circle-fill"></i>Rechazado</span>
+          @else
+            <span class="status-badge status-proceso"><i class="bi bi-arrow-repeat"></i>En proceso</span>
           @endif
         </div>
 
         <div class="solicitud-details">
           <div class="detail-item">
-            <span class="detail-label">Fecha de Solicitud</span>
+            <span class="detail-label">Fecha Solicitud</span>
             <span class="detail-value">
-              {{ $sol && $sol->Fecha_Solicitud ? \Carbon\Carbon::parse($sol->Fecha_Solicitud)->format('d/m/Y') : '—' }}
+              {{ $sol->Fecha_Solicitud ? \Carbon\Carbon::parse($sol->Fecha_Solicitud)->format('d/m/Y') : '—' }}
             </span>
           </div>
+
           <div class="detail-item">
             <span class="detail-label">Materia</span>
             <span class="detail-value">{{ $sol->Materia ?? '—' }}</span>
           </div>
+
           <div class="detail-item">
             <span class="detail-label">Periodo</span>
             <span class="detail-value">
-              {{ $sol && $sol->Fecha_Inicio ? \Carbon\Carbon::parse($sol->Fecha_Inicio)->format('d/m/Y') : '—' }}
+              {{ $sol->Fecha_Inicio ? \Carbon\Carbon::parse($sol->Fecha_Inicio)->format('d/m/Y') : '—' }}
               -
-              {{ $sol && $sol->Fecha_Termino ? \Carbon\Carbon::parse($sol->Fecha_Termino)->format('d/m/Y') : '—' }}
+              {{ $sol->Fecha_Termino ? \Carbon\Carbon::parse($sol->Fecha_Termino)->format('d/m/Y') : '—' }}
             </span>
           </div>
+
           <div class="detail-item">
             <span class="detail-label">Créditos</span>
             <span class="detail-value">{{ $sol->Numero_Creditos ?? '—' }}</span>
@@ -359,7 +343,7 @@
         <div class="col-12">
           <div class="d-flex justify-content-end gap-2 flex-wrap btn-actions mt-2">
             @if($tieneCarta)
-              <a href="{{ route('encargado.verCartaPresentacion', ['claveAlumno' => $a->clave_alumno]) }}" class="btn-ver-detalle">
+              <a href="{{ route('encargado.verCartaPresentacion', ['claveAlumno' => $alumno->Clave_Alumno]) }}" class="btn-ver-detalle">
                 <i class="bi bi-file-earmark-pdf-fill me-1"></i>
                 Ver Carta PDF
               </a>
@@ -374,11 +358,13 @@
 
       </div>
     @empty
+
       <div class="empty-state">
         <i class="bi bi-inbox"></i>
         <h5>No hay cartas de presentación registradas</h5>
-        <p class="text-muted">Las cartas de presentación aparecerán aquí</p>
+        <p class="text-muted">Las cartas aparecerán aquí</p>
       </div>
+
     @endforelse
 
   </div>
@@ -393,23 +379,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function filtrar() {
     const textoBusqueda = buscar.value.toLowerCase();
-    const estadoSeleccionado = filtroEstado.value.toLowerCase();
-    const carreraSeleccionada = filtroCarrera.value.toLowerCase();
+    const estadoSel = filtroEstado.value.toLowerCase();
+    const carreraSel = filtroCarrera.value.toLowerCase();
 
-    tarjetas.forEach(tarjeta => {
-      const textoTarjeta = tarjeta.dataset.busqueda;
-      const estadoTarjeta = tarjeta.dataset.estado;
-      const carreraTarjeta = tarjeta.dataset.carrera;
+    tarjetas.forEach(t => {
+      const txt = t.dataset.busqueda;
+      const est = t.dataset.estado;
+      const car = t.dataset.carrera;
 
-      const coincideBusqueda = textoTarjeta.includes(textoBusqueda);
-      const coincideEstado = !estadoSeleccionado || estadoTarjeta === estadoSeleccionado;
-      const coincideCarrera = !carreraSeleccionada || carreraTarjeta.includes(carreraSeleccionada);
+      const ok1 = txt.includes(textoBusqueda);
+      const ok2 = !estadoSel || est === estadoSel;
+      const ok3 = !carreraSel || car.includes(carreraSel);
 
-      if (coincideBusqueda && coincideEstado && coincideCarrera) {
-        tarjeta.style.display = '';
-      } else {
-        tarjeta.style.display = 'none';
-      }
+      t.style.display = (ok1 && ok2 && ok3) ? '' : 'none';
     });
   }
 

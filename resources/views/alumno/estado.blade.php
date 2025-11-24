@@ -10,8 +10,8 @@
 
 <style>
 /* ================================
-   DISEÑO ROADMAP OPTIMIZADO
-   ================================ */
+  DISEÑO ROADMAP OPTIMIZADO
+================================ */
 
 .roadmap-container {
   max-width: 1400px;
@@ -254,6 +254,21 @@
   border: 2px solid #ef4444;
 }
 
+/* Colores por estado - DESHABILITADO (Gris) */
+.estado-deshabilitado .proceso-header {
+  background: #626262ff;
+}
+
+.estado-deshabilitado .numero-badge {
+  background: #626262ff;
+}
+
+.estado-deshabilitado .status-badge {
+  background: #adadadff;
+  color: #333333ff;
+  border: 2px solid #414141ff;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .procesos-grid {
@@ -324,18 +339,21 @@
                         $estadoClass = match($proceso->estado) {
                             'realizado' => 'estado-realizado',
                             'proceso' => 'estado-proceso',
+                            'deshabilitado' => 'estado-deshabilitado',
                             default => 'estado-pendiente',
                         };
                         
                         $estadoTexto = match($proceso->estado) {
                             'realizado' => 'Completado',
                             'proceso' => 'En Proceso',
+                            'deshabilitado' => 'Deshabilitado',
                             default => 'Pendiente',
                         };
                         
                         $icono = match($proceso->estado) {
                             'realizado' => '✓',
                             'proceso' => '⟳',
+                            'deshabilitado' => '—',
                             default => '○',
                         };
                     @endphp

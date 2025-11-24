@@ -35,60 +35,77 @@ class ReciboController extends Controller
 
         $data = $request->all();
 
-    // Generar PDF
-    $pdf = Pdf::loadView('pdf.recibo', compact('data'));
+        // Generar PDF
+        $pdf = Pdf::loadView('pdf.recibo', compact('data'));
 
-     // Resolver Id_Expediente del alumno en sesión (o por clave del form como respaldo)
-    $alumno = session('alumno');
-    $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave');
-    $idExpediente = null;
+        // Resolver Id_Expediente del alumno en sesión (o por clave del form como respaldo)
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? $request->input('clave');
+        $idExpediente = null;
 
-    try {
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-            ->latest('Id_Solicitud_FPP01')
-            ->first();
-        if ($solicitud) {
-            $exp = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
-            if ($exp) {
-                // Asumimos PK Id_Expediente
-                $idExpediente = $exp->Id_Expediente ?? null;
+        try {
+            $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                ->latest('Id_Solicitud_FPP01')
+                ->first();
+            if ($solicitud) {
+                $exp = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+                if ($exp) {
+                    // Asumimos PK Id_Expediente
+                    $idExpediente = $exp->Id_Expediente ?? null;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('No se pudo resolver Id_Expediente para solicitud de pago: ' . $e->getMessage());
+        }
+
+        // Parsear periodo: "DD/MM/AA a DD/MM/AA"
+        $periodo = $request->input('periodo');
+        $inicio = null; $termino = null;
+        if ($periodo) {
+            if (preg_match('/^\s*(\d{2}\/\d{2}\/\d{2,4})\s*a\s*(\d{2}\/\d{2}\/\d{2,4})\s*$/', $periodo, $m)) {
+                $inicio = $this->parseFechaFlexible($m[1]);
+                $termino = $this->parseFechaFlexible($m[2]);
             }
         }
-    } catch (\Exception $e) {
-        Log::error('No se pudo resolver Id_Expediente para solicitud de pago: ' . $e->getMessage());
-    }
 
-    // Parsear periodo: "DD/MM/AA a DD/MM/AA"
-    $periodo = $request->input('periodo');
-    $inicio = null; $termino = null;
-    if ($periodo) {
-        if (preg_match('/^\s*(\d{2}\/\d{2}\/\d{2,4})\s*a\s*(\d{2}\/\d{2}\/\d{2,4})\s*$/', $periodo, $m)) {
-            $inicio = $this->parseFechaFlexible($m[1]);
-            $termino = $this->parseFechaFlexible($m[2]);
+        // Insertar fila en solicitud_pago
+        try {
+            SolicitudPago::create([
+                'Id_Expediente' => $idExpediente,
+                'Fecha_Solicitud' => $request->input('fecha'),
+                'Fecha_Inicio_Pago' => $inicio,
+                'Fecha_Termino_Pago' => $termino,
+                'Salario' => $request->input('cantidad'),
+                'Nombre_Persona_Autoriza' => $request->input('autoriza'),
+                'Cargo_Persona_Autoriza' => $request->input('cargo'),
+                'Fecha_Entrega' => $request->input('fecha_entrega'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error creando registro en solicitud_pago: ' . $e->getMessage(), [
+                'clave' => $claveAlumno,
+                'expediente' => $idExpediente,
+            ]);
         }
-    }
 
-    // Insertar fila en solicitud_pago
-    try {
-        SolicitudPago::create([
-            'Id_Expediente' => $idExpediente,
-            'Fecha_Solicitud' => $request->input('fecha'),
-            'Fecha_Inicio_Pago' => $inicio,
-            'Fecha_Termino_Pago' => $termino,
-            'Salario' => $request->input('cantidad'),
-            'Nombre_Persona_Autoriza' => $request->input('autoriza'),
-            'Cargo_Persona_Autoriza' => $request->input('cargo'),
-            'Fecha_Entrega' => $request->input('fecha_entrega'),
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error creando registro en solicitud_pago: ' . $e->getMessage(), [
-            'clave' => $claveAlumno,
-            'expediente' => $idExpediente,
-        ]);
-    }
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'];
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA'
+            ],
+            ['estado' => 'realizado']
+        );
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'RECIBO DE PAGO'
+            ],
+            ['estado' => 'proceso']
+        );
 
-    // Descargar PDF
-    return $pdf->download('recibo-ayuda-economica.pdf');
+        // Descargar PDF
+        return $pdf->download('recibo-ayuda-economica.pdf');
     }
 
     /**
@@ -176,6 +193,23 @@ class ReciboController extends Controller
             'cargo_autoriza' => $pago->Cargo_Persona_Autoriza,
             'fecha_entrega' => $pago->Fecha_Entrega,
         ];
+
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'];
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'RECIBO DE PAGO'
+            ],
+            ['estado' => 'realizado']
+        );
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'REPORTE PARCIAL NO. X'
+            ],
+            ['estado' => 'proceso']
+        );
 
         $pdf = Pdf::loadView('pdf.recibo_pago', compact('data'));
         return $pdf->download('recibo-pago.pdf');

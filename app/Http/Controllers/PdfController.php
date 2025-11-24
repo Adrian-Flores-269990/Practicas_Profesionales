@@ -488,7 +488,7 @@ class PdfController extends Controller
                                                     ->first();
             
             if (!$solicitud) {
-                 return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
+                return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
             }
             
             $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
@@ -501,6 +501,23 @@ class PdfController extends Controller
             $expediente->update([
                 $tipoDoc => $nombreArchivo,
             ]);
+
+            $alumno = session('alumno');
+            $claveAlumno = $alumno['cve_uaslp'];
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'CARTA DE DESGLOSE DE PERCEPCIONES'
+                ],
+                ['estado' => 'realizado']
+            );
+            EstadoProceso::updateOrCreate(
+                [
+                    'clave_alumno' => $claveAlumno,
+                    'etapa' => 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA'
+                ],
+                ['estado' => 'proceso']
+            );
 
             return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
         } else {

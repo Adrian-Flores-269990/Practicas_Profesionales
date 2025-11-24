@@ -655,14 +655,28 @@ class EncargadoController extends Controller
                 ['estado' => 'realizado']
             );
 
-            // 🟡 PASAMOS A REPORTE PARCIAL NO. X
-            EstadoProceso::updateOrCreate(
-                [
-                    'clave_alumno' => $clave,
-                    'etapa' => 'REPORTE PARCIAL NO. X'
-                ],
-                ['estado' => 'proceso']
-            );
+            // 🟡 PASAMOS A CARTA DE DESGLOSE DE PERCEPCIONES O REPORTE PARCIAL NO. X
+            $estado = EstadoProceso::where('clave_alumno', $clave)
+                                    ->where('etapa', 'CARTA DE DESGLOSE DE PERCEPCIONES')
+                                    ->first();
+
+            if ($estado->estado === 'deshabilitado') {
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'REPORTE PARCIAL NO. X'
+                    ],
+                    ['estado' => 'proceso']
+                );
+            }else{
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'CARTA DE DESGLOSE DE PERCEPCIONES'
+                    ],
+                    ['estado' => 'proceso']
+                );
+            }
 
         } else {
 

@@ -14,6 +14,7 @@ use App\Services\UaslpApiService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Expediente;
+use App\Models\Reporte;
 use Carbon\Carbon;
 
 class EncargadoController extends Controller
@@ -93,6 +94,9 @@ class EncargadoController extends Controller
                     })->first();
 
                 $resumenSolicitud = null;
+                $contadorReportes = 0;
+                $reportesPendientes = 0;
+                
                 if ($solicitud) {
                     // Obtener nombre de empresa desde la relación
                     $empresaNombre = null;
@@ -110,6 +114,15 @@ class EncargadoController extends Controller
                         }
                         $dias = $solicitud->Dias_Semana ? " - {$solicitud->Dias_Semana}" : '';
                         $horario = trim($turno . $horas . $dias);
+                    }
+
+                    // Obtener información de reportes
+                    $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+                    if ($expediente) {
+                        $contadorReportes = Reporte::where('Id_Expediente', $expediente->Id_Expediente)->count();
+                        $reportesPendientes = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+                            ->whereNull('Calificacion')
+                            ->count();
                     }
 
                     // Construimos un resumen ligero evitando exponer todo el modelo
@@ -135,6 +148,25 @@ class EncargadoController extends Controller
                     })->toArray();
                 }
 
+                // Agregar información de reportes al semáforo si existe expediente
+                if ($expediente && $contadorReportes > 0) {
+                    $reportesCalificados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+                        ->whereNotNull('Calificacion')
+                        ->count();
+                    
+                    $estadoReportes = 'pendiente';
+                    if ($reportesCalificados == $contadorReportes && $contadorReportes > 0) {
+                        $estadoReportes = 'realizado';
+                    } elseif ($reportesCalificados > 0) {
+                        $estadoReportes = 'proceso';
+                    }
+                    
+                    $semaforo[] = [
+                        'etapa' => "Reportes mensuales ({$reportesCalificados}/{$contadorReportes} calificados)",
+                        'estado' => $estadoReportes,
+                    ];
+                }
+
                 return [
                     'cve_uaslp' => $alumno->Clave_Alumno,
                     'nombres' => $alumno->Nombre,
@@ -146,6 +178,8 @@ class EncargadoController extends Controller
                     'correo' => $alumno->CorreoElectronico,
                     'solicitud_fpp01' => $resumenSolicitud,
                     'semaforo' => $semaforo,
+                    'contador_reportes' => $contadorReportes,
+                    'reportes_pendientes' => $reportesPendientes,
                 ];
             })->toArray();
         

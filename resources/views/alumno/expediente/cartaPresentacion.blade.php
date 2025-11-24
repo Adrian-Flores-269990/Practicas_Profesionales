@@ -197,10 +197,6 @@
           </div>
 
           <div class="mt-4 text-center d-flex gap-3 justify-content-center">
-            <a href="{{ route('alumno.estado') }}" class="btn-regresar">
-              <i class="bi bi-arrow-left me-2"></i>
-              Regresar al Estado
-            </a>
 
             <form action="{{ route('cartaPresentacion.eliminar', [
                     'claveAlumno' => $clave,
@@ -212,6 +208,12 @@
                 Eliminar Documento
               </button>
             </form>
+
+            <a href="{{ route('alumno.estado') }}" class="btn-regresar">
+              <i class="bi bi-arrow-left me-2"></i>
+              Regresar al Estado
+            </a>
+
           </div>
         </div>
       </div>

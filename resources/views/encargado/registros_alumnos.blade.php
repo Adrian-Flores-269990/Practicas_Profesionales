@@ -48,7 +48,7 @@
 
   .solicitud-card {
     background: white;
-    border: 1px solid #c4c3c3ff;
+    border: 1px solid #e0e0e0;
     border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 3rem;
@@ -261,7 +261,7 @@
             <option value="aprobada">Aprobados</option>
             <option value="rechazada">Rechazados</option>
         </select>
-        </div>
+      </div>
 
         <div class="col-md-4">
           <select class="form-select" id="filterCarrera">

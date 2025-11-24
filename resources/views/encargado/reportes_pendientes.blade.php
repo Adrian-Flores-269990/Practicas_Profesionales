@@ -5,7 +5,7 @@
 @push('styles')
 <style>
   .header-gradient {
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
+    background: #000066;
     color: white;
     padding: 2rem;
     border-radius: 8px;
@@ -64,18 +64,6 @@
     gap: 0.75rem;
   }
   
-  .alumno-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
   
   .alumno-detalles h6 {
     margin: 0;
@@ -139,6 +127,28 @@
     font-size: 0.75rem;
     padding: 0.35rem 0.65rem;
   }
+
+
+
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 1.2rem; /* Opcional: asegura tamaño consistente */
+}
+
+.search-input {
+  padding-left: 40px !important; /* Asegura espacio para la lupa */
+  height: 48px; /* Coincide con diseño del otro buscador */
+  border-radius: 8px;
+}
+
 </style>
 @endpush
 
@@ -171,26 +181,35 @@
       </div>
     </div>
 
-    {{-- Filtros --}}
-    <div class="filtros-container">
-      <div class="row align-items-end g-3">
-        <div class="col-md-4">
-          <label for="filtroAlumno" class="form-label">
-            <i class="bi bi-person me-1"></i>Buscar por alumno
-          </label>
-          <input 
-            type="text" 
-            class="form-control" 
-            id="filtroAlumno" 
-            placeholder="Nombre o clave del alumno..."
-            onkeyup="filtrarTabla()"
-          >
+    {{-- Filtros de búsqueda (DISEÑO IGUAL AL SEGUNDO) --}}
+    <div class="filter-section">
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-12">
+          <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
+            <input
+              type="text"
+              class="form-control search-input"
+              placeholder="Buscar por nombre o clave del alumno..."
+              id="filtroAlumno"
+              onkeyup="filtrarTabla()">
+          </div>
         </div>
-        
-        <div class="col-md-3">
-          <label for="filtroCarrera" class="form-label">
-            <i class="bi bi-mortarboard me-1"></i>Carrera
-          </label>
+      </div>
+
+      <div class="row g-3 align-items-center">
+
+        <div class="col-md-4">
+          <select class="form-select" id="filterEstado" onchange="filtrarTabla()">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendientes</option>
+            <option value="aprobada">Aprobados</option>
+            <option value="rechazada">Rechazados</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
           <select class="form-select" id="filtroCarrera" onchange="filtrarTabla()">
             <option value="">Todas las carreras</option>
             @php
@@ -201,25 +220,25 @@
             @endforeach
           </select>
         </div>
-        
-        <div class="col-md-2">
-          <label for="filtroTipo" class="form-label">
-            <i class="bi bi-funnel me-1"></i>Tipo
-          </label>
-          <select class="form-select" id="filtroTipo" onchange="filtrarTabla()">
-            <option value="">Todos</option>
-            <option value="final">Finales</option>
-            <option value="parcial">Parciales</option>
-          </select>
+
+        <div class="col-md-4">
+          <div class="fecha-container">
+            <select class="form-select" id="filterFechaOpcion">
+              <option value="todas" selected>Todas las fechas</option>
+              <option value="seleccionar">Elegir fecha...</option>
+            </select>
+
+            <input
+              type="date"
+              class="form-control"
+              id="filterFecha"
+              style="display:none;">
+          </div>
         </div>
-        
-        <div class="col-md-3">
-          <button class="btn btn-outline-secondary w-100" onclick="limpiarFiltros()">
-            <i class="bi bi-x-circle me-2"></i>Limpiar filtros
-          </button>
-        </div>
+
       </div>
     </div>
+
 
     {{-- Tabla de reportes --}}
     @if($reportes->count() > 0)
@@ -246,8 +265,7 @@
                 
                 <td>
                   <div class="alumno-info">
-                    <div class="alumno-avatar">
-                      {{ strtoupper(substr($reporte['nombre_alumno'], 0, 1)) }}
+                    <div >
                     </div>
                     <div class="alumno-detalles">
                       <h6>{{ $reporte['nombre_alumno'] }}</h6>
@@ -346,7 +364,7 @@
 <div class="modal fade" id="modalRevisarReporte" tabindex="-1" aria-labelledby="modalRevisarReporteLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header" style="background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%); color: white;">
+      <div class="modal-header" style="background: #000066; color: white;">
         <h5 class="modal-title" id="modalRevisarReporteLabel">
           <i class="bi bi-clipboard-check me-2"></i>Revisar Reporte
         </h5>
@@ -443,14 +461,12 @@ function calificarReporte(idReporte) {
 function filtrarTabla() {
   const filtroAlumno = document.getElementById('filtroAlumno').value.toLowerCase();
   const filtroCarrera = document.getElementById('filtroCarrera').value;
-  const filtroTipo = document.getElementById('filtroTipo').value;
-  
+
   const filas = document.querySelectorAll('#tablaReportes tbody tr');
   
   filas.forEach(fila => {
     const alumno = fila.getAttribute('data-alumno');
     const carrera = fila.getAttribute('data-carrera');
-    const tipo = fila.getAttribute('data-tipo');
     
     let mostrar = true;
     
@@ -462,21 +478,19 @@ function filtrarTabla() {
       mostrar = false;
     }
     
-    if (filtroTipo && tipo !== filtroTipo) {
-      mostrar = false;
-    }
-    
     fila.style.display = mostrar ? '' : 'none';
   });
 }
 
+
 function limpiarFiltros() {
   document.getElementById('filtroAlumno').value = '';
   document.getElementById('filtroCarrera').value = '';
-  document.getElementById('filtroTipo').value = '';
   filtrarTabla();
 }
+
 </script>
 @endpush
 
 @endsection
+ 

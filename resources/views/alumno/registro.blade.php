@@ -24,27 +24,6 @@
     color: #222; 
   }
 
-  .btn-row {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .btn-aceptar {
-    background: #004795;
-    color: white;
-    padding: 0.8rem 2rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-
-  .btn-aceptar:hover { 
-    background: #003b70; 
-  }
-
   .seccion-card {
     background: white;
     border-radius: 12px;
@@ -60,7 +39,7 @@
   }
 
   .seccion-header {
-    background: #000066;
+    background: #17a2b8;
     color: white;
     padding: 1.25rem 2rem;
     font-weight: 600;
@@ -133,57 +112,128 @@
   
   .btn-subir:hover { 
     background: #003b70; 
-    }
+  }
 
+  /* Botones estilo revisar_solicitud */
+  .btn-imprimir {
+    background: #1f8950ff;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
 
-    .btn-open-pdf {
-        background: #17a2b8;
-        color: white;
-        padding: 0.65rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        border: none;
-        text-decoration: none;
-    }
-    
-    .btn-open-pdf:hover {
-        background: #17a2b8;
-        color: white;
-        transform: translateX(4px);
-    }
+  .btn-imprimir:hover {
+    background: #1f8950ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(31,137,80,0.4);
+    color: white;
+  }
 
-    .btn-eliminar-pdf {
-        background: #dc3545;
-        color: white;
-        padding: 0.65rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        border: none;
-        text-decoration: none;
-        min-width: 250px;
-        justify-content: center;
-        .btn-eliminar-pdf {
-    appearance: none;
-    -webkit-appearance: none;
-    line-height: 1; /* clave */
-    box-sizing: border-box;
-}
+  .btn-volver {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
 
-    }
-    
-    .btn-eliminar-pdf:hover {
-        background: #bb2b3aff;
-        color: white;
-        transform: translateX(4px);
-    }    
+  .btn-volver:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateX(-4px);
+  }
+
+  .btn-open-pdf {
+    background: #17a2b8;
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    text-decoration: none;
+  }
+  
+  .btn-open-pdf:hover {
+    background: #138496;
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .btn-rechazar {
+    background: #f01a1aff;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-rechazar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245,101,101,0.4);
+    color: white;
+  }
+
+  .btn-success-enviar {
+    background: #1f8950ff;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-success-enviar:hover {
+    background: #1a6f42;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(31,137,80,0.4);
+    color: white;
+  }
+
+  .btn-cancelar {
+    background: #f01a1aff;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-cancelar:hover {
+    background: #c81717;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(240,26,26,0.4);
+    color: white;
+  }
+
+  .btn-guardar {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-guardar:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108,117,125,0.4);
+  }
 
 </style>
 @endpush
@@ -192,26 +242,23 @@
 @section('content')
 @include('partials.nav.registro')
 
-
-
-
- <div class="container-fluid my-0 p-0">
+<div class="container-fluid my-0 p-0">
   <!-- Header -->
-    <div class="detalle-header">
-        <div class="container">
-            <h4 class="text-center">
-                <i class="bi bi-file-earmark-text me-2"></i>
-                REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
-            </h4>
-        </div>
+  <div class="detalle-header">
+    <div class="container">
+      <h4 class="text-center">
+        <i class="bi bi-file-earmark-text me-2"></i>
+        REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
+      </h4>
     </div>
+  </div>
 </div>
 
 <div class="container py-4">
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
     
-  {{-- Alumno --}}
+    {{-- Alumno --}}
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-person-badge"></i> DATOS DE ALUMNO</div>
       <div class="seccion-body">
@@ -223,11 +270,11 @@
 
     {{-- De la Asignación del Departamento de Servicio Social y Prácticas Profesionales --}}
     <div class="seccion-card">
-      <div class="seccion-header"><i class="bi bi-person-badge"></i> DE LA ASIGNACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (DSSPP) </div>
+      <div class="seccion-header"><i class="bi bi-calendar-check"></i> DE LA ASIGNACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (DSSPP)</div>
       <div class="seccion-body">
-        Período de Prácticas Profesionales asignado por el DSSPP
+        <p class="fw-bold mb-2">Período de Prácticas Profesionales asignado por el DSSPP</p>
         <div class="info-row"><span class="info-label">Periodo:</span><span class="info-value">{{ $solicitud['Fecha_Inicio'] ?? '---' }} - {{ $solicitud['Fecha_Termino'] ?? '---' }}</span></div>
-        Jornada Laboral
+        <p class="fw-bold mb-2 mt-3">Jornada Laboral</p>
         <div class="info-row"><span class="info-label">Días de la Semana:</span><span class="info-value">{{ $solicitud['Dias_Semana'] ?? '' }}</span></div>
         <div class="info-row"><span class="info-label">Horario:</span><span class="info-value">{{ $solicitud->Horario_Entrada ?? '---' }} - {{ $solicitud->Horario_Salida ?? '---' }}</span></div>
       </div>
@@ -261,18 +308,17 @@
       </div>
     </div>
 
-
-
     {{-- Formulario oculto para generar el PDF --}}
     <form id="formulario-registro" action="{{ route('alumno.generarFpp02') }}" method="POST" enctype="multipart/form-data">
       @csrf
 
       {{-- Datos faltantes --}}
       <div class="seccion-card">
-        <div class="seccion-header"><i class="bi bi-person-badge"></i> REQUISITOS</div>
+        <div class="seccion-header"><i class="bi bi-file-earmark-check"></i> REQUISITOS</div>
         <div class="seccion-body">
-          <div class="col-md-4">
-            <label class="form-label">Servicio Social en el mismo periodo</label>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Servicio Social en el mismo periodo</label>
               <div class="d-flex gap-3 mt-2">
                 <div class="form-check">
                   <input class="form-check-input" type="radio" name="ss" id="ind-s" value="si" required>
@@ -283,139 +329,157 @@
                   <label class="form-check-label" for="ind-n">NO</label>
                 </div>
               </div>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Número de Meses</label>
-            <input type="text" name="num_meses" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Total de Horas</label>
-            <input type="text" name="total_horas" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Número de Meses</label>
+              <input type="text" name="num_meses" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Total de Horas</label>
+              <input type="text" name="total_horas" class="form-control" required>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div class="btn-row">
-          <button type="button" id="btn-imprimir" class="btn-aceptar">
-            <i class="bi bi-printer"></i> Generar y Descargar FPP02
-          </button>
-        </div>
-
+      {{-- BOTONES FINALES - Estilo revisar_solicitud --}}
+      <div class="mt-4 text-center d-flex gap-3 justify-content-center">
+        <button type="button" id="btn-imprimir" class="btn-imprimir">
+          <i class="bi bi-printer me-2"></i>
+          Generar y Descargar FPP02
+        </button>
       </div>
     </form>
   </div>
 
   {{-- SECCIÓN PARA SUBIR PDF FIRMADO (visible si YA imprimió) --}}
   <div id="upload-section" style="{{ $mostrarUpload ? '' : 'display:none;' }}">
-    <div class="bg-white p-4 rounded shadow-sm w-100">
-
-      {{-- Botón para regresar a la vista previa --}}
-      <div class="mb-3">
-        <button type="button" id="btn-volver-preview" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left"></i> Volver a la vista previa
-        </button>
+    <div class="seccion-card">
+      <div class="seccion-header">
+        <i class="bi bi-file-earmark-pdf-fill"></i> 
+               DOCUMENTO FIRMADO
       </div>
+      <div class="seccion-body">
 
-      {{-- Mostrar PDF subido si ya existe --}}
-      @php
-        $alumno = session('alumno');
-        $claveAlumno = $alumno['cve_uaslp'] ?? null;
-      @endphp
 
-      {{-- Mensajes de éxito y error --}}
-      @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-      @endif
 
-      @if($errors->any())
-        <div class="alert alert-danger">
-          <ul class="mb-0">
-            @foreach($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
+        {{-- Mensajes de éxito y error --}}
+        @if(session('success'))
+          <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
-      {{-- Formulario de carga --}}
-      @if($pdfPath)
-        <div class="mb-4">
-          <h6 class="fw-bold">Documento subido:</h6>
+        @if($errors->any())
+          <div class="alert alert-danger">
+            <ul class="mb-0">
+              @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+          </div>
+        @endif
 
-          <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7;"></iframe>
+        {{-- Mostrar PDF subido si ya existe --}}
+        @php
+          $alumno = session('alumno');
+          $claveAlumno = $alumno['cve_uaslp'] ?? null;
+        @endphp
 
-          <div class="d-flex gap-2 mt-2">
+        @if($pdfPath)
+          <div class="mb-4">
+            <iframe src="{{ asset($pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7; border-radius:8px;"></iframe>
 
-            <a href="{{ asset($pdfPath) }}" target="_blank" class="btn-open-pdf">
-              <i class="bi bi-box-arrow-up-right"></i>
-              Abrir en nueva pestaña
-            </a>
+            <div class="d-flex gap-2 mt-2">
+              <a href="{{ asset($pdfPath) }}" target="_blank" class="btn-open-pdf">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Abrir en nueva pestaña
+              </a>
+            </div>
+          </div>
 
-            <a href="#" onclick="event.preventDefault(); document.getElementById('formEliminarPDF').submit();" 
-              class="btn-eliminar-pdf">
-              <i class="bi bi-trash"></i>
+          {{-- BOTONES FINALES - Fuera del PDF --}}
+          <div class="mt-4 text-center d-flex gap-3 justify-content-center">
+
+            <button type="button" onclick="event.preventDefault(); document.getElementById('formEliminarPDF').submit();" 
+              class="btn-rechazar">
+              <i class="bi bi-trash me-2"></i>
               Eliminar PDF
-            </a>
+            </button>
+
+            <button type="button" id="btn-volver-desde-pdf" class="btn-volver">
+              <i class="bi bi-arrow-left me-2"></i>
+              Volver a la vista previa
+            </button>
 
             <form id="formEliminarPDF" method="POST"
-                  action="{{ route('registroFPP02.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Solicitud_FPP02_Firmada']) }}">
+                  action="{{ route('registroFPP02.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Solicitud_FPP02_Firmada']) }}"
+                  style="display: inline;">
               @csrf
               <input type="hidden" name="archivo" value="{{ $pdfPath }}">
             </form>
-
           </div>
-        </div>
 
+        @else
+          <form method="POST" action="{{ route('registroFPP02.upload') }}" enctype="multipart/form-data" id="form-reporte">
+            @csrf
+            
+            {{-- Área de envío de archivo --}}
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-upload"></i> Subir documento firmado por la empresa
+              </h6>
 
-      @else
-        <form method="POST" action="{{ route('registroFPP02.upload') }}" enctype="multipart/form-data" id="form-reporte">
-          @csrf
-          {{-- Área de envío de archivo --}}
-          <div class="mb-4 border rounded p-3 bg-light">
-            <h6 class="fw-bold mb-3">
-              <i class="bi bi-upload"></i> Subir documento firmado por la empresa
-            </h6>
-
-            <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px;" id="zonaSubida">
-              <div id="archivoInstrucciones">
-                <div class="mb-2">
-                  <i class="bi bi-cloud-upload display-6 text-muted"></i>
+              <div class="border rounded border-dashed p-4 text-center bg-white position-relative" style="min-height: 180px; border: 2px dashed #004795;" id="zonaSubida">
+                <div id="archivoInstrucciones">
+                  <div class="mb-2">
+                    <i class="bi bi-cloud-upload display-6 text-muted"></i>
+                  </div>
+                  <p class="text-muted">Arrastre y suelte los archivos aquí para subirlos</p>
+                  <p class="small text-danger">Archivos de tamaño igual o menor a 20MB, únicamente archivos en PDF</p>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
                 </div>
-                <p class="text-muted">Arrastre y suelte los archivos aquí para subirlos</p>
-                <p class="small text-danger">Archivos de tamaño igual o menor a 20MB, únicamente archivos en PDF</p>
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="botonSubir">Seleccionar Archivos</button>
-              </div>
 
-            <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
+                <input type="file" class="form-control d-none" id="archivoUpload" accept=".pdf" name="archivo" required>
 
-              <div id="archivoPreview" class="mt-3 d-none">
-                <div class="card border-primary shadow-sm">
-                  <div class="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                      <h6 class="mb-1" id="archivoNombre"></h6>
-                      <p class="mb-0 text-muted small" id="archivoTamaño"></p>
+                <div id="archivoPreview" class="mt-3 d-none">
+                  <div class="card border-primary shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1" id="archivoNombre"></h6>
+                        <p class="mb-0 text-muted small" id="archivoTamaño"></p>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
+                        <i class="bi bi-trash"></i> Eliminar
+                      </button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-danger" id="btnEliminarArchivo">
-                      <i class="bi bi-trash"></i> Eliminar
-                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          {{-- Botones --}}
-          <div class="d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-secondary">Guardar cambios</button>
-          <button type="button" class="btn btn-danger" onclick="resetFormulario()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Enviar</button>
-          </div>
-        </form>
-      @endif
 
+            {{-- BOTONES FINALES - Estilo revisar_solicitud --}}
+            <div class="mt-4 text-center d-flex gap-3 justify-content-center">
+              <button type="button" class="btn-guardar">
+                <i class="bi bi-save me-2"></i>
+                Guardar cambios
+              </button>
+
+              <button type="button" class="btn-cancelar" onclick="resetFormulario()">
+                <i class="bi bi-x-circle me-2"></i>
+                Cancelar
+              </button>
+
+              <button type="submit" class="btn-success-enviar">
+                <i class="bi bi-send me-2"></i>
+                Enviar
+              </button>
+            </div>
+          </form>
+        @endif
+
+      </div>
     </div>
   </div>
 </div>
-
-      
 
 @push('scripts')
 <script>
@@ -425,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadSection = document.getElementById('upload-section');
   const formImprimir = document.getElementById('formulario-registro');
   const btnVolverPreview = document.getElementById('btn-volver-preview');
-  const btnCancelarUpload = document.getElementById('btn-cancelar-upload');
 
   // Validar y enviar formulario
   if (btnImprimir && formImprimir) {
@@ -470,21 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón para volver a la vista previa
-  if (btnVolverPreview) {
-    btnVolverPreview.addEventListener('click', () => {
+  // Botón para volver a la vista previa (desde el PDF subido)
+  const btnVolverDesdePdf = document.getElementById('btn-volver-desde-pdf');
+  if (btnVolverDesdePdf) {
+    btnVolverDesdePdf.addEventListener('click', () => {
       uploadSection.style.display = 'none';
       infoSection.style.display = 'block';
-      resetFormulario();
-    });
-  }
-
-  // Botón cancelar en la sección de upload
-  if (btnCancelarUpload) {
-    btnCancelarUpload.addEventListener('click', () => {
-      uploadSection.style.display = 'none';
-      infoSection.style.display = 'block';
-      resetFormulario();
     });
   }
 
@@ -558,8 +612,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Reset del formulario
-  function resetFormulario() {
-    const form = document.getElementById('form-fpp02');
+  window.resetFormulario = function() {
+    const form = document.getElementById('form-reporte');
     const preview = document.getElementById('archivoPreview');
     const instrucciones = document.getElementById('archivoInstrucciones');
     const inputArchivo = document.getElementById('archivoUpload');

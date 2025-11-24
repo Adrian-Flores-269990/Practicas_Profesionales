@@ -38,11 +38,11 @@
   }
 
   .seccion-header {
-    background: #c3cfe2;
+    background: #17a2b8;
+    color: white;
     padding: 1.25rem 1.5rem;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: #2d3748;
+    font-weight: 600;
+    font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -90,7 +90,7 @@
   }
 
   .dato-valor {
-    color: #2d3748;
+    color: #0a2f6eff;
     font-size: 1rem;
     font-weight: 500;
   }
@@ -143,7 +143,7 @@
   }
 
   .btn-regresar {
-    background: #888f9bff;
+    background: #6c757d;
     color: white;
     border: none;
     padding: 0.85rem 2.5rem;
@@ -154,30 +154,31 @@
   }
 
   .btn-regresar:hover {
-    background: #4a5568;
-    transform: translateY(-3px);
-    color: white;
+        background: #5a6268;
+        color: white;
+        transform: translateX(-4px);
   }
 
-  .pdf-link {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-    color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-  }
 
-  .pdf-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(66,153,225,0.4);
-    color: white;
-  }
+    .btn-open-pdf {
+        background: #17a2b8;
+        color: white;
+        padding: 0.65rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .btn-open-pdf:hover {
+        background: #17a2b8;
+        color: white;
+        transform: translateX(4px);
+    }
 
   .comentarios-section {
     background: white;
@@ -192,7 +193,7 @@
   }
 </style>
 @endpush
-
+ 
 @section('content')
 
 <div class="container-fluid my-0 p-0">
@@ -251,13 +252,14 @@
         </div>
         <div class="seccion-body">
           @if($pdfPath)
-            <h6 class="fw-bold mb-3">Documento subido:</h6>
             <iframe src="{{ asset('storage/' . $pdfPath) }}" width="100%" height="500px" style="border:1px solid #4583B7; border-radius:8px;"></iframe>
-            <div class="d-flex gap-2 mt-3">
-              <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="pdf-link">
-                <i class="bi bi-box-arrow-up-right"></i> Abrir PDF en nueva pestaña
+            <div class="d-flex gap-2 mt-2">
+              <a href="{{ asset('storage/' . $pdfPath) }}" target="_blank" class="btn-open-pdf">
+                <i class="bi bi-box-arrow-up-right"></i>
+                  Abrir en nueva pestaña
               </a>
             </div>
+
           @else
             <div class="alert alert-warning mb-0">
               <i class="bi bi-exclamation-triangle me-2"></i>

@@ -47,7 +47,7 @@
   }
   
   .alumno-header {
-    background: linear-gradient(135deg, #384daaff 0%, #84a3e2ff 100%);
+    background: #000066;
     color: white;
     padding: 1.5rem;
     border-radius: 8px 8px 0 0;
@@ -224,7 +224,7 @@
     <div class="search-container mb-4">
       <div class="search-info">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Busca por:</strong> Clave única (incluye 0 al inicio)
+        <strong>Busca por:</strong> Clave única
       </div>
       
       <form action="{{ route('encargado.consultar_alumno') }}" method="GET">

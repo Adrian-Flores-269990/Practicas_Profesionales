@@ -52,7 +52,7 @@
     }
     
     .section-header {
-        background: linear-gradient(135deg, #000066 0%, #000099 100%);
+        background: #000066;
         color: white;
         padding: 1.25rem 2rem;
         font-weight: 600;
@@ -242,14 +242,14 @@
         border-radius: 16px;
         overflow: hidden;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
         background: white;
     }
     
     .pdf-header {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        background: #17a2b8;
         color: white;
         padding: 1.25rem 2rem;
+        font-size: 1.2rem;
         font-weight: 600;
         display: flex;
         align-items: center;
@@ -261,7 +261,7 @@
     }
     
     .pdf-frame {
-        border: 2px solid #e9ecef;
+        border: 2px solid #ffff;
         border-radius: 8px;
         width: 100%;
         height: 500px;
@@ -318,7 +318,7 @@
     }
     
     .btn-open-pdf:hover {
-        background: #138496;
+        background: #17a2b8;
         color: white;
         transform: translateX(4px);
     }
@@ -350,7 +350,7 @@
         flex-wrap: wrap;
         margin-top: 2rem;
         padding: 1.5rem;
-        background: #f8f9fa;
+        background: #ffff;
         border-radius: 12px;
     }
     
@@ -419,6 +419,7 @@
     }
 </style>
 @endpush
+
 
 
 @section('content')
@@ -836,7 +837,7 @@
                                 <i class="bi bi-telephone"></i>
                                 Teléfono
                             </div>
-                            <div class="form-value">{{ $empresa->Telefono ?? 'N/A' }}</div></div>
+                            <div class="form-value">{{ $empresa->Telefono ?? 'N/A' }}</div>
                         </div>
                     </div>
 
@@ -1016,6 +1017,7 @@
                                 Teléfono
                             </div>
                             <div class="form-value">{{ $sectorPublico->Telefono ?? $solicitud->Telefono_Empresa ?? 'N/A' }}</div>
+                        </div>
                     </div>
                 @endif
 
@@ -1056,15 +1058,15 @@
         <!-- SECCIÓN 3: ENCARGADO DE PRÁCTICAS / ASESOR EXTERNO -->
         <div class="section-card">
             <div class="section-header">
-                <i class="bi bi-person-badge"></i>
+                <i class="bi bi-briefcase"></i>
                 3. Encargado de Prácticas / Asesor Externo
             </div>
             <div class="section-body">
                 @if($asesorExterno)
                     <div class="form-row">
-                        <div class="form-group full-width">
+                        <div class="form-group">
                             <div class="form-label-custom">
-                                <i class="bi bi-person"></i>
+                                <i class="bi bi-calendar-check"></i>
                                 Nombre Completo del Asesor Externo
                             </div>
                             <div class="form-value">
@@ -1078,7 +1080,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <div class="form-label-custom">
-                                <i class="bi bi-diagram-3"></i>
+                                <i class="bi bi-diagram-x"></i>
                                 Área
                             </div>
                             <div class="form-value">{{ $asesorExterno->Area ?? 'N/A' }}</div>

@@ -115,7 +115,7 @@
 
               <div class="col-md-6">
                 <label class="form-label">Teléfono Celular</label>
-                <input type="tel" name="telefono" value="{{ $alumno['telefono_celular'] ?? '-' }}" readonly>
+                <input type="tel" name="telefono" class = "form-control" value="{{ $alumno['telefono_celular'] ?? '-' }}" readonly>
               </div>
             </div>
 

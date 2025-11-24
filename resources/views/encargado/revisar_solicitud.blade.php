@@ -115,21 +115,18 @@
     transition: all 0.3s ease;
   }
 
-  .seccion-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  }
 
   .seccion-header {
-    background: #c3cfe2;
-    padding: 1.25rem 1.5rem;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: #2d3748;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    background: #000066;
+    color: white;
+    padding: 1.25rem 2rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .seccion-header i {
@@ -137,12 +134,12 @@
   }
 
   .seccion-header.aceptada {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%) !important;
+    background: #38a169 !important;
     color: white !important;
   }
 
   .seccion-header.rechazada {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%) !important;
+    background: #f01a1aff !important;
     color: white !important;
   }
 
@@ -193,7 +190,7 @@
   }
 
   .btn-aceptar {
-    background: #1f8950ff;
+    background: #38a169;
     color: white;
     border: none;
     padding: 0.65rem 1.5rem;
@@ -261,30 +258,37 @@
   }
 
   .btn-submit:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(102,126,234,0.4);
+    background: #004795;
     color: white;
+    transform: translateX(-4px);
   }
 
-  .btn-regresar {
-    background: #888f9bff;
-    color: white;
-    border: none;
-    padding: 0.85rem 2.5rem;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1.05rem;
+  .btn-action {
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
     transition: all 0.3s ease;
-  }
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    text-decoration: none;
+    }
 
-  .btn-regresar:hover {
-    background: #4a5568;
-    transform: translateY(-3px);
+  .btn-back {
+    background: #6c757d;
     color: white;
-  }
+    }
+    
+  .btn-back:hover {
+    background: #5a6268;
+    color: white;
+    transform: translateX(-4px);
+    }
 
+    
   .pdf-link {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    background: #17a2b8;
     color: white;
     padding: 0.4rem 1rem;
     border-radius: 6px;
@@ -295,6 +299,7 @@
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
+    border: none;
   }
 
   .pdf-link:hover {
@@ -309,8 +314,8 @@
 </style>
 @endpush
 
-@section('content')
 
+@section('content')
 <div class="container-fluid my-0 p-0">
   <h4 class="text-center fw-bold text-white py-3" style="background-color: #000066;">
     REVISIÓN DE SOLICITUD DE PRÁCTICAS PROFESIONALES
@@ -444,16 +449,16 @@
           </div>
 
 
-
           <div class="action-buttons">
             <button type="button" class="btn-aceptar btn-accion" data-seccion="solicitante" data-valor="1">
-              <i class="bi bi-check-lg me-1"></i> Aceptar
+                <i class="bi bi-check-lg me-1"></i> Aceptar
             </button>
             <button type="button" class="btn-rechazar btn-accion" data-seccion="solicitante" data-valor="0">
-              <i class="bi bi-x-lg me-1"></i> Rechazar
+                <i class="bi bi-x-lg me-1"></i> Rechazar
             </button>
             <input type="hidden" name="seccion_solicitante" id="seccion_solicitante" value="">
           </div>
+          
         </div>
       </div>
 
@@ -712,12 +717,12 @@
 
       {{-- BOTONES FINALES --}}
       <div class="mt-4 text-center d-flex gap-3 justify-content-center">
-        <button type="submit" class="btn-submit">
+        <button type="submit" class="btn-action btn-submit">
           <i class="bi bi-check-circle-fill me-2"></i>
           Guardar Revisión
         </button>
-        <a href="{{ route('encargado.solicitudes_alumnos') }}" class="btn-regresar">
-          <i class="bi bi-arrow-left me-2"></i>
+        <a href="{{ route('encargado.solicitudes_alumnos') }}" class="btn-action btn-back">
+          <i class="bi bi-arrow-left"></i>
           Regresar
         </a>
       </div>
@@ -727,6 +732,7 @@
 </div>
 
 @endsection
+
 
 @push('scripts')
 <script>

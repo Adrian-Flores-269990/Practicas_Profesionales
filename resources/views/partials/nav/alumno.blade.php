@@ -21,6 +21,14 @@
                 ->where('etapa', 'CARTA DE ACEPTACIÓN (ALUMNO)')
                 ->value('estado');
 
+    $estadoReporteParcial = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'REPORTE PARCIAL NO. X')
+                ->value('estado');
+
+    $estadoReporteFinal = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                    ->where('etapa', 'REPORTE FINAL')
+                    ->value('estado');
+
     // Para validar ayuda económica
     $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
                 ->where('Autorizacion', 1)
@@ -108,9 +116,20 @@
           @endif
 
           {{-- REPORTES --}}
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.reportesParciales') }}">Reportes Parciales</a></li>
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">Reporte Final</a></li>
-
+          @if($estadoReporteParcial === 'proceso' || $estadoReporteParcial === 'realizado')
+          <li>
+              <a class="dropdown-item" href="{{ route('alumno.reportes.lista') }}">
+                  Reportes Parciales
+              </a>
+          </li>
+          @endif
+          @if($estadoReporteFinal === 'proceso' || $estadoReporteFinal === 'realizado')
+          <li>
+            <a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">
+              Reporte Final
+            </a>
+          </li>
+          @endif
         </ul>
       </li>
 

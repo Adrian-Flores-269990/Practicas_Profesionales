@@ -21,6 +21,18 @@
                 ->where('etapa', 'CARTA DE ACEPTACIÓN (ALUMNO)')
                 ->value('estado');
 
+    $estadoDesglose = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE DESGLOSE DE PERCEPCIONES')
+                ->value('estado');
+
+    $estadoAyudaEconomica = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                    ->where('etapa', 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA')
+                    ->value('estado');
+
+    $estadoReciboPago = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                    ->where('etapa', 'RECIBO DE PAGO')
+                    ->value('estado');
+
     $estadoReporteParcial = \App\Models\EstadoProceso::where('clave_alumno', $clave)
                 ->where('etapa', 'REPORTE PARCIAL NO. X')
                 ->value('estado');
@@ -99,20 +111,32 @@
           </li>
           @endif
 
-          {{-- AYUDA ECONÓMICA (solo si aplica) --}}
-          @if ($existe)
-              <li><a class="dropdown-item"
-                     href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
-                Carta de Desglose de Percepciones
-              </a></li>
+          {{-- CARTA DE DESGLOSE DE PERCEPCIONES --}}
+          @if($estadoDesglose === 'proceso' || $estadoDesglose === 'realizado')
+          <li>
+              <a class="dropdown-item"
+                href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
+                  Carta de Desglose de Percepciones
+              </a>
+          </li>
+          @endif
 
-              <li><a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">
-                Solicitud de Recibo para Ayuda Económica
-              </a></li>
+          {{-- SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA --}}
+          @if($estadoAyudaEconomica === 'proceso' || $estadoAyudaEconomica === 'realizado')
+          <li>
+              <a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">
+                  Solicitud de Recibo para Ayuda Económica
+              </a>
+          </li>
+          @endif
 
-              <li><a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">
-                Recibo de Pago
-              </a></li>
+          {{-- RECIBO DE PAGO --}}
+          @if($estadoReciboPago === 'proceso' || $estadoReciboPago === 'realizado')
+          <li>
+              <a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">
+                  Recibo de Pago
+              </a>
+          </li>
           @endif
 
           {{-- REPORTES --}}

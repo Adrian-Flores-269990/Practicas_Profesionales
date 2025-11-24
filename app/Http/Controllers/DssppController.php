@@ -145,7 +145,16 @@ class DssppController extends Controller
 
         $alumnos = EstadoProceso::where('etapa', $etapaPendiente)
             ->join('solicitud_fpp01', 'solicitud_fpp01.Clave_Alumno', '=', 'estado_proceso.clave_alumno')
-            ->orderBy('solicitud_fpp01.Fecha_Solicitud', 'desc')
+            ->orderByRaw("
+                CASE estado 
+                    WHEN 'proceso'   THEN 1
+                    WHEN 'pendiente' THEN 2
+                    WHEN 'realizado' THEN 3
+                    WHEN 'rechazado' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')
             ->select('estado_proceso.*')
             ->get();
 

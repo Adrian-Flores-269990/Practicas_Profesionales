@@ -96,7 +96,7 @@ class EncargadoController extends Controller
                 $resumenSolicitud = null;
                 $contadorReportes = 0;
                 $reportesPendientes = 0;
-                
+
                 if ($solicitud) {
                     // Obtener nombre de empresa desde la relación
                     $empresaNombre = null;
@@ -151,9 +151,9 @@ class EncargadoController extends Controller
                     'CARTA DE DESGLOSE DE PERCEPCIONES',
                     'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
                     'RECIBO DE PAGO',
-                    'REPORTE PARCIAL NO. X',
-                    'REVISIÓN REPORTE PARCIAL NO. X',
-                    'CORRECCIÓN REPORTE PARCIAL NO. X',
+                    'REPORTE PARCIAL',
+                    'REVISIÓN REPORTE PARCIAL',
+                    'CORRECCIÓN REPORTE PARCIAL',
                     'REPORTE FINAL',
                     'REVISIÓN REPORTE FINAL',
                     'CORRECCIÓN REPORTE FINAL',
@@ -191,14 +191,14 @@ class EncargadoController extends Controller
                     $reportesCalificados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
                         ->whereNotNull('Calificacion')
                         ->count();
-                    
+
                     $estadoReportes = 'pendiente';
                     if ($reportesCalificados == $contadorReportes && $contadorReportes > 0) {
                         $estadoReportes = 'realizado';
                     } elseif ($reportesCalificados > 0) {
                         $estadoReportes = 'proceso';
                     }
-                    
+
                     $semaforo[] = [
                         'etapa' => "Reportes mensuales ({$reportesCalificados}/{$contadorReportes} calificados)",
                         'estado' => $estadoReportes,
@@ -634,7 +634,7 @@ class EncargadoController extends Controller
         // ========================================
         // 🔵 SEMAFORIZACIÓN
         // ========================================
-        
+
         if ($request->valor == 1) {
 
             // 🟢 ENCARGADO aprobó (verde)
@@ -659,7 +659,7 @@ class EncargadoController extends Controller
             EstadoProceso::updateOrCreate(
                 [
                     'clave_alumno' => $clave,
-                    'etapa' => 'REPORTE PARCIAL NO. X'
+                    'etapa' => 'REPORTE PARCIAL'
                 ],
                 ['estado' => 'proceso']
             );
@@ -686,6 +686,10 @@ class EncargadoController extends Controller
         }
 
         return redirect()->route('encargado.cartasAceptacion')->with('success', 'Acción realizada correctamente');
+    }
+
+    function normalizarEtapa($texto) {
+        return trim(preg_replace('/\(\d+\)/', '', $texto));
     }
 
     public function calificarCartaPresentacion(Request $request)

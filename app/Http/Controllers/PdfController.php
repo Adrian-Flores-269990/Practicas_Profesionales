@@ -486,18 +486,18 @@ class PdfController extends Controller
             $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                                                     ->where('Autorizacion', 1)
                                                     ->first();
-            
+
             if (!$solicitud) {
                  return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
             }
-            
+
             $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
                                                     ->first();
 
             if (!$expediente) {
                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
             }
-                                                    
+
             $expediente->update([
                 $tipoDoc => $nombreArchivo,
             ]);
@@ -688,35 +688,35 @@ class PdfController extends Controller
         // Lógica del semáforo:
         // ETAPA 4 → realizado (El alumno subió el documento)
         $this->marcarEtapa(
-            $claveAlumno, 
-            'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES', 
+            $claveAlumno,
+            'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES',
             'realizado'
         );
 
         // ETAPA 5 → proceso (Notifica al encargado que debe revisar)
         $this->marcarEtapa(
-            $claveAlumno, 
-            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)', 
+            $claveAlumno,
+            'AUTORIZACIÓN DEL ENCARGADO DE PRÁCTICAS PROFESIONALES (FPP02)',
             'proceso'
         );
-        
+
         if ($saved) {
 
             $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
                                                     ->where('Autorizacion', 1)
                                                     ->first();
-            
+
             if (!$solicitud) {
                 return back()->withErrors(['No se encontró la solicitud autorizada para este alumno.']);
             }
-            
+
             $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
                                                     ->first();
 
             if (!$expediente) {
                 $expediente = Expediente::create(['Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01]);
             }
-                                                    
+
             $expediente->update([
                 $tipoDoc => $nombreArchivo,
             ]);
@@ -731,29 +731,29 @@ class PdfController extends Controller
     // -------------------------------------------------------
     // FUNCIONES AUXILIARES
     // -------------------------------------------------------
-    
+
     // Función auxiliar para formatear dirección
     private function formatearDireccion($empresa, $sector)
     {
         $entidad = $empresa ?? $sector;
-        
+
         if (!$entidad) {
             return '';
         }
-        
+
         $direccion = trim(
-            ($entidad->Calle ?? '') . ' ' . 
+            ($entidad->Calle ?? '') . ' ' .
             ($entidad->Numero ? '#' . $entidad->Numero : '') . ', ' .
             ($entidad->Colonia ?? '') . ', ' .
             ($entidad->Municipio ?? '') . ', ' .
             ($entidad->Estado ?? '') . ', ' .
             ($entidad->Cp ? 'CP ' . $entidad->Cp : '')
         );
-        
+
         // Limpiar comas y espacios extras
         $direccion = preg_replace('/,\s*,/', ',', $direccion);
         $direccion = preg_replace('/,\s*$/', '', $direccion);
-        
+
         return $direccion;
     }
 
@@ -827,7 +827,7 @@ class PdfController extends Controller
 
         return view('alumno.registro', compact('alumno', 'solicitud', 'empresa', 'sector', 'tipoSector', 'mostrarUpload', 'pdfPath'));
     }
-    
+
     // Función auxiliar para actualizar el semáforo (marca la actual como realizado y la siguiente como pendiente)
     private function actualizarSemaforo($claveAlumno, $etapaActual)
     {
@@ -858,9 +858,9 @@ class PdfController extends Controller
                 'CARTA DE DESGLOSE DE PERCEPCIONES',
                 'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
                 'RECIBO DE PAGO',
-                'REPORTE PARCIAL NO. X',
-                'REVISIÓN REPORTE PARCIAL NO. X',
-                'CORRECCIÓN REPORTE PARCIAL NO. X',
+                'REPORTE PARCIAL',
+                'REVISIÓN REPORTE PARCIAL',
+                'CORRECCIÓN REPORTE PARCIAL',
                 'REPORTE FINAL',
                 'REVISIÓN REPORTE FINAL',
                 'CORRECCIÓN REPORTE FINAL',

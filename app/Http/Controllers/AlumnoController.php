@@ -8,7 +8,9 @@ use App\Models\EstadoProceso;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SolicitudFPP02;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
+use App\Models\Reporte;
+use App\Models\Expediente;
+use Illuminate\Support\Facades\DB;
 
 class AlumnoController extends Controller
 {
@@ -51,9 +53,9 @@ class AlumnoController extends Controller
             'CARTA DE DESGLOSE DE PERCEPCIONES',
             'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
             'RECIBO DE PAGO',
-            'REPORTE PARCIAL NO. X',
-            'REVISIÓN REPORTE PARCIAL NO. X',
-            'CORRECCIÓN REPORTE PARCIAL NO. X',
+            'REPORTE PARCIAL',
+            'REVISIÓN REPORTE PARCIAL',
+            'CORRECCIÓN REPORTE PARCIAL',
             'REPORTE FINAL',
             'REVISIÓN REPORTE FINAL',
             'CORRECCIÓN REPORTE FINAL',
@@ -185,9 +187,9 @@ class AlumnoController extends Controller
             'CARTA DE DESGLOSE DE PERCEPCIONES',
             'SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA',
             'RECIBO DE PAGO',
-            'REPORTE PARCIAL NO. X',
-            'REVISIÓN REPORTE PARCIAL NO. X',
-            'CORRECCIÓN REPORTE PARCIAL NO. X',
+            'REPORTE PARCIAL',
+            'REVISIÓN REPORTE PARCIAL',
+            'CORRECCIÓN REPORTE PARCIAL',
             'REPORTE FINAL',
             'REVISIÓN REPORTE FINAL',
             'CORRECCIÓN REPORTE FINAL',
@@ -205,7 +207,56 @@ class AlumnoController extends Controller
             return array_search($item->etapa, $ordenEtapas);
         })->values();
 
-        return view('alumno.estado', compact('procesos'));
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        $reportesAprobados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+            ->whereNotNull('Calificacion')
+            ->where('Calificacion', '>=', 60)
+            ->count();
+
+        $reportesExistentes = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+            ->orderBy('Numero_Reporte')
+            ->get();
+
+        $todosAprobados = $this->todosReportesAprobados($expediente);
+
+        return view('alumno.estado', compact('procesos', 'reportesExistentes', 'reportesAprobados', 'todosAprobados'));
+
+    }
+
+    protected function todosReportesAprobados($expediente)
+    {
+        $carreraAlumno = $expediente->solicitudFPP01->alumno->Carrera ?? null;
+        if (!$carreraAlumno) return false;
+
+        $reportesRaw = DB::table('requisito_carrera as rc')
+            ->join('carrera_ingenieria as ci', 'rc.Id_Carrera_I', '=', 'ci.Id_Carrera_I')
+            ->where('ci.Descripcion_Mayúsculas', $carreraAlumno)
+            ->distinct()
+            ->pluck('rc.num_reporte');
+
+        $allowedReportes = collect();
+        if ($reportesRaw->isNotEmpty()) {
+            $numbers = $reportesRaw->flatMap(function($v) {
+                $v = trim((string)$v);
+                if ($v === '') return collect();
+                if (strpos($v, ',') !== false) return collect(array_map('intval', explode(',', $v)));
+                if (strpos($v, '-') !== false) {
+                    [$a, $b] = array_map('intval', explode('-', $v));
+                    return collect(range(min($a,$b), max($a,$b)));
+                }
+                return collect([(int)$v]);
+            })->filter(fn($n)=>$n>0)->unique()->sort()->values();
+
+            $allowedReportes = ($numbers->count() === 1 && $numbers[0] > 1) ? collect(range(1,$numbers[0])) : $numbers;
+        }
+
+        $reportesAprobados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+            ->whereIn('Numero_Reporte', $allowedReportes)
+            ->where('Calificacion','>=',60)
+            ->pluck('Numero_Reporte');
+
+        return $allowedReportes->diff($reportesAprobados)->isEmpty();
     }
 
     public function guardarMateria(Request $request)

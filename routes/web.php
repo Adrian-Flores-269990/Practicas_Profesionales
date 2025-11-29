@@ -215,7 +215,7 @@ Route::prefix('encargado')->group(function () {
     Route::get('/reportes/alumno/{clave}', [ReporteController::class, 'reportesAlumno'])->name('encargado.reportes_alumno');
     Route::get('/reportes/{id}/revisar', [ReporteController::class, 'revisar'])->name('encargado.reportes.revisar');
     Route::post('/reportes/{id}/aprobar', [ReporteController::class, 'aprobar'])->name('encargado.reportes.aprobar');
-    Route::post('/reportes/{id}/aprobar', [ReporteController::class, 'calificarFinal'])->name('encargado.reportes.calificarFinal');
+    Route::post('/reportes/{id}/calificarFinal', [ReporteController::class, 'calificarFinal'])->name('encargado.reportes.calificarFinal');
     Route::get('/reportes/{id}/descargar', [ReporteController::class, 'descargarEncargado'])->name('encargado.reportes.descargar');
 
 });

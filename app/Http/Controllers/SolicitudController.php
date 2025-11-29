@@ -116,7 +116,7 @@ class SolicitudController extends Controller
                         Storage::disk('public')->putFileAs('expedientes/carta-pasante', $fileCartaPasante, $nombreArchivoCartaPasante);
                     }
                 }
-                
+
                 // ============================================
                 // OBTENER MATERIA DESDE requisito_carrera
                 // ============================================
@@ -148,15 +148,15 @@ class SolicitudController extends Controller
                     'Egresado_Sit_Esp' => $request->has('egresadosit') ? 1 : 0,
                     'Archivo_CVD' => $request->hasFile('constancia_pdf') ? 1 : 0,
                     'Fecha_Inicio' => $request->fecha_inicio,
-                    'Fecha_Termino' => $request->fecha_termino, 
+                    'Fecha_Termino' => $request->fecha_termino,
                     'Clave_Encargado' => 1,
                     // Se usa el ID del Asesor real (Versión A)
-                    'Clave_Asesor_Externo' => $asesorExterno ? $asesorExterno->Id_Asesor_Externo : null, 
+                    'Clave_Asesor_Externo' => $asesorExterno ? $asesorExterno->Id_Asesor_Externo : null,
                     'Datos_Asesor_Externo' => $asesorExterno ? 1 : 0,
                     'Productos_Servicios_Emp' => 'No se',
                     'Datos_Empresa' => 1,
                     // Corregido: Se usa la entrada correcta `nombre_proyecto` (Versión A)
-                    'Nombre_Proyecto' => $request->nombre_proyecto, 
+                    'Nombre_Proyecto' => $request->nombre_proyecto,
                     'Actividades' => $request->actividades,
                     'Horario_Mat_Ves' => $turno,
                     'Horario_Entrada' => $request->horario_entrada,
@@ -173,7 +173,7 @@ class SolicitudController extends Controller
                     'Estado_Encargado' => 'pendiente',
                     'Estado_Departamento' => 'pendiente',
                 ]);
-                
+
                 // Limpiar la materia de la sesión
                 session()->forget('materia_practicas');
 
@@ -300,11 +300,11 @@ class SolicitudController extends Controller
                         'CARTA DE DESGLOSE DE PERCEPCIONES',
                         'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)',
                         'RECIBO DE PAGO',
-                        'REPORTE PARCIAL NO. X',
-                        'REVISIÓN REPORTE PARCIAL NO. X',
+                        'REPORTE PARCIAL',
+                        'REVISIÓN REPORTE PARCIAL',
                         'REVISIÓN REPORTE FINAL',
                         'REPORTE FINAL',
-                        'CORRECCIÓN REPORTE PARCIAL NO. X',
+                        'CORRECCIÓN REPORTE PARCIAL',
                         'CORRECCIÓN REPORTE FINAL',
                         'CALIFICACIÓN REPORTE FINAL',
                         'CARTA DE TÉRMINO',

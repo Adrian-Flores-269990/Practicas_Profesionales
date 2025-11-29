@@ -88,13 +88,13 @@ Route::prefix('alumno')->group(function () {
     Route::put('/confirma', [AlumnoController::class, 'aceptar'])->name('alumno.confirma');
     Route::post('/rechazar', [AlumnoController::class, 'rechazar'])->name('alumno.rechazar');
     Route::post('/generar-fpp02', [PdfController::class, 'generarFpp02'])->name('alumno.generarFpp02');
-    
+
     // Reportes
     Route::get('/reporte', [\App\Http\Controllers\ReporteController::class, 'create'])->name('alumno.reporte');
     Route::post('/reporte', [\App\Http\Controllers\ReporteController::class, 'store'])->name('alumno.reportes.store');
     Route::get('/reportes', [\App\Http\Controllers\ReporteController::class, 'index'])->name('alumno.reportes.lista');
     Route::get('/reportes/{id}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargar'])->name('alumno.reportes.descargar');
-    
+
     Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
 
     Route::get('/registroFPP02/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('registroFPP02.mostrar');
@@ -215,6 +215,7 @@ Route::prefix('encargado')->group(function () {
     Route::get('/reportes/alumno/{clave}', [ReporteController::class, 'reportesAlumno'])->name('encargado.reportes_alumno');
     Route::get('/reportes/{id}/revisar', [ReporteController::class, 'revisar'])->name('encargado.reportes.revisar');
     Route::post('/reportes/{id}/aprobar', [ReporteController::class, 'aprobar'])->name('encargado.reportes.aprobar');
+    Route::post('/reportes/{id}/calificarFinal', [ReporteController::class, 'calificarFinal'])->name('encargado.reportes.calificarFinal');
     Route::get('/reportes/{id}/descargar', [ReporteController::class, 'descargarEncargado'])->name('encargado.reportes.descargar');
 
 });

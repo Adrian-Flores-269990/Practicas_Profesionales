@@ -208,7 +208,7 @@
   .fecha-container input[type="date"] {
     flex: 1;
   }
-  
+
     .btn-ver-detalle {
         background: #000066;
         color: white;
@@ -223,7 +223,7 @@
         text-decoration: none;
         font-size: 0.9rem;
     }
-    
+
     .btn-ver-detalle:hover {
         background: #000099;
         color: white;
@@ -231,7 +231,7 @@
 
 </style>
 @endpush
- 
+
 @section('content')
 
 <div class="container-fluid my-0 p-0">
@@ -326,10 +326,10 @@
                 <i class="bi bi-check-circle-fill"></i>
                 Aprobado
             </span>
-        @elseif ($estado === 0)
-            <span class="status-badge status-revision">
-                <i class="bi bi-hourglass-split"></i>
-                En revisión
+        @else
+            <span class="status-badge status-pendiente">
+                <i class="bi bi-clock-fill"></i>
+                Pendiente
             </span>
         @endif
         </div>

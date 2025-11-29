@@ -34,10 +34,21 @@
           <label for="numero_reporte" class="form-label fw-bold">Número de Reporte: <span class="text-danger">*</span></label>
           <select id="numero_reporte" name="numero_reporte" class="form-select" required>
             <option value="">Seleccione...</option>
-            @for($i = 1; $i <= 12; $i++)
-              <option value="{{ $i }}">Reporte {{ $i }}</option>
-            @endfor
-          </select>
+
+            @if(isset($allowedReportes) && $allowedReportes && $allowedReportes->count() > 0)
+                @foreach($allowedReportes as $num)
+                    <option value="{{ $num }}">Reporte {{ $num }}</option>
+                @endforeach
+            @else
+                {{-- Fallback: 1..12 --}}
+                @for($i = 1; $i <= 12; $i++)
+                    <option value="{{ $i }}">Reporte {{ $i }}</option>
+                @endfor
+            @endif
+
+            {{-- Opción siempre disponible para Reporte Final --}}
+            <option value="100">Reporte Final</option>
+        </select>
         </div>
 
         <div class="col-md-4">
@@ -60,7 +71,7 @@
       {{-- Resumen --}}
       <div class="mb-4">
         <label for="resumen" class="form-label fw-bold">Resumen de las actividades: <span class="text-danger">*</span></label>
-        <textarea id="resumen" name="resumen" rows="4" class="form-control" required 
+        <textarea id="resumen" name="resumen" rows="4" class="form-control" required
                   placeholder="Describa las actividades realizadas durante el periodo..."></textarea>
         <small class="text-muted">Máximo 5000 caracteres</small>
       </div>
@@ -254,7 +265,7 @@
     .then(data => {
       if (data.success) {
         mostrarAlerta(data.message || 'Reporte enviado exitosamente', 'success');
-        
+
         // Limpiar formulario después de 2 segundos
         setTimeout(() => {
           resetFormulario();
@@ -289,7 +300,7 @@
   zonaSubida.addEventListener('drop', (e) => {
     e.preventDefault();
     zonaSubida.classList.remove('border-primary');
-    
+
     if (e.dataTransfer.files.length > 0) {
       inputArchivo.files = e.dataTransfer.files;
       inputArchivo.dispatchEvent(new Event('change'));

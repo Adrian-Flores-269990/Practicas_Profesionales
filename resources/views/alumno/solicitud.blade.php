@@ -178,18 +178,15 @@
                     <label class="form-check-label" for="constancia_no">No</label>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {{-- Upload de constancia (se muestra solo si selecciona "Sí") --}}
-            <div class="row g-3 mb-3" id="upload_constancia" style="display: none;">
-              <div class="col-12">
-                <div class="alert alert-info mb-2">
-                  <i class="bi bi-info-circle"></i> Por favor, sube tu constancia de vigencia de derechos en formato PDF
+                {{-- Upload de constancia (se muestra solo si selecciona "Sí") --}}
+                <div class="mt-3" id="upload_constancia" style="display: none;">
+                  <div class="alert alert-info mb-2">
+                    <i class="bi bi-info-circle"></i> Por favor, sube tu constancia de vigencia de derechos en formato PDF
+                  </div>
+                  <label class="form-label">Subir Constancia (PDF) <span class="text-danger">*</span></label>
+                  <input type="file" name="constancia_pdf" class="form-control mb-2" accept=".pdf" id="constancia_file">
+                  <small class="form-text text-muted">Tamaño máximo: 5MB</small>
                 </div>
-                <label class="form-label">Subir Constancia (PDF) <span class="text-danger">*</span></label>
-                <input type="file" name="constancia_pdf" class="form-control mb-2" accept=".pdf" id="constancia_file">
-                <small class="form-text text-muted">Tamaño máximo: 5MB</small>
               </div>
             </div>
 
@@ -308,7 +305,7 @@
                 <label class="form-label">Fecha de término <span class="text-danger">*</span></label>
                 <input type="date" name="fecha_termino" class="form-control mt-1" required>
               </div>
-                
+
               <!-- Tipo de sector -->
               <div class="col-md-4">
                 <label class="form-label">Tipo de sector <span class="text-danger">*</span></label>
@@ -548,7 +545,7 @@
                 <label class="form-label">Nombre Encargado de PP <span class="text-danger">*</span></label>
                 <input name="encargado_nombre" class="form-control" required>
               </div>
-              
+
               <!-- ⭐ NOMBRES CORREGIDOS -->
               <div class="col-md-6">
                 <label class="form-label">Nombre(s) Asesor Externo <span class="text-danger">*</span></label>
@@ -757,7 +754,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const selected = empresaSelect.options[empresaSelect.selectedIndex];
 
 
-      
+
         // === 2️⃣ CONVERTIR A MAYÚSCULAS Y QUITAR TILDES AL ESCRIBIR EL NOMBRE DE EMPRESA NUEVA ===
         const camposNombre = document.querySelectorAll(
           'input[name="nombre_empresa_privado"], input[name="nombre_empresa_publico"], input[name="area_depto_uaslp"]'
@@ -769,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.value = val.toUpperCase(); // mayúsculas
           });
         });
-      
+
 
 
       // Preview inputs
@@ -1055,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     checkSection(item);
   });
-  
+
 
   // Validación al enviar
   form.addEventListener('submit', function(e) {

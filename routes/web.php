@@ -144,6 +144,11 @@ Route::prefix('alumno')->group(function () {
         Route::get('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('desglosePercepciones.mostrar');
         Route::post('/desglosePercepciones/upload', [PdfController::class, 'subirDesglosePercepciones'])->name('desglosePercepciones.upload');
         Route::post('/desglosePercepciones/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->name('desglosePercepciones.eliminar');
+
+        Route::get('/cartaTermino/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('cartaTermino.mostrar');
+        Route::post('/cartaTermino/upload', [PdfController::class, 'subirCartaTermino'])->name('cartaTermino.upload');
+        Route::post('/cartaTermino/{claveAlumno}/{tipo}', [PdfController::class, 'eliminarDocumento'])->name('cartaTermino.eliminar');
+
     });
 
     // FAQs y documentación

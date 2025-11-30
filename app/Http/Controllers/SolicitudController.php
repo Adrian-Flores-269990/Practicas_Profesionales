@@ -306,7 +306,6 @@ class SolicitudController extends Controller
                         'REPORTE FINAL',
                         'CORRECCIÓN REPORTE PARCIAL',
                         'CORRECCIÓN REPORTE FINAL',
-                        'CALIFICACIÓN REPORTE FINAL',
                         'CARTA DE TÉRMINO',
                         'EVALUACIÓN DEL ALUMNO',
                         'CALIFICACIÓN FINAL',

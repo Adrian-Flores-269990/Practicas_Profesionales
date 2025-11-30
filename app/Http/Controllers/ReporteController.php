@@ -195,7 +195,7 @@ class ReporteController extends Controller
                     );
 
                     DB::table('estado_proceso')->updateOrInsert(
-                        ['clave_alumno' => $claveAlumno, 'etapa' => 'CALIFICACIÓN REPORTE FINAL'],
+                        ['clave_alumno' => $claveAlumno, 'etapa' => 'CARTA DE TÉRMINO'],
                         ['estado' => 'pendiente']
                     );
 
@@ -816,7 +816,7 @@ class ReporteController extends Controller
 
                 // CALIFICACIÓN FINAL empieza (proceso)
                 DB::table('estado_proceso')->updateOrInsert(
-                    ['clave_alumno' => $claveAlumno, 'etapa' => 'CALIFICACIÓN REPORTE FINAL'],
+                    ['clave_alumno' => $claveAlumno, 'etapa' => 'CARTA DE TÉRMINO'],
                     ['estado' => 'proceso']
                 );
 

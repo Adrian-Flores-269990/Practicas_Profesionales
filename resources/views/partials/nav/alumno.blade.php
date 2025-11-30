@@ -21,6 +21,10 @@
                 ->where('etapa', 'CARTA DE ACEPTACIÓN (ALUMNO)')
                 ->value('estado');
 
+    $estadoCartaTermino = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CARTA DE TÉRMINO')
+                ->value('estado');
+
     $estadoDesglose = \App\Models\EstadoProceso::where('clave_alumno', $clave)
                 ->where('etapa', 'CARTA DE DESGLOSE DE PERCEPCIONES')
                 ->value('estado');
@@ -153,6 +157,16 @@
               Reporte Final
             </a>
           </li>
+
+          {{-- CARTA DE TÉRMINO solo cuando el alumno está en su etapa "CARTA DE TÉRMINO" --}}
+          @if($estadoCartaTermino === 'proceso' || $estadoCartaTermino === 'realizado')
+          <li>
+            <a class="dropdown-item"
+               href="{{ route('cartaTermino.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Termino']) }}">
+              Carta de Término
+            </a>
+          </li>
+          @endif
           @endif
         </ul>
       </li>

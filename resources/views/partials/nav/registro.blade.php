@@ -56,7 +56,7 @@ if ($ultimaSolicitud) {
     $estadoReporteFinal = EstadoProceso::estado($claveAlumno, 'REPORTE FINAL');
     $estadoRevisionFinal = EstadoProceso::estado($claveAlumno, 'REVISIÓN REPORTE FINAL');
     $estadoCorreccionFinal = EstadoProceso::estado($claveAlumno, 'CORRECCIÓN REPORTE FINAL');
-    $estadoCalificacionFinal = EstadoProceso::estado($claveAlumno, 'CALIFICACIÓN REPORTE FINAL');
+    $estadoCalificacionFinal = EstadoProceso::estado($claveAlumno, 'CARTA DE TÉRMINO');
 
 
     // ------------------------------

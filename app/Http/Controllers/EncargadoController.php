@@ -157,7 +157,6 @@ class EncargadoController extends Controller
                     'REPORTE FINAL',
                     'REVISIÓN REPORTE FINAL',
                     'CORRECCIÓN REPORTE FINAL',
-                    'CALIFICACIÓN REPORTE FINAL',
                     'CARTA DE TÉRMINO',
                     'EVALUACIÓN DE LA EMPRESA',
                     'CALIFICACIÓN FINAL',

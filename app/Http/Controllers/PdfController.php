@@ -179,6 +179,10 @@ class PdfController extends Controller
             return view('alumno.expediente.cartaAceptacion', compact('pdfPath', 'claveAlumno'));
         }
 
+        if ($tipo === 'Carta_Termino') {
+            return view('alumno.expediente.cartaTermino', compact('pdfPath', 'claveAlumno'));
+        }
+
         // ===============================
         // DESGLOSE DE PERCEPCIONES
         // ===============================
@@ -443,6 +447,92 @@ class PdfController extends Controller
             [
                 'clave_alumno' => $claveAlumno,
                 'etapa' => 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)'
+            ],
+            [
+                'estado' => 'proceso'
+            ]
+        );
+
+        return back()->with('success', 'Archivo subido correctamente: ' . $nombreArchivo);
+    }
+
+    public function subirCartaTermino(Request $request)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:pdf|max:20480',
+        ]);
+
+        $file = $request->file('archivo');
+        $alumno = session('alumno');
+        $claveAlumno = $alumno['cve_uaslp'] ?? null;
+
+        if (!$claveAlumno) {
+            return back()->withErrors(['No se encontró la sesión del alumno.']);
+        }
+
+        // --------------------------
+        //   DATOS DEL ARCHIVO
+        // --------------------------
+        $tipoDoc = 'Carta_Termino';
+        $nombreArchivo = $claveAlumno . '_carta_termino_' . time() . '.' . $file->getClientOriginalExtension();
+        $rutaCarpeta = "expedientes/$tipoDoc";
+
+        // Crear carpeta si no existe
+        if (!Storage::disk('public')->exists($rutaCarpeta)) {
+            Storage::disk('public')->makeDirectory($rutaCarpeta);
+        }
+
+        // Guardar archivo
+        $saved = Storage::disk('public')->putFileAs($rutaCarpeta, $file, $nombreArchivo);
+
+        if (!$saved) {
+            return back()->withErrors(['No se pudo guardar el archivo.']);
+        }
+
+        // --------------------------
+        //   GUARDAR EN EXPEDIENTE
+        // --------------------------
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        if (!$solicitud) {
+            return back()->withErrors(['No se encontró la solicitud autorizada.']);
+        }
+
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if (!$expediente) {
+            $expediente = Expediente::create([
+                'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01
+            ]);
+        }
+
+        // Se guarda correctamente en la BD
+        $expediente->update([
+            'Carta_Termino' => $nombreArchivo
+        ]);
+
+        // --------------------------
+        //   ACTUALIZAR SEMÁFORO
+        // --------------------------
+
+        // 1️⃣ CARTA DE TÉRMINO → REALIZADO (verde)
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'CARTA DE TÉRMINO'
+            ],
+            [
+                'estado' => 'realizado'
+            ]
+        );
+
+        // 2️⃣ Siguiente etapa → EVALUACIÓN DE LA EMPRESA → PROCESO (amarillo)
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'EVALUACIÓN DE LA EMPRESA'
             ],
             [
                 'estado' => 'proceso'
@@ -881,7 +971,6 @@ class PdfController extends Controller
                 'REPORTE FINAL',
                 'REVISIÓN REPORTE FINAL',
                 'CORRECCIÓN REPORTE FINAL',
-                'CALIFICACIÓN REPORTE FINAL',
                 'CARTA DE TÉRMINO',
                 'EVALUACIÓN DE LA EMPRESA',
                 'CALIFICACIÓN FINAL',

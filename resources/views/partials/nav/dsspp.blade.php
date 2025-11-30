@@ -3,11 +3,6 @@
 <nav class="dsspp-navbar navbar navbar-expand-lg">
   <div class="container justify-content-center">
     <ul class="nav" style="width: 100%; justify-content: space-around; display: flex;">
-
-
-
-
-    
       <li class="nav-item">
             <a class="nav-link" href="{{ route('dsspp.inicio') }}">Inicio</a>
         </li>
@@ -18,7 +13,7 @@
         <ul class="dropdown-menu" aria-labelledby="practicasDropdown">
           <li><a class="dropdown-item"  href="{{ route('dsspp.consultar_alumno') }}">Consultar Alumno</a></li>
           <li><a class="dropdown-item" href="{{ route('dsspp.solicitudes') }}">Solicitudes Pendientes</a></li>
-          <li><a class="dropdown-item" href="{{ route('dsspp.carta') }}">Cartas de Presentacion Pendientes</a></li>
+          <li><a class="dropdown-item" href="{{ route('dsspp.carta') }}">Cartas de Presentación Pendientes</a></li>
         </ul>
       </li>
 

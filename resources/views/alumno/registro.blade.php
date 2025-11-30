@@ -12,16 +12,16 @@
     border-bottom: 1px solid #eee;
   }
 
-  .info-row:last-child { 
-    border-bottom: none; 
+  .info-row:last-child {
+    border-bottom: none;
   }
 
-  .info-label { 
-    font-weight: 500; color: #555; 
+  .info-label {
+    font-weight: 500; color: #555;
   }
 
-  .info-value { 
-    color: #222; 
+  .info-value {
+    color: #222;
   }
 
   .seccion-card {
@@ -34,8 +34,8 @@
     transition: all 0.3s ease;
   }
 
-  .seccion-card:hover { 
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12); 
+  .seccion-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   }
 
   .seccion-header {
@@ -51,12 +51,12 @@
     letter-spacing: 0.5px;
   }
 
-  .seccion-header i { 
-    font-size: 1.2rem; 
+  .seccion-header i {
+    font-size: 1.2rem;
   }
 
-  .seccion-body { 
-    padding: 1.5rem; 
+  .seccion-body {
+    padding: 1.5rem;
   }
 
   .dato-row {
@@ -96,8 +96,8 @@
     transition: 0.3s ease;
   }
 
-  .zona-subida:hover { 
-    background: #eef3fb; 
+  .zona-subida:hover {
+    background: #eef3fb;
   }
 
   .btn-subir {
@@ -109,9 +109,9 @@
     cursor: pointer;
     transition: 0.3s;
   }
-  
-  .btn-subir:hover { 
-    background: #003b70; 
+
+  .btn-subir:hover {
+    background: #003b70;
   }
 
   /* Botones estilo revisar_solicitud */
@@ -161,7 +161,7 @@
     border: none;
     text-decoration: none;
   }
-  
+
   .btn-open-pdf:hover {
     background: #138496;
     color: white;
@@ -257,7 +257,7 @@
 <div class="container py-4">
   {{-- SECCIÓN DE INFORMACIÓN (solo visible si NO ha impreso aún) --}}
   <div id="info-section" style="{{ $mostrarUpload ? 'display:none;' : '' }}">
-    
+
     {{-- Alumno --}}
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-person-badge"></i> DATOS DE ALUMNO</div>
@@ -272,7 +272,7 @@
     <div class="seccion-card">
       <div class="seccion-header"><i class="bi bi-calendar-check"></i> DE LA ASIGNACIÓN DEL DEPARTAMENTO DE SERVICIO SOCIAL Y PRÁCTICAS PROFESIONALES (DSSPP)</div>
       <div class="seccion-body">
-        <p class="fw-bold mb-2">Período de Prácticas Profesionales asignado por el DSSPP</p>
+        <p class="fw-bold mb-2">Periodo de Prácticas Profesionales asignado por el DSSPP</p>
         <div class="info-row"><span class="info-label">Periodo:</span><span class="info-value">{{ $solicitud['Fecha_Inicio'] ?? '---' }} - {{ $solicitud['Fecha_Termino'] ?? '---' }}</span></div>
         <p class="fw-bold mb-2 mt-3">Jornada Laboral</p>
         <div class="info-row"><span class="info-label">Días de la Semana:</span><span class="info-value">{{ $solicitud['Dias_Semana'] ?? '' }}</span></div>
@@ -356,7 +356,7 @@
   <div id="upload-section" style="{{ $mostrarUpload ? '' : 'display:none;' }}">
     <div class="seccion-card">
       <div class="seccion-header">
-        <i class="bi bi-file-earmark-pdf-fill"></i> 
+        <i class="bi bi-file-earmark-pdf-fill"></i>
                DOCUMENTO FIRMADO
       </div>
       <div class="seccion-body">
@@ -399,7 +399,7 @@
           {{-- BOTONES FINALES - Fuera del PDF --}}
           <div class="mt-4 text-center d-flex gap-3 justify-content-center">
 
-            <button type="button" onclick="event.preventDefault(); document.getElementById('formEliminarPDF').submit();" 
+            <button type="button" onclick="event.preventDefault(); document.getElementById('formEliminarPDF').submit();"
               class="btn-rechazar">
               <i class="bi bi-trash me-2"></i>
               Eliminar PDF
@@ -421,7 +421,7 @@
         @else
           <form method="POST" action="{{ route('registroFPP02.upload') }}" enctype="multipart/form-data" id="form-reporte">
             @csrf
-            
+
             {{-- Área de envío de archivo --}}
             <div class="mb-4">
               <h6 class="fw-bold mb-3">

@@ -178,17 +178,24 @@ class ReporteController extends Controller
                         'Nombre_Archivo' => $nombreArchivo,
                     ]);
 
-                    // Actualizar semaforización
+                    // Semaforización correcta al subir reporte final
                     DB::table('estado_proceso')->updateOrInsert(
                         ['clave_alumno' => $claveAlumno, 'etapa' => 'REPORTE FINAL'],
-                        ['estado' => 'realizado']
+                        ['estado' => 'pendiente']
                     );
+
                     DB::table('estado_proceso')->updateOrInsert(
                         ['clave_alumno' => $claveAlumno, 'etapa' => 'REVISIÓN REPORTE FINAL'],
-                        ['estado' => 'proceso']
+                        ['estado' => 'pendiente']   // ✔ CORRECTO
                     );
+
                     DB::table('estado_proceso')->updateOrInsert(
                         ['clave_alumno' => $claveAlumno, 'etapa' => 'CORRECCIÓN REPORTE FINAL'],
+                        ['estado' => 'pendiente']
+                    );
+
+                    DB::table('estado_proceso')->updateOrInsert(
+                        ['clave_alumno' => $claveAlumno, 'etapa' => 'CALIFICACIÓN REPORTE FINAL'],
                         ['estado' => 'pendiente']
                     );
 
@@ -572,6 +579,10 @@ class ReporteController extends Controller
 
         $reporte = Reporte::findOrFail($id);
 
+        if ($reporte->Reporte_Final) {
+            return $this->calificarFinal($request, $id);
+        }
+
         // Obtener alumno
         $expediente = $reporte->expediente;
         $solicitud = $expediente->solicitudFPP01;
@@ -769,41 +780,47 @@ class ReporteController extends Controller
             ]);
 
             if ($request->calificacion < 60) {
-                // ❌ REPROBADO → enviar a corrección
+                // REPORTE FINAL queda en proceso nuevamente
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REPORTE FINAL')
-                    ->update(['estado' => 'realizado']);
+                    ->update(['estado' => 'proceso']);
 
+                // REVISIÓN REPORTE FINAL vuelve a pendiente
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REVISIÓN REPORTE FINAL')
-                    ->update(['estado' => 'realizado']);
+                    ->update(['estado' => 'pendiente']);
 
+                // CORRECCIÓN REPORTE FINAL en proceso
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'CORRECCIÓN REPORTE FINAL')
                     ->update(['estado' => 'proceso']);
 
                 $mensaje = 'Reporte final reprobado y enviado a corrección';
             } else {
-                // ✅ APROBADO
+                // 🟢 APROBADO (>=60)
+
+                // REPORTE FINAL pasa a REALIZADO
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REPORTE FINAL')
                     ->update(['estado' => 'realizado']);
 
+                // REVISIÓN REPORTE FINAL pasa a REALIZADO
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'REVISIÓN REPORTE FINAL')
                     ->update(['estado' => 'realizado']);
 
+                // CORRECCIÓN REPORTE FINAL pasa a REALIZADO
                 DB::table('estado_proceso')->where('clave_alumno', $claveAlumno)
                     ->where('etapa', 'CORRECCIÓN REPORTE FINAL')
                     ->update(['estado' => 'realizado']);
 
-                // Activar etapa de calificación final
+                // CALIFICACIÓN FINAL empieza (proceso)
                 DB::table('estado_proceso')->updateOrInsert(
                     ['clave_alumno' => $claveAlumno, 'etapa' => 'CALIFICACIÓN REPORTE FINAL'],
                     ['estado' => 'proceso']
                 );
 
-                $mensaje = 'Reporte final aprobado';
+                $mensaje = 'Reporte final aprobado correctamente';
             }
 
             DB::commit();

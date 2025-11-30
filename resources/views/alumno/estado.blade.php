@@ -365,35 +365,9 @@
                                 <div class="numero-badge">{{ $index + 1 }}</div>
                                 <span class="numero-text">Paso {{ $index + 1 }}</span>
                             </div>
-                            @php
-                                // Si todos los reportes están aprobados, no incrementar el número
-                                $numeroVisual = $todosAprobados
-                                    ? $reportesExistentes->where('Calificacion', '>=', 60)->count()
-                                    : $reportesExistentes->where('Calificacion', '>=', 60)->count() + 1;
-
-                                // Etapa original de la BD
-                                $etapaOriginal = $proceso->etapa;
-
-                                // Etapa visual que mostrará el Blade
-                                $etapa = $etapaOriginal;
-
-                                if (str_contains($etapaOriginal, 'CORRECCIÓN REPORTE PARCIAL')) {
-                                    $etapa = "CORRECCIÓN REPORTE PARCIAL ($numeroVisual)";
-                                }
-                                elseif (str_contains($etapaOriginal, 'REVISIÓN REPORTE PARCIAL')) {
-                                    $etapa = "REVISIÓN REPORTE PARCIAL ($numeroVisual)";
-                                }
-                                elseif (
-                                    str_contains($etapaOriginal, 'REPORTE PARCIAL') &&
-                                    !str_contains($etapaOriginal, 'REVISIÓN') &&
-                                    !str_contains($etapaOriginal, 'CORRECCIÓN')
-                                ) {
-                                    $etapa = "REPORTE PARCIAL ($numeroVisual)";
-                                }
-                            @endphp
 
                             <div class="proceso-titulo">
-                                {{ $etapa }}
+                                {{ $proceso->etapa }}
                             </div>
 
                             <div class="proceso-status-container">

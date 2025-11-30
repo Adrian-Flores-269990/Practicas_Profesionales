@@ -34,7 +34,7 @@
                     ->value('estado');
 
     $estadoReporteParcial = \App\Models\EstadoProceso::where('clave_alumno', $clave)
-                ->where('etapa', 'REPORTE PARCIAL NO. X')
+                ->where('etapa', 'REPORTE PARCIAL')
                 ->value('estado');
 
     $estadoReporteFinal = \App\Models\EstadoProceso::where('clave_alumno', $clave)

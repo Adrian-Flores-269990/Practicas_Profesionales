@@ -46,22 +46,76 @@ if ($ultimaSolicitud) {
         }
     }
 
-    // 🟨 BLOQUEO REPORTE
-    // Se desbloquea si el registro fue aprobado o realizado
-    $estadoRecibo = EstadoProceso::where('clave_alumno', $claveAlumno)
-        ->where('etapa', 'RECIBO DE PAGO')
-        ->value('estado');
+    // 🟨 BLOQUEO DE NUEVO REPORTE — LÓGICA UNIFICADA (PARCIAL Y FINAL)
+    // === ESTADOS PARCIALES ===
+    $estadoReporteParcial = EstadoProceso::estado($claveAlumno, 'REPORTE PARCIAL');
+    $estadoRevisionParcial = EstadoProceso::estado($claveAlumno, 'REVISIÓN REPORTE PARCIAL');
+    $estadoCorreccionParcial = EstadoProceso::estado($claveAlumno, 'CORRECCIÓN REPORTE PARCIAL');
 
-    $estadoCartaEnc = EstadoProceso::where('clave_alumno', $claveAlumno)
-        ->where('etapa', 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
-        ->value('estado');
+    // === ESTADOS FINALES ===
+    $estadoReporteFinal = EstadoProceso::estado($claveAlumno, 'REPORTE FINAL');
+    $estadoRevisionFinal = EstadoProceso::estado($claveAlumno, 'REVISIÓN REPORTE FINAL');
+    $estadoCorreccionFinal = EstadoProceso::estado($claveAlumno, 'CORRECCIÓN REPORTE FINAL');
+    $estadoCalificacionFinal = EstadoProceso::estado($claveAlumno, 'CALIFICACIÓN REPORTE FINAL');
 
-    if (
-        in_array($estadoRecibo, ['realizado', 'aprobado']) ||
-        in_array($estadoCartaEnc, ['realizado', 'aprobado'])
-    ) {
-        $bloqueoReporte = false;
+
+    // ------------------------------
+    // 🔥 1) LÓGICA PARCIAL — SOLO SI AÚN NO SE HA LLEGADO AL REPORTE FINAL
+    // ------------------------------
+
+    $puedeParcial = false;
+
+    if ($estadoReporteFinal === 'pendiente') {  // ⬅️ IMPORTANTE: si ya entró a FINAL, PARCIAL YA NO APLICA
+
+        $puedeParcial =
+            in_array($estadoReporteParcial, ['proceso', 'realizado']) &&
+            $estadoRevisionParcial !== 'proceso';
+
+        // Corrección parcial SÍ permite subir reporte
+        if ($estadoCorreccionParcial === 'proceso') {
+            $puedeParcial = true;
+        }
     }
+
+
+    // ------------------------------
+    // 🔥 2) LÓGICA FINAL CORREGIDA
+    // ------------------------------
+
+    $puedeFinal = false;
+
+    /*
+    ✔ Puede subir SI:
+    - REPORTE FINAL está en 'proceso' o 'realizado'
+    - Y NO está en revisión final 'proceso'
+    - Y NO está en calificación final 'proceso'
+    - Corrección final sí permite
+    */
+
+    if (in_array($estadoReporteFinal, ['proceso', 'realizado'])) {
+        $puedeFinal = true;
+    }
+
+    // Bloquea SOLO si está en revisión final → PROCESO
+    if ($estadoRevisionFinal === 'proceso') {
+        $puedeFinal = false;
+    }
+
+    // Calificación final SOLO bloquea si está en PROCESO
+    if ($estadoCalificacionFinal === 'proceso') {
+        $puedeFinal = false;
+    }
+
+    // Corrección sí desbloquea siempre
+    if ($estadoCorreccionFinal === 'proceso') {
+        $puedeFinal = true;
+    }
+
+    // ------------------------------
+    // ✔ 3) RESULTADO FINAL
+    // ------------------------------
+
+    $bloqueoReporte = !($puedeParcial || $puedeFinal);
 
     // 🟩 BLOQUEO EVALUACIÓN
     // Se desbloquea si el reporte final fue aprobado

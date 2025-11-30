@@ -207,7 +207,7 @@ class ReciboController extends Controller
         EstadoProceso::updateOrCreate(
             [
                 'clave_alumno' => $claveAlumno,
-                'etapa' => 'REPORTE PARCIAL NO. X'
+                'etapa' => 'REPORTE PARCIAL'
             ],
             ['estado' => 'proceso']
         );

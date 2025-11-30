@@ -207,6 +207,50 @@ class AlumnoController extends Controller
             return array_search($item->etapa, $ordenEtapas);
         })->values();
 
+        // ===============================
+        //  CALCULAR ÚLTIMO REPORTE PARCIAL REAL
+        // ===============================
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        $ultimoParcialReal = 0;
+
+        if ($expediente) {
+            $ultimoParcialReal = Reporte::where('Id_Expediente', $expediente->Id_Expediente)
+                ->where('Reporte_Final', 0) // SOLO los parciales reales
+                ->max('Numero_Reporte') ?? 0;
+        }
+
+        // ===============================
+        //  REEMPLAZAR NOMBRES DE ETAPAS PARCIALES
+        // ===============================
+        foreach ($procesos as $p) {
+
+            $original = $p->etapa;
+            $nuevo = $original;
+
+            // REPORTE PARCIAL
+            if (
+                str_contains($original, 'REPORTE PARCIAL') &&
+                !str_contains($original, 'REVISIÓN') &&
+                !str_contains($original, 'CORRECCIÓN')
+            ) {
+                $nuevo = "REPORTE PARCIAL ($ultimoParcialReal)";
+            }
+
+            // REVISIÓN REPORTE PARCIAL
+            if (str_contains($original, 'REVISIÓN REPORTE PARCIAL')) {
+                $nuevo = "REVISIÓN REPORTE PARCIAL ($ultimoParcialReal)";
+            }
+
+            // CORRECCIÓN REPORTE PARCIAL
+            if (str_contains($original, 'CORRECCIÓN REPORTE PARCIAL')) {
+                $nuevo = "CORRECCIÓN REPORTE PARCIAL ($ultimoParcialReal)";
+            }
+
+            // Guardar versión final para el Blade
+            $p->etapa = $nuevo;
+        }
+
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
 
         $reportesAprobados = Reporte::where('Id_Expediente', $expediente->Id_Expediente)

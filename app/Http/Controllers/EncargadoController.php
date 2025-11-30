@@ -619,7 +619,8 @@ class EncargadoController extends Controller
 
         $clave = $request->claveAlumno;
 
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $request->claveAlumno)
+        // Obtener solicitud
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $clave)
                                     ->where('Autorizacion', 1)
                                     ->first();
 
@@ -629,8 +630,8 @@ class EncargadoController extends Controller
 
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
 
+        // Guardar la decisión del encargado
         if ($expediente) {
-
             if ($request->valor == 1) {
                 $expediente->update([
                     'Autorizacion_Aceptacion' => 1,
@@ -643,13 +644,13 @@ class EncargadoController extends Controller
             }
         }
 
-        // ========================================
-        // 🔵 SEMAFORIZACIÓN
-        // ========================================
+        // =============================
+        //  SEMAFORIZACIÓN
+        // =============================
 
         if ($request->valor == 1) {
 
-            // 🟢 ENCARGADO aprobó (verde)
+            //  Encargado aprobó
             EstadoProceso::updateOrCreate(
                 [
                     'clave_alumno' => $clave,
@@ -658,7 +659,7 @@ class EncargadoController extends Controller
                 ['estado' => 'realizado']
             );
 
-            // 🟡 El alumno ya pasó (amarillo)
+            //  Alumno ya cumplió
             EstadoProceso::updateOrCreate(
                 [
                     'clave_alumno' => $clave,
@@ -667,18 +668,33 @@ class EncargadoController extends Controller
                 ['estado' => 'realizado']
             );
 
-            // 🟡 PASAMOS A REPORTE PARCIAL NO. X
-            EstadoProceso::updateOrCreate(
-                [
-                    'clave_alumno' => $clave,
-                    'etapa' => 'REPORTE PARCIAL'
-                ],
-                ['estado' => 'proceso']
-            );
+            if ($solicitud->Apoyo_Economico == 1) {
+
+                //  SIGUE A: CARTA DE DESGLOSE DE PERCEPCIONES
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'CARTA DE DESGLOSE DE PERCEPCIONES'
+                    ],
+                    ['estado' => 'proceso']
+                );
+
+            } else {
+
+                //  NO pidió apoyo → Pasa directo al Reporte Parcial
+                EstadoProceso::updateOrCreate(
+                    [
+                        'clave_alumno' => $clave,
+                        'etapa' => 'REPORTE PARCIAL'
+                    ],
+                    ['estado' => 'proceso']
+                );
+
+            }
 
         } else {
 
-            // 🔴 Rechazado (rojo)
+            //  Rechazado
             EstadoProceso::updateOrCreate(
                 [
                     'clave_alumno' => $clave,
@@ -687,7 +703,7 @@ class EncargadoController extends Controller
                 ['estado' => 'pendiente']
             );
 
-            // 🟡 Volver a permitir al alumno subir carta
+            // 🟡 El alumno puede volver a subir
             EstadoProceso::updateOrCreate(
                 [
                     'clave_alumno' => $clave,

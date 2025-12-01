@@ -11,7 +11,7 @@ class Evaluacion extends Model
 
     protected $table = 'evaluacion';
     protected $primaryKey = 'Id_Evaluacion';
-    public $timestamps = false;
+        public $timestamps = true;
 
     protected $fillable = [
         'Tipo_Evaluacion',

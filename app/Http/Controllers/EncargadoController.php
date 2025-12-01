@@ -16,6 +16,9 @@ use Illuminate\Support\Str;
 use App\Models\Expediente;
 use App\Models\Reporte;
 use Carbon\Carbon;
+use App\Models\Evaluacion;
+use App\Models\Respuesta;
+use App\Models\Pregunta;
 
 class EncargadoController extends Controller
 {
@@ -135,6 +138,45 @@ class EncargadoController extends Controller
                         'estado_encargado' => $solicitud->Estado_Encargado ?? null,
                         'autorizacion' => $solicitud->Autorizacion ?? null,
                     ];
+                    // Buscar evaluación existente (Tipo_Evaluacion='Empresa') por solicitud o empresa
+                    $tieneEvaluacion = false;
+                    $evaluacionData = null;
+                    try {
+                        $evaluacion = Evaluacion::query()
+                            ->where('Tipo_Evaluacion', 'Empresa')
+                            ->where(function($q) use ($solicitud) {
+                                $q->where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01);
+                                if ($solicitud->dependenciaMercadoSolicitud && $solicitud->dependenciaMercadoSolicitud->Id_Depend_Emp) {
+                                    $q->orWhere('Id_Depn_Emp', $solicitud->dependenciaMercadoSolicitud->Id_Depend_Emp);
+                                }
+                            })
+                            ->with(['respuestas.pregunta'])
+                            ->orderByDesc('Id_Evaluacion')
+                            ->first();
+
+                        if ($evaluacion) {
+                            $tieneEvaluacion = true;
+                            $fechaEvaluacion = null;
+                            if (isset($evaluacion->created_at) && $evaluacion->created_at) {
+                                try { $fechaEvaluacion = \Carbon\Carbon::parse($evaluacion->created_at)->format('d/m/Y H:i'); } catch (\Exception $e) { $fechaEvaluacion = null; }
+                            }
+                            $evaluacionData = [
+                                'empresa' => $empresaNombre,
+                                'proyecto' => $solicitud->Nombre_Proyecto ?? 'N/A',
+                                'fecha' => $fechaEvaluacion ?? 'N/A',
+                                'respuestas' => $evaluacion->respuestas->map(function($respuesta) {
+                                    return [
+                                        'pregunta' => $respuesta->pregunta ? $respuesta->pregunta->Pregunta : 'Pregunta no encontrada',
+                                        'respuesta' => $respuesta->Respuesta ?? 'Sin respuesta',
+                                    ];
+                                })->toArray()
+                            ];
+                        }
+                    } catch (\Throwable $e) {
+                        // en caso de error, no bloquear la consulta
+                        $tieneEvaluacion = false;
+                        $evaluacionData = null;
+                    }
                 }
 
                 $ordenEtapas = [
@@ -217,6 +259,8 @@ class EncargadoController extends Controller
                     'semaforo' => $semaforo,
                     'contador_reportes' => $contadorReportes,
                     'reportes_pendientes' => $reportesPendientes,
+                    'tiene_evaluacion' => $tieneEvaluacion ?? false,
+                    'evaluacion' => $evaluacionData,
                 ];
             })->toArray();
 

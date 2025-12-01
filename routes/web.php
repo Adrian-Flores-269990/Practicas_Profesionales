@@ -13,6 +13,7 @@ use App\Http\Controllers\DssppController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\EvaluacionController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Http\Controllers\ModalController;
@@ -95,7 +96,9 @@ Route::prefix('alumno')->group(function () {
     Route::get('/reportes', [\App\Http\Controllers\ReporteController::class, 'index'])->name('alumno.reportes.lista');
     Route::get('/reportes/{id}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargar'])->name('alumno.reportes.descargar');
 
-    Route::get('/evaluacion', fn () => view('alumno.evaluacion'))->name('alumno.evaluacion');
+    // Evaluación
+    Route::get('/evaluacion', [\App\Http\Controllers\EvaluacionController::class, 'mostrarEvaluacion'])->name('alumno.evaluacion');
+    Route::post('/evaluacion/guardar', [\App\Http\Controllers\EvaluacionController::class, 'guardarEvaluacion'])->name('alumno.evaluacion.guardar');
 
     Route::get('/registroFPP02/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('registroFPP02.mostrar');
     Route::post('/registroFPP02/upload', [PdfController::class, 'subirFpp02Firmado'])->name('registroFPP02.upload');

@@ -23,4 +23,9 @@ class Respuesta extends Model
     {
         return $this->belongsTo(Evaluacion::class, 'Id_Evaluacion', 'Id_Evaluacion');
     }
+
+        public function pregunta()
+        {
+            return $this->belongsTo(Pregunta::class, 'Id_Pregunta', 'Id_Pregunta');
+        }
 }

@@ -224,7 +224,7 @@
     <div class="search-container mb-4">
       <div class="search-info">
         <i class="bi bi-info-circle me-2"></i>
-        <strong>Busca por:</strong> Clave única
+        <strong>Busca por:</strong> Clave única con 0 al inicio
       </div>
       
       <form action="{{ route('encargado.consultar_alumno') }}" method="GET">
@@ -390,13 +390,17 @@
                   </div>
                   
                   <div class="col-md-6">
-                    <a href="#" class="formulario-btn">
+                      <div class="formulario-btn" onclick="verEvaluacionEmpresa('{{ $alumno['cve_uaslp'] ?? '' }}')">
                       <div>
                         <i class="bi bi-star me-2"></i>
                         <strong>Evaluación de Empresa</strong>
                       </div>
-                      <span class="badge badge-status bg-secondary">No iniciado</span>
-                    </a>
+                        @if(isset($alumno['tiene_evaluacion']) && $alumno['tiene_evaluacion'])
+                          <span class="badge badge-status bg-success">Completada</span>
+                        @else
+                          <span class="badge badge-status bg-secondary">No iniciado</span>
+                        @endif
+                      </div>
                   </div>
                   
                   </div>
@@ -471,6 +475,41 @@
                     </div>
                   @endif
                 </div>
+
+                  {{-- Evaluación de Empresa (oculto por defecto) --}}
+                  <div id="evaluacion-{{ $alumno['cve_uaslp'] ?? '' }}" class="documentos-expediente">
+                    <h6 class="mb-3">
+                      <i class="bi bi-star-fill text-warning me-2"></i>
+                      Evaluación de la Empresa por el Alumno
+                    </h6>
+                    @if(isset($alumno['evaluacion']) && !empty($alumno['evaluacion']))
+                      <div class="alert alert-info mb-3">
+                        <strong><i class="bi bi-building me-2"></i>Empresa:</strong> {{ $alumno['evaluacion']['empresa'] ?? 'N/A' }}<br>
+                        <strong><i class="bi bi-briefcase me-2"></i>Proyecto:</strong> {{ $alumno['evaluacion']['proyecto'] ?? 'N/A' }}<br>
+                      </div>
+                    
+                      <div class="list-group">
+                        @foreach($alumno['evaluacion']['respuestas'] as $respuesta)
+                          <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                              <h6 class="mb-2 text-primary">
+                                <i class="bi bi-question-circle me-2"></i>{{ $respuesta['pregunta'] }}
+                              </h6>
+                            </div>
+                            <p class="mb-1">
+                              <strong>Respuesta:</strong> 
+                              <span class="text-dark">{{ $respuesta['respuesta'] }}</span>
+                            </p>
+                          </div>
+                        @endforeach
+                      </div>
+                    @else
+                      <div class="alert alert-light border mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        El alumno aún no ha realizado la evaluación de la empresa.
+                      </div>
+                    @endif
+                  </div>
               </div>
             </div>
           @endforeach
@@ -502,6 +541,13 @@ function toggleSemaforo(clave) {
     semaforoDiv.classList.toggle('show');
   }
 }
+
+  function verEvaluacionEmpresa(clave) {
+    const evaluacionDiv = document.getElementById('evaluacion-' + clave);
+    if (evaluacionDiv) {
+      evaluacionDiv.classList.toggle('show');
+    }
+  }
 </script>
 @endpush
 

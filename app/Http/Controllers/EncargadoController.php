@@ -926,4 +926,5 @@ class EncargadoController extends Controller
         return view('encargado.cartas_presentacion', compact('expedientes', 'alumnos'));
 
     }
+
 }

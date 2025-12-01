@@ -210,7 +210,7 @@
         </button>
 
         <form id="formEliminarPDF" method="POST"
-              action="{{ route('cartaTermino.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Aceptacion']) }}"
+              action="{{ route('cartaTermino.eliminar', ['claveAlumno' => $alumno['cve_uaslp'], 'tipo' => 'Carta_Termino']) }}"
               style="display: none;">
           @csrf
           <input type="hidden" name="archivo" value="{{ $pdfPath }}">

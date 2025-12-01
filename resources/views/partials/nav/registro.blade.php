@@ -112,18 +112,23 @@ if ($ultimaSolicitud) {
     }
 
     // ------------------------------
-    // ✔ 3) RESULTADO FINAL
+    // ✔ 3) REGLA FINAL: SI YA SE SUBIÓ CARTA DE TÉRMINO → BLOQUEAR REPORTE
     // ------------------------------
+    if ($estadoCalificacionFinal === 'realizado') {
+        $puedeParcial = false;
+        $puedeFinal = false;
+    }
 
+    // ------------------------------
+    // ✔ 4) RESULTADO FINAL DEFINITIVO
+    // ------------------------------
     $bloqueoReporte = !($puedeParcial || $puedeFinal);
 
-    // 🟩 BLOQUEO EVALUACIÓN
-    // Se desbloquea si el reporte final fue aprobado
-    $reporte = EstadoProceso::where('clave_alumno', $claveAlumno)
-        ->where('etapa', 'REPORTE FINAL')
-        ->first();
+    // 🟩 BLOQUEO EVALUACIÓN — se desbloquea cuando la etapa EVALUACIÓN DE LA EMPRESA está en proceso
+    $estadoEvaluacionEmpresa = EstadoProceso::estado($claveAlumno, 'EVALUACIÓN DE LA EMPRESA');
 
-    if ($reporte && $reporte->estado === 'aprobado') {
+    // Desbloquear sólo cuando esté en proceso
+    if ($estadoEvaluacionEmpresa === 'proceso') {
         $bloqueoEvaluacion = false;
     }
 }

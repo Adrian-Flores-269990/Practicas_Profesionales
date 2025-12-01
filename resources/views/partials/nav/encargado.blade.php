@@ -16,10 +16,11 @@
           <li><a class="dropdown-item" href="{{ route('encargado.registros') }}">Registros Pendientes</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.cartasPresentacion') }}">Cartas de Presentación</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.cartasAceptacion') }}">Cartas de Aceptación</a></li>
-          <li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en Proceso de Prácticas</a></li>
+          <!--<li><a class="dropdown-item" href="{{ route('encargado.alumnos_en_proceso') }}">Alumnos en Proceso de Prácticas</a></li>-->
           <li><a class="dropdown-item" href="{{ route('encargado.estadisticas_empresas') }}">Estadísticas de Empresas</a></li>
           <li><a class="dropdown-item" href=" {{ route('encargado.registrar_empresa') }}">Registrar Nueva Empresa</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.reportes.pendientes') }}">Consultar reportes</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.calificacion.index') }}">Calificación Final</a></li>
         </ul>
       </li>
 

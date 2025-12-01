@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\EncargadoCalificacionController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Http\Controllers\ModalController;
@@ -225,6 +226,11 @@ Route::prefix('encargado')->group(function () {
     Route::post('/reportes/{id}/aprobar', [ReporteController::class, 'aprobar'])->name('encargado.reportes.aprobar');
     Route::post('/reportes/{id}/calificarFinal', [ReporteController::class, 'calificarFinal'])->name('encargado.reportes.calificarFinal');
     Route::get('/reportes/{id}/descargar', [ReporteController::class, 'descargarEncargado'])->name('encargado.reportes.descargar');
+
+    Route::get('/calificacion-final', [EncargadoCalificacionController::class, 'index'])->name('encargado.calificacion.index');
+    Route::get('/calificacion-final/{idSolicitud}', [EncargadoCalificacionController::class, 'ver'])->name('encargado.calificacion.ver');
+    Route::post('/calificacion-final/{idSolicitud}/aprobar', [EncargadoCalificacionController::class, 'aprobar'])->name('encargado.calificacion.aprobar');
+    Route::post('/calificacion-final/{idSolicitud}/rechazar', [EncargadoCalificacionController::class, 'rechazar'])->name('encargado.calificacion.rechazar');
 
 });
 

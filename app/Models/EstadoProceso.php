@@ -18,4 +18,16 @@ class EstadoProceso extends Model
             ->value('estado');
     }
 
+    public static function actualizarEstado($claveAlumno, $etapa, $estado)
+    {
+        $registro = self::where('clave_alumno', $claveAlumno)
+            ->where('etapa', $etapa)
+            ->first();
+
+        if ($registro) {
+            $registro->estado = $estado;
+            $registro->save();
+        }
+    }
+
 }

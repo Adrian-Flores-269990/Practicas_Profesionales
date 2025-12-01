@@ -151,12 +151,12 @@
               </a>
           </li>
           @endif
-          @if($estadoReporteFinal === 'proceso' || $estadoReporteFinal === 'realizado')
+          <!-- @if($estadoReporteFinal === 'proceso' || $estadoReporteFinal === 'realizado')
           <li>
             <a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">
               Reporte Final
             </a>
-          </li>
+          </li> -->
 
           {{-- CARTA DE TÉRMINO solo cuando el alumno está en su etapa "CARTA DE TÉRMINO" --}}
           @if($estadoCartaTermino === 'proceso' || $estadoCartaTermino === 'realizado')

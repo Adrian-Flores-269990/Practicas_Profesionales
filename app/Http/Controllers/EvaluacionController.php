@@ -75,31 +75,23 @@ class EvaluacionController extends Controller
             return response()->json(['error' => 'No se encontró solicitud FPP01'], 404);
         }
 
-        // Obtener Id_Depend_Emp desde la solicitud (nota: el campo en la tabla intermedia se llama Id_Depend_Emp)
-        $idDepnEmp = null;
-        if ($solicitud->dependenciaMercadoSolicitud) {
-            $idDepnEmp = $solicitud->dependenciaMercadoSolicitud->Id_Depend_Emp;
-        }
-
+        // Obtener empresa
+        $idDepnEmp = $solicitud->dependenciaMercadoSolicitud->Id_Depend_Emp ?? null;
         if (!$idDepnEmp) {
             return response()->json(['error' => 'No se encontró la empresa asociada a la solicitud'], 404);
         }
 
         DB::beginTransaction();
         try {
-            // Verificar si ya existe una evaluación
+            // Verificar si ya existe evaluación
             $evaluacion = Evaluacion::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)
                 ->where('Tipo_Evaluacion', 'Empresa')
                 ->first();
 
             if ($evaluacion) {
-                // Actualizar estado si es un reenvío
                 $evaluacion->update(['Estado' => 1]);
-                
-                // Eliminar respuestas anteriores
                 Respuesta::where('Id_Evaluacion', $evaluacion->Id_Evaluacion)->delete();
             } else {
-                // Crear nueva evaluación
                 $evaluacion = Evaluacion::create([
                     'Tipo_Evaluacion' => 'Empresa',
                     'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01,
@@ -108,26 +100,13 @@ class EvaluacionController extends Controller
                 ]);
             }
 
-            // Guardar las respuestas
+            // Guardar respuestas
             $respuestas = $request->input('respuestas', []);
-            
-            // Debug: Log para ver qué se está recibiendo
-            \Log::info('Datos completos recibidos:', $request->all());
-            \Log::info('Respuestas recibidas:', ['respuestas' => $respuestas, 'tipo' => gettype($respuestas), 'count' => count($respuestas)]);
-            \Log::info('ID Evaluación:', ['id' => $evaluacion->Id_Evaluacion]);
-            
             if (empty($respuestas) || !is_array($respuestas)) {
                 DB::rollBack();
-                return response()->json([
-                    'error' => 'No se recibieron respuestas. Verifica que hayas respondido todas las preguntas.',
-                    'debug' => [
-                        'respuestas_recibidas' => $respuestas,
-                        'request_all' => $request->all()
-                    ]
-                ], 422);
+                return response()->json(['error' => 'No se recibieron respuestas.'], 422);
             }
-            
-            $contadorRespuestas = 0;
+
             foreach ($respuestas as $idPregunta => $respuesta) {
                 if (!empty($respuesta)) {
                     Respuesta::create([
@@ -135,29 +114,40 @@ class EvaluacionController extends Controller
                         'Id_Pregunta' => $idPregunta,
                         'Respuesta' => $respuesta
                     ]);
-                    $contadorRespuestas++;
                 }
             }
-            
-            \Log::info('Respuestas guardadas:', ['total' => $contadorRespuestas]);
+
+            /*
+            =======================================================
+             SEMAFORIZACIÓN 
+            =======================================================
+            */
+
+            // 1. EVALUACIÓN DE LA EMPRESA → REALIZADO
+            \App\Models\EstadoProceso::actualizarEstado(
+                $claveAlumno,
+                'EVALUACIÓN DE LA EMPRESA',
+                'realizado'
+            );
+
+            // 2. CALIFICACIÓN FINAL → PROCESO (la que sigue)
+            \App\Models\EstadoProceso::actualizarEstado(
+                $claveAlumno,
+                'CALIFICACIÓN FINAL',
+                'proceso'
+            );
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => "Evaluación guardada exitosamente. Se guardaron {$contadorRespuestas} respuestas.",
-                'debug' => [
-                    'total_respuestas' => $contadorRespuestas,
-                    'id_evaluacion' => $evaluacion->Id_Evaluacion
-                ]
+                'redirect' => route('alumno.estado'),
+                'message' => 'Evaluación enviada correctamente'
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            return response()->json([
-                'error' => 'Error al guardar la evaluación: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

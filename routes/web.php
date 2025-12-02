@@ -15,6 +15,7 @@ use App\Http\Controllers\BitacoraController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\EncargadoCalificacionController;
+use App\Http\Controllers\SecretariaController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Http\Controllers\ModalController;
@@ -212,8 +213,6 @@ Route::prefix('encargado')->group(function () {
     Route::post('/carta/accion',[EncargadoController::class, 'accionCartaPresentacion'])->name('encargado.cartaPresentacion.accion');
     //Route::post('/cartas/calificar', [EncargadoController::class, 'calificarPresentacion'])->name('encargado.calificarCartaPresentacion');
 
-
-
     //Carta de Aceptación
     Route::get('/cartas_aceptacion', [EncargadoController::class, 'verAceptacion'])->name('encargado.cartasAceptacion');
     Route::get('/carta_aceptacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaAceptacion');
@@ -232,6 +231,14 @@ Route::prefix('encargado')->group(function () {
     Route::post('/calificacion-final/{idSolicitud}/aprobar', [EncargadoCalificacionController::class, 'aprobar'])->name('encargado.calificacion.aprobar');
     Route::post('/calificacion-final/{idSolicitud}/rechazar', [EncargadoCalificacionController::class, 'rechazar'])->name('encargado.calificacion.rechazar');
 
+    Route::get('/liberacion', [EncargadoController::class, 'listaLiberacion'])->name('encargado.liberacion');
+    Route::get('/liberacion-alumnos', [EncargadoController::class, 'listaLiberacion'])->name('encargado.liberacion_alumnos');
+    Route::post('/liberar/{clave}', [EncargadoController::class, 'aprobarLiberacion'])->name('encargado.liberacion.aprobar');
+    Route::post('/rechazar/{clave}', [EncargadoController::class, 'rechazarLiberacion'])->name('encargado.liberacion.rechazar');
+    Route::post('/liberacion-aprobar/{clave}', [EncargadoController::class, 'aprobarLiberacion'])->name('encargado.liberacion.aprobar');
+    Route::post('/liberacion-rechazar/{clave}', [EncargadoController::class, 'rechazarLiberacion'])->name('encargado.liberacion.rechazar');
+
+
 });
 
 
@@ -241,71 +248,12 @@ Route::prefix('encargado')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('secretaria')->group(function () {
+
     Route::get('/inicio', fn () => view('secretaria.inicio'))->name('secretaria.inicio');
-
-    // Generar Constancias
-    Route::get('/generar-constancias', function() {
-        $alumnos = [
-            [
-                'clave' => '194659',
-                'nombre' => 'Juan Carlos García López',
-                'correo' => 'juan.garcia@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. en Software',
-                'fecha_termino' => '2024-12-15',
-                'constancia_generada' => false
-            ],
-            [
-                'clave' => '195432',
-                'nombre' => 'María Fernanda Martínez Sánchez',
-                'correo' => 'maria.martinez@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. Civil',
-                'fecha_termino' => '2024-11-20',
-                'constancia_generada' => true
-            ],
-            [
-                'clave' => '196543',
-                'nombre' => 'Pedro Alberto Ramírez Torres',
-                'correo' => 'pedro.ramirez@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. Industrial',
-                'fecha_termino' => '2024-10-30',
-                'constancia_generada' => false
-            ],
-        ];
-
-        return view('secretaria.generar_constancia', compact('alumnos'));
-    })->name('secretaria.generar_constancia');
-
-    // Consultar Constancias
-    Route::get('/consultar-constancias', function() {
-        $constancias = [
-            [
-                'folio' => 'CONST-2024-001',
-                'clave' => '195432',
-                'nombre' => 'María Fernanda Martínez Sánchez',
-                'correo' => 'maria.martinez@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. Civil',
-                'fecha_generacion' => '2024-11-25'
-            ],
-            [
-                'folio' => 'CONST-2024-002',
-                'clave' => '197654',
-                'nombre' => 'Ana Sofía Hernández Cruz',
-                'correo' => 'ana.hernandez@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. Mecánica',
-                'fecha_generacion' => '2024-12-01'
-            ],
-            [
-                'folio' => 'CONST-2024-003',
-                'clave' => '198765',
-                'nombre' => 'Carlos Eduardo Ruiz Flores',
-                'correo' => 'carlos.ruiz@alumnos.uaslp.edu.mx',
-                'carrera' => 'Ing. en Software',
-                'fecha_generacion' => '2024-12-10'
-            ],
-        ];
-
-        return view('secretaria.validar_constancia', compact('constancias'));
-    })->name('secretaria.validar_constancia');
+    Route::get('/constancias', [SecretariaController::class, 'listarPendientes'])->name('secretaria.constancias');
+    Route::post('/constancias/generar/{clave}', [SecretariaController::class, 'generarConstancia'])->name('secretaria.constancias.generar');
+    Route::get('/constancias/historial', [SecretariaController::class, 'consultarConstancias'])->name('secretaria.constancias.historial');
+    Route::get('/secretaria/constancias/ver/{clave}', [SecretariaController::class, 'verConstancia'])->name('secretaria.constancia.ver');
 });
 
 /*

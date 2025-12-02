@@ -927,4 +927,58 @@ class EncargadoController extends Controller
 
     }
 
+    // LISTA DE ALUMNOS PARA LIBERAR
+    public function listaLiberacion()
+    {
+        $alumnos = EstadoProceso::where('etapa', 'LIBERACIÓN DEL ALUMNO')
+            ->where('estado', 'proceso')
+            ->join('alumno', 'alumno.Clave_Alumno', '=', 'estado_proceso.clave_alumno')
+            ->select(
+                'alumno.Clave_Alumno as clave',
+                DB::raw("CONCAT(alumno.Nombre, ' ', alumno.ApellidoP_Alumno, ' ', alumno.ApellidoM_Alumno) AS nombre"),
+                'alumno.Carrera as carrera'
+            )
+            ->get();
+
+        return view('encargado.liberacion', compact('alumnos'));
+    }
+
+    // APROBAR LIBERACIÓN
+    public function aprobarLiberacion($clave)
+    {
+        EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'LIBERACIÓN DEL ALUMNO')
+            ->update([
+                'estado' => 'realizado',
+                'Fecha_Termino' => now()
+            ]);
+
+        EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES')
+            ->update(['estado' => 'proceso']);
+
+        return back()->with('success', 'Alumno liberado correctamente.');
+    }
+
+    // RECHAZAR
+    public function rechazarLiberacion($clave)
+    {
+        // 1. LIBERACIÓN DEL ALUMNO → pendiente (rojo)
+        EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'LIBERACIÓN DEL ALUMNO')
+            ->update([
+                'estado' => 'pendiente'
+            ]);
+
+        // 2. CALIFICACIÓN FINAL → proceso (amarillo)
+        EstadoProceso::where('clave_alumno', $clave)
+            ->where('etapa', 'CALIFICACIÓN FINAL')
+            ->update([
+                'estado' => 'proceso'
+            ]);
+
+        return back()->with('reject', 'Liberación rechazada.');
+    }
+
+
 }

@@ -21,6 +21,7 @@
           <li><a class="dropdown-item" href=" {{ route('encargado.registrar_empresa') }}">Registrar Nueva Empresa</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.reportes.pendientes') }}">Consultar reportes</a></li>
           <li><a class="dropdown-item" href="{{ route('encargado.calificacion.index') }}">Calificación Final</a></li>
+          <li><a class="dropdown-item" href="{{ route('encargado.liberacion_alumnos') }}">Liberación de Alumnos</a></li>
         </ul>
       </li>
 

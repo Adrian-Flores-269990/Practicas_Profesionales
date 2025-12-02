@@ -4,7 +4,6 @@
     $alumno = session('alumno');
     $clave = $alumno['cve_uaslp'];
 
-    // Etapas del semáforo
     $estadoFPP01 = \App\Models\EstadoProceso::where('clave_alumno', $clave)
                 ->where('etapa', 'REGISTRO DE SOLICITUD DE AUTORIZACIÓN DE PRÁCTICAS PROFESIONALES')
                 ->value('estado');
@@ -45,7 +44,6 @@
                     ->where('etapa', 'REPORTE FINAL')
                     ->value('estado');
 
-    // Para validar ayuda económica
     $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
                 ->where('Autorizacion', 1)
                 ->where('Apoyo_Economico', 1)
@@ -80,12 +78,14 @@
 
         <ul class="dropdown-menu">
 
-          {{-- FPP01 siempre visible (el alumno puede entrar aunque no la haya enviado) --}}
-          <li><a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">
-            Solicitud de Prácticas Profesionales (FPP01)
-          </a></li>
+          {{-- FPP01 --}}
+          <li>
+            <a class="dropdown-item" href="{{ route('alumno.expediente.solicitudes') }}">
+              Solicitud de Prácticas Profesionales (FPP01)
+            </a>
+          </li>
 
-          {{-- REGISTRO FPP02 solo si ya envió FPP01 y DSSPP puso PROCESO --}}
+          {{-- FPP02 --}}
           @if($estadoFPP01 === 'proceso' || $estadoFPP02 === 'pendiente' || $estadoFPP02 === 'proceso' || $estadoFPP02 === 'realizado')
             <li>
               <a class="dropdown-item"
@@ -95,79 +95,73 @@
             </li>
           @endif
 
-          {{-- CARTA DE PRESENTACIÓN solo cuando la etapa del alumno está en PROCESO --}}
+          {{-- CARTA PRESENTACIÓN --}}
           @if($estadoCartaAlumno === 'proceso' || $estadoCartaAlumno === 'realizado')
-          <li>
-            <a class="dropdown-item"
-               href="{{ route('cartaPresentacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Presentacion']) }}">
-              Carta de Presentación
-            </a>
-          </li>
-          @endif
-
-          {{-- CARTA DE ACEPTACIÓN solo cuando el alumno está en su etapa "CARTA DE ACEPTACIÓN (ALUMNO)" --}}
-          @if($estadoCartaAceptacion === 'proceso' || $estadoCartaAceptacion === 'realizado')
-          <li>
-            <a class="dropdown-item"
-               href="{{ route('cartaAceptacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Aceptacion']) }}">
-              Carta de Aceptación
-            </a>
-          </li>
-          @endif
-
-          {{-- CARTA DE DESGLOSE DE PERCEPCIONES --}}
-          @if($estadoDesglose === 'proceso' || $estadoDesglose === 'realizado')
-          <li>
+            <li>
               <a class="dropdown-item"
-                href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
-                  Carta de Desglose de Percepciones
+                 href="{{ route('cartaPresentacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Presentacion']) }}">
+                Carta de Presentación
               </a>
-          </li>
+            </li>
           @endif
 
-          {{-- SOLICITUD DE RECIBO PARA AYUDA ECONÓMICA --}}
+          {{-- CARTA ACEPTACIÓN --}}
+          @if($estadoCartaAceptacion === 'proceso' || $estadoCartaAceptacion === 'realizado')
+            <li>
+              <a class="dropdown-item"
+                 href="{{ route('cartaAceptacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Aceptacion']) }}">
+                Carta de Aceptación
+              </a>
+            </li>
+          @endif
+
+          {{-- DESGLOSE --}}
+          @if($estadoDesglose === 'proceso' || $estadoDesglose === 'realizado')
+            <li>
+              <a class="dropdown-item"
+                 href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
+                Carta de Desglose de Percepciones
+              </a>
+            </li>
+          @endif
+
+          {{-- AYUDA ECONÓMICA --}}
           @if($estadoAyudaEconomica === 'proceso' || $estadoAyudaEconomica === 'realizado')
-          <li>
+            <li>
               <a class="dropdown-item" href="{{ route('alumno.expediente.ayudaEconomica') }}">
-                  Solicitud de Recibo para Ayuda Económica
+                Solicitud de Recibo para Ayuda Económica
               </a>
-          </li>
+            </li>
           @endif
 
-          {{-- RECIBO DE PAGO --}}
+          {{-- RECIBO --}}
           @if($estadoReciboPago === 'proceso' || $estadoReciboPago === 'realizado')
-          <li>
+            <li>
               <a class="dropdown-item" href="{{ route('alumno.expediente.reciboPago') }}">
-                  Recibo de Pago
+                Recibo de Pago
               </a>
-          </li>
+            </li>
           @endif
 
-          {{-- REPORTES --}}
+          {{-- REPORTES PARCIALES --}}
           @if($estadoReporteParcial === 'proceso' || $estadoReporteParcial === 'realizado')
-          <li>
+            <li>
               <a class="dropdown-item" href="{{ route('alumno.reportes.lista') }}">
-                  Reportes Parciales
+                Reportes Parciales
               </a>
-          </li>
+            </li>
           @endif
-          <!-- @if($estadoReporteFinal === 'proceso' || $estadoReporteFinal === 'realizado')
-          <li>
-            <a class="dropdown-item" href="{{ route('alumno.expediente.reporteFinal') }}">
-              Reporte Final
-            </a>
-          </li> -->
 
-          {{-- CARTA DE TÉRMINO solo cuando el alumno está en su etapa "CARTA DE TÉRMINO" --}}
+          {{-- CARTA DE TÉRMINO --}}
           @if($estadoCartaTermino === 'proceso' || $estadoCartaTermino === 'realizado')
-          <li>
-            <a class="dropdown-item"
-               href="{{ route('cartaTermino.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Termino']) }}">
-              Carta de Término
-            </a>
-          </li>
+            <li>
+              <a class="dropdown-item"
+                 href="{{ route('cartaTermino.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Termino']) }}">
+                Carta de Término
+              </a>
+            </li>
           @endif
-          @endif
+
         </ul>
       </li>
 
@@ -193,6 +187,7 @@
       <li class="nav-item">
         <a class="nav-link" href="{{ route('welcome') }}">Cerrar Sesión</a>
       </li>
+
     </ul>
   </div>
 </nav>

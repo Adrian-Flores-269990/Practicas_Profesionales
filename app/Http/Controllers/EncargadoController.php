@@ -582,10 +582,22 @@ class EncargadoController extends Controller
     // -------------------------------------------------
     public function verAceptacion()
     {
-        $expedientes = Expediente::with('solicitud.alumno', 'registro')
+        $expedientes = Expediente::with('solicitud.alumno')
             ->join('solicitud_fpp01', 'expediente.Id_Solicitud_FPP01', '=', 'solicitud_fpp01.Id_Solicitud_FPP01')
             ->whereNotNull('expediente.Carta_Aceptacion')
-            ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')  // 👈 AQUÍ ORDENAS POR FECHA REAL
+
+            // Join para estado
+            ->leftJoin('estado_proceso', function($join) {
+                $join->on('estado_proceso.clave_alumno', '=', 'solicitud_fpp01.Clave_Alumno')
+                    ->where('estado_proceso.etapa', 'CARTA DE ACEPTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)');
+            })
+
+            // Orden personalizado
+            ->orderByRaw("
+                FIELD(estado_proceso.estado, 'pendiente', 'proceso', 'realizado') ASC
+            ")
+            ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')
+
             ->select('expediente.*')
             ->get();
 
@@ -840,31 +852,29 @@ class EncargadoController extends Controller
 
     public function cartasPresentacionEncargado()
     {
-        // Traer TODOS los expedientes que tengan carta
         $expedientes = Expediente::with('solicitud.alumno')
             ->whereNotNull('Carta_Presentacion')
             ->join('solicitud_fpp01', 'expediente.Id_Solicitud_FPP01', '=', 'solicitud_fpp01.Id_Solicitud_FPP01')
+
+            // ORDEN PERSONALIZADO
+            ->leftJoin('estado_proceso', function($join) {
+                $join->on('estado_proceso.clave_alumno', '=', 'solicitud_fpp01.Clave_Alumno')
+                    ->where('estado_proceso.etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)');
+            })
+
+            // 1️⃣ Primero estado pendiente, luego proceso, luego realizado
+            ->orderByRaw("
+                FIELD(estado_proceso.estado, 'pendiente', 'proceso', 'realizado') ASC
+            ")
+
+            // 2️⃣ Luego por fecha (más nuevas arriba)
             ->orderByDesc('solicitud_fpp01.Fecha_Solicitud')
+
             ->select('expediente.*')
             ->get();
 
-        // Convertir a lista amigable para la vista
-        $alumnos = $expedientes->map(function($exp){
-            $al = $exp->solicitud->alumno;
+        $alumnos = Alumno::all();
+        return view('encargado.cartas_presentacion', compact('expedientes', 'alumnos'));
 
-            // Buscar estado real de semaforización
-            $estadoProceso = \App\Models\EstadoProceso::where('clave_alumno', $al->Clave_Alumno)
-                ->where('etapa', 'CARTA DE PRESENTACIÓN (ENCARGADO DE PRÁCTICAS PROFESIONALES)')
-                ->value('estado') ?? 'pendiente';
-
-            return (object)[
-                'clave_alumno' => $al->Clave_Alumno,
-                'nombre'       => $al->Nombre . ' ' . $al->ApellidoP_Alumno,
-                'carrera'      => $al->Carrera,
-                'estado'       => strtolower($estadoProceso)
-            ];
-        });
-
-        return view('encargado.cartas_presentacion', compact('alumnos'));
     }
 }

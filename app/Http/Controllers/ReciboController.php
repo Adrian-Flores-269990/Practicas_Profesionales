@@ -7,6 +7,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Models\SolicitudPago;
+use App\Models\EstadoProceso;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 

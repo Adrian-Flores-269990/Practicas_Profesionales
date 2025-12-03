@@ -220,7 +220,7 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
-                         style="width: 35px; height: 35px; font-weight: 600; font-size: 0.9rem;">
+                        style="width: 35px; height: 35px; font-weight: 600; font-size: 0.9rem;">
                       {{ strtoupper(substr($alumno['nombre'], 0, 1)) }}
                     </div>
                     <div>
@@ -260,12 +260,13 @@
                       Ya Generada
                     </button>
                   @else
-                    <button 
-                      class="btn btn-generar btn-sm" 
-                    >
-                      <i class="bi bi-file-earmark-text me-1"></i>
-                      Generar Constancia
-                    </button>
+                    <form action="{{ route('generarConstancia', $alumno['clave']) }}" method="POST" style="display:inline;">
+                      @csrf
+                      <button type="submit" class="btn btn-generar btn-sm">
+                          <i class="bi bi-file-earmark-text me-1"></i>
+                          Generar Constancia
+                      </button>
+                    </form>
                   @endif
                 </td>
               </tr>

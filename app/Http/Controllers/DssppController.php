@@ -10,7 +10,8 @@ use App\Models\SolicitudFPP02;
 use App\Models\AutorizacionSolicitud;
 use App\Models\EstadoProceso;
 use App\Models\CarreraIngenieria;
-use App\Models\Expediente; 
+use App\Models\Expediente;
+use App\Http\Controllers\PdfController;
 
 class DssppController extends Controller
 {
@@ -19,9 +20,9 @@ class DssppController extends Controller
         $solicitudes = SolicitudFPP01::with(['alumno', 'autorizaciones'])
             ->where(function ($q) {
                 $q->whereDoesntHave('autorizaciones')
-                  ->orWhereHas('autorizaciones', function ($q2) {
-                      $q2->whereNull('Autorizo_Empleado');
-                  });
+                ->orWhereHas('autorizaciones', function ($q2) {
+                    $q2->whereNull('Autorizo_Empleado');
+                });
             })
             ->get();
 
@@ -225,7 +226,7 @@ class DssppController extends Controller
 
         // GENERAR CARTA (solo genera, NO CAMBIA ESTADOS)
         try {
-            app(\App\Http\Controllers\PdfController::class)
+            app(PdfController::class)
                 ->generarCartaPresentacion($claveAlumno, $expediente);
 
             // ❌ YA NO CAMBIA ESTADOS AQUÍ

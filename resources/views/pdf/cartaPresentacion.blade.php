@@ -21,8 +21,8 @@
         }
 
         .tabla {
-           width: 100%;
-           border-collapse: collapse;
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .izquierda {
@@ -106,7 +106,7 @@
             <!-- Columna izquierda: imagen con medidas exactas -->
             <td class="izquierda">
                 <img src="{{ public_path('images/logoUaslp.jpg') }}"
-                     style="width: 5cm; height: 27.65cm; object-fit: fill; display: block;">
+                    style="width: 5cm; height: 27.65cm; object-fit: fill; display: block;">
             </td>
 
             <!-- Columna derecha: contenido -->
@@ -134,9 +134,9 @@
                 <div style="margin-top: 30px; margin-bottom: 30px;">
                     <p style="text-align: right;"><strong>Asunto:</strong> Presentación Prácticas Profesionales</p>
                     <div style="margin-bottom: 20px;">
-                        Por este conducto nos permitimos presentar a sus finas atenciones a <strong>{{ capitalizar($alumno['Nombre']) }} {{ capitalizar($alumno['ApellidoP_Alumno']) }} {{ capitalizar($alumno['ApellidoM_Alumno']) }},</strong> 
-                        con No. de clave <strong>{{ $solicitud['Clave_Alumno'] }},</strong> de la carrera <strong>{{ capitalizar($alumno['Carrera']) }},</strong> cubierto con seguro 
-                        facultativo número <strong>{{ $solicitud['NSF'] }},</strong> y quien de acuerdo con el <strong>Reglamento Interno de Servicio Social 
+                        Por este conducto nos permitimos presentar a sus finas atenciones a <strong>{{ capitalizar($alumno['Nombre']) ?? 'S/D' }} {{ capitalizar($alumno['ApellidoP_Alumno']) ?? 'S/D' }} {{ capitalizar($alumno['ApellidoM_Alumno']) ?? 'S/D' }},</strong> 
+                        con No. de clave <strong>{{ $solicitud['Clave_Alumno'] ?? 'S/D' }},</strong> de la carrera <strong>{{ capitalizar($alumno['Carrera']) ?? 'S/D' }},</strong> cubierto con seguro 
+                        facultativo número <strong>{{ $solicitud['NSF'] ?? 'S/D' }},</strong> y quien de acuerdo con el <strong>Reglamento Interno de Servicio Social 
                         y Prácticas Profesionales de la Facultad de Ingeniería</strong> está en aptitud para realizar sus 
                         <strong>Prácticas Profesionales 
                         @if($solicitud['Validacion_Creditos'] == 1)
@@ -144,10 +144,10 @@
                         @else
                             (Sin validación de créditos),
                         @endif</strong> en el departamento <strong>S/D,</strong> asignado al 
-                        proyecto: <strong>{{ $solicitud['Nombre_Proyecto'] }},</strong> realizando las siguientes actividades: <strong>{{ $solicitud['Actividades'] }}.</strong> Quien cubrirá un horario de <strong>{{ $texto }} de {{ $horaEntrada }} a {{ $horaSalida }} HRS.</strong>
+                        proyecto: <strong>{{ $solicitud['Nombre_Proyecto'] ?? 'S/D' }},</strong> realizando las siguientes actividades: <strong>{{ $solicitud['Actividades'] ?? 'S/D' }}.</strong> Quien cubrirá un horario de <strong>{{ $texto ?? 'S/D' }} de {{ $horaEntrada ?? 'S/D' }} a {{ $horaSalida ?? 'S/D' }} HRS.</strong>
                     </div>
                     <div style="margin-bottom: 30px;">
-                        Lo anterior bajo la supervisión de <strong>{{ $asesor['Nombre'] }} {{ $asesor['Apellido_Paterno'] }} {{ $asesor['Apellido_Materno'] }}.</strong> Cubriendo un periodo de prácticas del <strong>{{ $fechaInicio }}</strong> al <strong>{{ $fechaTermino }}</strong>.
+                        Lo anterior bajo la supervisión de <strong>{{ $asesor['Nombre'] ?? 'S/D' }} {{ $asesor['Apellido_Paterno'] ?? 'S/D' }} {{ $asesor['Apellido_Materno'] ?? 'S/D' }}.</strong> Cubriendo un periodo de prácticas del <strong>{{ $fechaInicio ?? 'S/D' }}</strong> al <strong>{{ $fechaTermino ?? 'S/D' }}</strong>.
                     </div>
                     <div style="font-weight: bold; text-align: center;">
                         "SIEMPRE AUTÓNOMA POR MI PATRIA EDUCARÉ"

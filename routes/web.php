@@ -16,6 +16,7 @@ use App\Http\Controllers\ReporteController;
 use App\Models\SolicitudFPP01;
 use App\Models\Expediente;
 use App\Http\Controllers\ModalController;
+use App\Http\Controllers\SecretariaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -259,6 +260,9 @@ Route::prefix('secretaria')->group(function () {
 
         return view('secretaria.generar_constancia', compact('alumnos'));
     })->name('secretaria.generar_constancia');
+    Route::post('/generar-constancia/{claveAlumno}', [SecretariaController::class, 'generarConstancia'])
+        ->name('generarConstancia');
+
 
     // Consultar Constancias
     Route::get('/consultar-constancias', function() {

@@ -142,12 +142,13 @@
                 <td>{{ $al->nombre }}</td>
                 <td>{{ $al->carrera }}</td>
                 <td>
-                    @if($al->fecha_termino)
-                        {{ \Carbon\Carbon::parse($al->fecha_termino)->format('Y-m-d') }}
+                    @if($al->fecha_liberacion)
+                        {{ \Carbon\Carbon::parse($al->fecha_liberacion)->format('d/m/Y') }}
                     @else
                         <span class="text-muted">N/A</span>
                     @endif
                 </td>
+
                 <td class="text-center">
                     <button class="btn btn-generar"
                         data-bs-toggle="modal"
@@ -218,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('gc_clave').textContent = clave;
             document.getElementById('gc_nombre').textContent = nombre;
-            document.getElementById('formGenerar').action = "/secretaria/constancias/generar/" + clave;
+            document.getElementById('formGenerar').action = "/secretaria/generar-constancia/" + clave;
         });
 
     // Filtros
@@ -245,19 +246,38 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('keyup', filtrar);
     filtroCarrera.addEventListener('change', filtrar);
 
-    // Formulario
-    var modalGenerar = document.getElementById('modalGenerar');
-    modalGenerar.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var clave = button.getAttribute('data-clave');
-        var nombre = button.getAttribute('data-nombre');
+    // FORMULARIO: ENVIAR Y DESCARGAR PDF
+    document.getElementById('formGenerar').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-        modalGenerar.querySelector('#gc_clave').textContent = clave;
-        modalGenerar.querySelector('#gc_nombre').textContent = nombre;
+        const form = this;
+        const action = form.action;
 
-        // Actualizar el action con la clave
-        var form = modalGenerar.querySelector('#formGenerar');
-        form.action = "/secretaria/generar-constancia/" + clave;
+        fetch(action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.success) {
+                // ABRIR EL PDF
+                window.open(data.url, '_blank');
+
+                // Recargar tabla
+                setTimeout(() => location.reload(), 1000);
+
+            } else {
+                alert(data.message || 'Error generando constancia');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error inesperado generando el archivo.');
+        });
     });
 
 });

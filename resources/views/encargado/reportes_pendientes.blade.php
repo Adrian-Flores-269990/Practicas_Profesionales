@@ -442,17 +442,19 @@ function calificarReporte(idReporte) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      alert('Reporte calificado exitosamente');
-      location.reload();
+        mostrarModalExito("Reporte calificado exitosamente");
+        setTimeout(() => {
+            location.reload();
+        }, 1800);
     } else {
-      alert('Error al calificar el reporte');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Guardar calificación';
+        mostrarModalError("No se pudo calificar el reporte. Intenta nuevamente.");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Guardar calificación';
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    alert('Error al calificar el reporte');
+    mostrarModalError("Ocurrió un error inesperado al calificar el reporte.");
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Guardar calificación';
   });
@@ -489,8 +491,59 @@ function limpiarFiltros() {
   filtrarTabla();
 }
 
+function mostrarModalExito(mensaje = "Operación realizada correctamente") {
+    document.getElementById("mensajeExito").innerText = mensaje;
+    const modal = new bootstrap.Modal(document.getElementById('modalExito'));
+    modal.show();
+}
+
+function mostrarModalError(mensaje = "Ocurrió un error durante la operación") {
+    document.getElementById("mensajeError").innerText = mensaje;
+    const modal = new bootstrap.Modal(document.getElementById('modalError'));
+    modal.show();
+}
+
+
 </script>
 @endpush
+
+<!-- Modal de Éxito -->
+<div class="modal fade" id="modalExito" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="border-radius: 12px;">
+      
+      <div class="text-success mb-3" style="font-size: 3rem;">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+
+      <h4 class="fw-bold mb-2">Operación exitosa</h4>
+      <p id="mensajeExito" class="mb-3">Reporte calificado exitosamente.</p>
+      
+      <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+        Aceptar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal fade" id="modalError" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4" style="border-radius: 12px;">
+      
+      <div class="text-danger mb-3" style="font-size: 3rem;">
+        <i class="bi bi-x-circle-fill"></i>
+      </div>
+
+      <h4 class="fw-bold mb-2">Ocurrió un error</h4>
+      <p id="mensajeError" class="mb-3">Error al realizar la operación.</p>
+      
+      <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
 
 @endsection
  

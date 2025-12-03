@@ -12,39 +12,26 @@ class SecretariaController extends Controller
 {
     public function listarPendientes()
     {
-        $constancias = EstadoProceso::where('etapa', 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES')
-            ->where('estado', 'proceso')
+        $constancias = EstadoProceso::where('estado_proceso.etapa', 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES')
+            ->where('estado_proceso.estado', 'proceso')
             ->join('alumno', 'alumno.Clave_Alumno', '=', 'estado_proceso.clave_alumno')
+
+            // LEFT JOIN para traer la fecha de liberación del alumno
+            ->leftJoin('estado_proceso as liberacion', function($join) {
+                $join->on('liberacion.clave_alumno', '=', 'estado_proceso.clave_alumno')
+                    ->where('liberacion.etapa', 'LIBERACIÓN DEL ALUMNO');
+            })
+
             ->select(
                 'alumno.Clave_Alumno as clave',
                 DB::raw("CONCAT(alumno.Nombre, ' ', alumno.ApellidoP_Alumno, ' ', alumno.ApellidoM_Alumno) AS nombre"),
                 'alumno.Carrera as carrera',
-                'estado_proceso.Fecha_Termino as fecha_termino'
+                DB::raw("liberacion.Fecha_Termino as fecha_liberacion")
             )
             ->get();
 
         return view('secretaria.generar_constancia', compact('constancias'));
     }
-
-    /*
-    public function generarConstancia($clave)
-    {
-        // Actualizar estado final
-        EstadoProceso::where('clave_alumno', $clave)
-            ->where('etapa', 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES')
-            ->update([
-                'estado' => 'realizado',
-                'Fecha_Termino' => now()
-            ]);
-
-        // Aquí podrías generar el PDF si ya lo tienes
-        // PDFController::generarConstancia($clave);
-
-        // Redirigir al inicio de Secretaría
-        return redirect()
-            ->route('secretaria.inicio')
-            ->with('success', 'Constancia generada correctamente.');
-    }*/
 
     public function consultarConstancias()
     {
@@ -65,46 +52,69 @@ class SecretariaController extends Controller
 
     public function verConstancia($clave)
     {
-        $ruta = storage_path("app/public/constancias/{$clave}.pdf");
+        // Carpeta donde guardas las constancias
+        $rutaCarpeta = storage_path("app/public/expedientes/Constancia/");
 
-        if (!file_exists($ruta)) {
-            return redirect()->back()->with('error', 'No se encontró la constancia generada.');
+        // Buscar cualquier archivo que coincida con la clave
+        $archivos = glob($rutaCarpeta . "{$clave}_constancia_*.pdf");
+
+        if (!$archivos || count($archivos) === 0) {
+            return back()->with('error', 'No se encontró la constancia generada para este alumno.');
         }
 
-        return response()->file($ruta);
+        // Tomar el archivo más reciente
+        $archivo = $archivos[count($archivos) - 1];
+
+        return response()->file($archivo);
     }
+
 
     public function generarConstancia($claveAlumno)
     {
-        // Buscar solicitud FPP01 autorizada
+        // 1. Buscar solicitud FPP01 autorizada
         $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
             ->where('Autorizacion', 1)
             ->first();
 
-        if (! $solicitud) {
-            return back()->with('error', 'El alumno aún no tiene solicitud autorizada.');
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El alumno aún no tiene solicitud autorizada.'
+            ]);
         }
 
-        // Buscar expediente
+        // 2. Buscar o crear expediente
         $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
 
-        if (! $expediente) {
+        if (!$expediente) {
             $expediente = Expediente::create([
                 'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01
             ]);
         }
 
-        // GENERAR CONSTANCIA (solo genera, NO CAMBIA ESTADOS)
-        try {
-            app(PdfController::class)
-                ->generarConstancia($claveAlumno, $expediente);
+        // 3. Nombre único del archivo PDF
+        $filename = "{$claveAlumno}_constancia_" . time() . ".pdf";
 
-            return redirect()
-                ->route('secretaria.generar_constancia')
-                ->with('success', 'Constancia generada correctamente.');
-        }
-        catch (\Exception $e) {
-            return back()->with('error', 'Error generando la carta: ' . $e->getMessage());
+        try {
+            // 4. Generar PDF usando el PdfController
+            $pdfController = app(PdfController::class);
+            $pdfController->generarConstancia($claveAlumno, $expediente, $filename);
+
+            // 5. Generar la URL pública del archivo PDF
+            // (Requiere haber ejecutado: php artisan storage:link)
+            $url = asset("storage/expedientes/Constancia/{$filename}");
+
+            return response()->json([
+                'success' => true,
+                'url' => $url
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generando constancia: ' . $e->getMessage()
+            ]);
         }
     }
+
 }

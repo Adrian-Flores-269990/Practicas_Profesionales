@@ -130,7 +130,7 @@
 
                 <td class="text-center">
                     <a href="{{ route('secretaria.constancia.ver', $al->clave) }}" 
-                    class="btn btn-success">
+                    class="btn btn-success" target="_blank">
                         <i class="bi bi-file-earmark-pdf"></i> Ver Constancia
                     </a>
                 </td>
@@ -144,39 +144,6 @@
     </table>
 </div>
 @endsection
-
-
-{{-- MODAL --}}
-<div class="modal fade" id="modalGenerar" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-primary">
-
-          <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title">Confirmar Generación</h5>
-              <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
-
-          <div class="modal-body">
-              <p class="fw-bold">¿Deseas generar la constancia del alumno?</p>
-              <p>
-                <strong>Clave:</strong> <span id="gc_clave"></span><br>
-                <strong>Alumno:</strong> <span id="gc_nombre"></span>
-              </p>
-          </div>
-
-          <div class="modal-footer">
-              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-
-              <form id="formGenerar" method="POST">
-                @csrf
-                <button class="btn btn-primary">Sí, generar</button>
-              </form>
-          </div>
-
-      </div>
-  </div>
-</div>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

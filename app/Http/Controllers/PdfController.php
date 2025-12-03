@@ -52,6 +52,50 @@ class PdfController extends Controller
         ]);
     }
 
+    // -------------------------------------------------------------------------------------
+    // GENERAR CONSTANCIA (Genera la Constancia de Finalización de Prácticas Profesionales)
+    // -------------------------------------------------------------------------------------
+    public function generarConstancia($claveAlumno, $expediente)
+    {
+        $fechaHoy = Carbon::now()->format('d/m/Y');
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+                                    ->where('Autorizacion', '1')
+                                    ->first();
+        $alumno = Alumno::where('Clave_Alumno', $claveAlumno)
+                                    ->first();
+        $area = Area::where('Id_Area', $alumno['Clave_Area'])
+                                    ->first();
+
+        $pdf = Pdf::loadView('pdf.constancia', compact('solicitud', 'alumno', 'area', 'fechaHoy'))
+            ->setPaper('letter');
+        $tipoDoc = 'Constancia';
+        $nombreArchivo = $claveAlumno . '_constancia_' . time() . '.pdf';
+        $rutaCarpeta = 'expedientes/' . $tipoDoc;
+        if (!Storage::disk('public')->exists($rutaCarpeta)) {
+            Storage::disk('public')->makeDirectory($rutaCarpeta);
+        }
+        $pdf->save(storage_path('app/public/' . $rutaCarpeta . '/' . $nombreArchivo));
+
+        $expediente -> update([
+            'Constancia' => $nombreArchivo,
+        ]);
+        
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES'
+            ],
+            ['estado' => 'realizado']
+        );
+        EstadoProceso::updateOrCreate(
+            [
+                'clave_alumno' => $claveAlumno,
+                'etapa' => 'DOCUMENTO EXTRA (EJEMPLO)'
+            ],
+            ['estado' => 'proceso']
+        );
+    }
+
     // -------------------------------------------------------
     // MOSTRAR DOCUMENTO (Visualiza PDFs del expediente)
     // -------------------------------------------------------
@@ -181,6 +225,10 @@ class PdfController extends Controller
 
         if ($tipo === 'Carta_Termino') {
             return view('alumno.expediente.cartaTermino', compact('pdfPath', 'claveAlumno'));
+        }
+
+        if ($tipo === 'Constancia') {
+            return view('alumno.expediente.constancia', compact('pdfPath', 'claveAlumno'));
         }
 
         // ===============================

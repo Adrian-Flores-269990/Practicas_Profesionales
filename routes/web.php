@@ -218,6 +218,10 @@ Route::prefix('encargado')->group(function () {
     Route::get('/carta_aceptacion/{claveAlumno}/{tipo}/{documento}', [PdfController::class, 'mostrarDocumentoEmpleados'])->name('encargado.verCartaAceptacion');
     Route::post('/accion_carta_aceptacion', [EncargadoController::class, 'calificarAceptacion'])->name('encargado.calificarCartaAceptacion');
 
+    //Constancia de Finalización
+    Route::get('/constancia/{claveAlumno}/{tipo}', [PdfController::class, 'mostrarDocumento'])->name('constancia.mostrar');
+
+
     // Reportes
     Route::get('/reportes/pendientes', [ReporteController::class, 'reportesPendientes'])->name('encargado.reportes.pendientes');
     Route::get('/reportes/alumno/{clave}', [ReporteController::class, 'reportesAlumno'])->name('encargado.reportes_alumno');
@@ -251,7 +255,7 @@ Route::prefix('secretaria')->group(function () {
 
     Route::get('/inicio', fn () => view('secretaria.inicio'))->name('secretaria.inicio');
     Route::get('/constancias', [SecretariaController::class, 'listarPendientes'])->name('secretaria.constancias');
-    Route::post('/constancias/generar/{clave}', [SecretariaController::class, 'generarConstancia'])->name('secretaria.constancias.generar');
+    Route::post('/generar-constancia/{claveAlumno}', [SecretariaController::class, 'generarConstancia'])->name('secretaria.constancias.generar');
     Route::get('/constancias/historial', [SecretariaController::class, 'consultarConstancias'])->name('secretaria.constancias.historial');
     Route::get('/secretaria/constancias/ver/{clave}', [SecretariaController::class, 'verConstancia'])->name('secretaria.constancia.ver');
 });

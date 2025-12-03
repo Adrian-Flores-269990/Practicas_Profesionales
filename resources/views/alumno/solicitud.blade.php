@@ -287,7 +287,7 @@
                     <div class="col-md-4"><label class="form-label">Calle</label><input type="text" id="pv_calle" class="form-control" readonly></div>
                     <div class="col-md-2"><label class="form-label">Número</label><input type="text" id="pv_numero" class="form-control" readonly></div>
                     <div class="col-md-3"><label class="form-label">Colonia</label><input type="text" id="pv_colonia" class="form-control" readonly></div>
-                    <div class="col-md-2"><label class="form-label">C.P.</label><input type="text" id="pv_cp" class="form-control" readonly></div>
+                    <div class="col-md-2"><label class="form-label">C.P.</label><input type="number" id="pv_cp" class="form-control" readonly></div>
                     <div class="col-md-3"><label class="form-label">Estado</label><input type="text" id="pv_estado" class="form-control" readonly></div>
                     <div class="col-md-3"><label class="form-label">Municipio</label><input type="text" id="pv_municipio" class="form-control" readonly></div>
                     <div class="col-md-3"><label class="form-label">Teléfono</label><input type="text" id="pv_telefono" class="form-control" readonly></div>
@@ -363,7 +363,7 @@
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">C.P. <span class="text-danger">*</span></label>
-                    <input type="text" name="cp_empresa_privado" class="form-control" data-require="true">
+                    <input type="number" name="cp_empresa_privado" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Estado <span class="text-danger">*</span></label>
@@ -461,7 +461,7 @@
                   </div>
                   <div class="col-md-2">
                     <label class="form-label">C.P. <span class="text-danger">*</span></label>
-                    <input type="text" name="cp_empresa_publico" class="form-control" data-require="true">
+                    <input type="number" name="cp_empresa_publico" class="form-control" data-require="true">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Estado <span class="text-danger">*</span></label>

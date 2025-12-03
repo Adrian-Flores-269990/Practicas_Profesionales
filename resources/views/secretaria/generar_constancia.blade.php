@@ -173,33 +173,35 @@
 
 {{-- MODAL GENERAR --}}
 <div class="modal fade" id="modalGenerar" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-primary">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-primary">
 
-          <div class="modal-header bg-primary text-white">
-              <h5 class="modal-title">Confirmar Generación</h5>
-              <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-          </div>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Confirmar Generación</h5>
+                <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
 
-          <div class="modal-body">
-              <p class="fw-bold">¿Deseas generar la constancia del alumno?</p>
-              <p>
+            <div class="modal-body">
+                <p class="fw-bold">¿Deseas generar la constancia del alumno?</p>
+                <p>
                 <strong>Clave:</strong> <span id="gc_clave"></span><br>
                 <strong>Alumno:</strong> <span id="gc_nombre"></span>
-              </p>
-          </div>
+                </p>
+            </div>
 
-          <div class="modal-footer">
-              <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
 
-              <form id="formGenerar" method="POST">
-                @csrf
-                <button class="btn btn-primary">Sí, generar</button>
-              </form>
-          </div>
+                <form id="formGenerar" method="POST">
+                    @csrf
+                    <input type="hidden" name="clave" id="gc_clave_input">
+                    <button type="submit" class="btn btn-generar btn-sm">Sí, generar</button>
+                </form>
 
-      </div>
-  </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 
@@ -242,6 +244,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchInput.addEventListener('keyup', filtrar);
     filtroCarrera.addEventListener('change', filtrar);
+
+    // Formulario
+    var modalGenerar = document.getElementById('modalGenerar');
+    modalGenerar.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var clave = button.getAttribute('data-clave');
+        var nombre = button.getAttribute('data-nombre');
+
+        modalGenerar.querySelector('#gc_clave').textContent = clave;
+        modalGenerar.querySelector('#gc_nombre').textContent = nombre;
+
+        // Actualizar el action con la clave
+        var form = modalGenerar.querySelector('#formGenerar');
+        form.action = "/secretaria/generar-constancia/" + clave;
+    });
 
 });
 </script>

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\EstadoProceso;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Models\SolicitudFPP01;
+use App\Models\Expediente;
 
 class SecretariaController extends Controller
 {
@@ -24,6 +26,7 @@ class SecretariaController extends Controller
         return view('secretaria.generar_constancia', compact('constancias'));
     }
 
+    /*
     public function generarConstancia($clave)
     {
         // Actualizar estado final
@@ -41,7 +44,7 @@ class SecretariaController extends Controller
         return redirect()
             ->route('secretaria.inicio')
             ->with('success', 'Constancia generada correctamente.');
-    }
+    }*/
 
     public function consultarConstancias()
     {
@@ -69,5 +72,39 @@ class SecretariaController extends Controller
         }
 
         return response()->file($ruta);
+    }
+
+    public function generarConstancia($claveAlumno)
+    {
+        // Buscar solicitud FPP01 autorizada
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->where('Autorizacion', 1)
+            ->first();
+
+        if (! $solicitud) {
+            return back()->with('error', 'El alumno aún no tiene solicitud autorizada.');
+        }
+
+        // Buscar expediente
+        $expediente = Expediente::where('Id_Solicitud_FPP01', $solicitud->Id_Solicitud_FPP01)->first();
+
+        if (! $expediente) {
+            $expediente = Expediente::create([
+                'Id_Solicitud_FPP01' => $solicitud->Id_Solicitud_FPP01
+            ]);
+        }
+
+        // GENERAR CONSTANCIA (solo genera, NO CAMBIA ESTADOS)
+        try {
+            app(PdfController::class)
+                ->generarConstancia($claveAlumno, $expediente);
+
+            return redirect()
+                ->route('secretaria.generar_constancia')
+                ->with('success', 'Constancia generada correctamente.');
+        }
+        catch (\Exception $e) {
+            return back()->with('error', 'Error generando la carta: ' . $e->getMessage());
+        }
     }
 }

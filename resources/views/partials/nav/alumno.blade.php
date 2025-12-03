@@ -44,6 +44,10 @@
                     ->where('etapa', 'REPORTE FINAL')
                     ->value('estado');
 
+    $estadoConstancia = \App\Models\EstadoProceso::where('clave_alumno', $clave)
+                ->where('etapa', 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES')
+                ->value('estado');
+
     $existe = \App\Models\SolicitudFPP01::where('Clave_Alumno', $clave)
                 ->where('Autorizacion', 1)
                 ->where('Apoyo_Economico', 1)
@@ -89,7 +93,7 @@
           @if($estadoFPP01 === 'proceso' || $estadoFPP02 === 'pendiente' || $estadoFPP02 === 'proceso' || $estadoFPP02 === 'realizado')
             <li>
               <a class="dropdown-item"
-                 href="{{ route('registroFPP02.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Solicitud_FPP02_Firmada']) }}">
+                href="{{ route('registroFPP02.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Solicitud_FPP02_Firmada']) }}">
                 Registro de Solicitud de Autorización (FPP02)
               </a>
             </li>
@@ -99,7 +103,7 @@
           @if($estadoCartaAlumno === 'proceso' || $estadoCartaAlumno === 'realizado')
             <li>
               <a class="dropdown-item"
-                 href="{{ route('cartaPresentacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Presentacion']) }}">
+                href="{{ route('cartaPresentacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Presentacion']) }}">
                 Carta de Presentación
               </a>
             </li>
@@ -109,7 +113,7 @@
           @if($estadoCartaAceptacion === 'proceso' || $estadoCartaAceptacion === 'realizado')
             <li>
               <a class="dropdown-item"
-                 href="{{ route('cartaAceptacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Aceptacion']) }}">
+                href="{{ route('cartaAceptacion.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Aceptacion']) }}">
                 Carta de Aceptación
               </a>
             </li>
@@ -119,7 +123,7 @@
           @if($estadoDesglose === 'proceso' || $estadoDesglose === 'realizado')
             <li>
               <a class="dropdown-item"
-                 href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
+                href="{{ route('desglosePercepciones.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Desglose_Percepciones']) }}">
                 Carta de Desglose de Percepciones
               </a>
             </li>
@@ -156,8 +160,18 @@
           @if($estadoCartaTermino === 'proceso' || $estadoCartaTermino === 'realizado')
             <li>
               <a class="dropdown-item"
-                 href="{{ route('cartaTermino.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Termino']) }}">
+                href="{{ route('cartaTermino.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Carta_Termino']) }}">
                 Carta de Término
+              </a>
+            </li>
+          @endif
+
+          {{-- CONSTANCIA DE FINALIZACION --}}
+          @if($estadoConstancia === 'proceso' || $estadoConstancia === 'realizado')
+            <li>
+              <a class="dropdown-item"
+                href="{{ route('constancia.mostrar', ['claveAlumno'=>$clave, 'tipo'=>'Constancia']) }}">
+                Constancia de Finalización
               </a>
             </li>
           @endif

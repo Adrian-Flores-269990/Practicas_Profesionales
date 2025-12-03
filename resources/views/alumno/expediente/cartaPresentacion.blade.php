@@ -221,7 +221,7 @@
     @else
       {{-- ============================
           1. DESCARGAR CARTA GENERADA
-         ============================ --}}
+      ============================ --}}
       <div class="seccion-card">
         <div class="seccion-header">
           <i class="bi bi-download"></i>
@@ -250,7 +250,7 @@
 
       {{-- ============================
           2. SUBIR CARTA FIRMADA
-         ============================ --}}
+      ============================ --}}
       <div class="seccion-card">
         <div class="seccion-header">
           <i class="bi bi-upload"></i>

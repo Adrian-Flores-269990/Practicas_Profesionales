@@ -55,37 +55,52 @@ class PdfController extends Controller
     // -------------------------------------------------------------------------------------
     // GENERAR CONSTANCIA (Genera la Constancia de Finalización de Prácticas Profesionales)
     // -------------------------------------------------------------------------------------
-    public function generarConstancia($claveAlumno, $expediente)
+    public function generarConstancia($claveAlumno, $expediente, $filename = null)
     {
         $fechaHoy = Carbon::now()->format('d/m/Y');
-        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
-                                    ->where('Autorizacion', '1')
-                                    ->first();
-        $alumno = Alumno::where('Clave_Alumno', $claveAlumno)
-                                    ->first();
-        $area = Area::where('Id_Area', $alumno['Clave_Area'])
-                                    ->first();
 
+        // Datos del alumno
+        $solicitud = SolicitudFPP01::where('Clave_Alumno', $claveAlumno)
+            ->where('Autorizacion', '1')
+            ->first();
+
+        $alumno = Alumno::where('Clave_Alumno', $claveAlumno)->first();
+        $area = Area::where('Id_Area', $alumno['Clave_Area'])->first();
+
+        // Nombre del archivo
+        if (!$filename) {
+            $filename = $claveAlumno . '_constancia_' . time() . '.pdf';
+        }
+
+        // Carpeta destino
+        $folder = 'expedientes/Constancia';
+
+        // Crear carpeta si no existe
+        if (!Storage::disk('public')->exists($folder)) {
+            Storage::disk('public')->makeDirectory($folder);
+        }
+
+        // Generar PDF
         $pdf = Pdf::loadView('pdf.constancia', compact('solicitud', 'alumno', 'area', 'fechaHoy'))
             ->setPaper('letter');
-        $tipoDoc = 'Constancia';
-        $nombreArchivo = $claveAlumno . '_constancia_' . time() . '.pdf';
-        $rutaCarpeta = 'expedientes/' . $tipoDoc;
-        if (!Storage::disk('public')->exists($rutaCarpeta)) {
-            Storage::disk('public')->makeDirectory($rutaCarpeta);
-        }
-        $pdf->save(storage_path('app/public/' . $rutaCarpeta . '/' . $nombreArchivo));
 
-        $expediente -> update([
-            'Constancia' => $nombreArchivo,
+        // Guardarlo
+        Storage::disk('public')->put("$folder/$filename", $pdf->output());
+
+        // Registrar en expediente
+        $expediente->update([
+            'Constancia' => $filename
         ]);
-        
+
+        // Actualizar estado
         EstadoProceso::updateOrCreate(
             [
                 'clave_alumno' => $claveAlumno,
                 'etapa' => 'CONSTANCIA DE VALIDACIÓN DE PRÁCTICAS PROFESIONALES'
             ],
-            ['estado' => 'realizado']
+            ['estado' => 'realizado',
+                'fecha_termino' => now()
+            ]
         );
         EstadoProceso::updateOrCreate(
             [
@@ -94,7 +109,11 @@ class PdfController extends Controller
             ],
             ['estado' => 'proceso']
         );
+
+        // Retornar el nombre del archivo generado
+        return $filename;
     }
+
 
     // -------------------------------------------------------
     // MOSTRAR DOCUMENTO (Visualiza PDFs del expediente)

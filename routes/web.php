@@ -257,7 +257,7 @@ Route::prefix('secretaria')->group(function () {
     Route::get('/constancias', [SecretariaController::class, 'listarPendientes'])->name('secretaria.constancias');
     Route::post('/generar-constancia/{claveAlumno}', [SecretariaController::class, 'generarConstancia'])->name('secretaria.constancias.generar');
     Route::get('/constancias/historial', [SecretariaController::class, 'consultarConstancias'])->name('secretaria.constancias.historial');
-    Route::get('/secretaria/constancias/ver/{clave}', [SecretariaController::class, 'verConstancia'])->name('secretaria.constancia.ver');
+    Route::get('/constancias/ver/{clave}', [SecretariaController::class, 'verConstancia'])->name('secretaria.constancia.ver');
 });
 
 /*

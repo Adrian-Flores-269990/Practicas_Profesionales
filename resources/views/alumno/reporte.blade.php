@@ -268,10 +268,8 @@
 
         // Limpiar formulario después de 2 segundos
         setTimeout(() => {
-          resetFormulario();
-          // Opcional: redirigir a la lista de reportes
-          // window.location.href = '{{ route("alumno.reportes.lista") }}';
-        }, 2000);
+          window.location.href = '{{ route("alumno.estado") }}';
+        }, 1000);
       } else {
         mostrarAlerta(data.error || 'Error al enviar el reporte', 'danger');
       }

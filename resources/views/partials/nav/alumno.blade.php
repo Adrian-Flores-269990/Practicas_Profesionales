@@ -166,7 +166,7 @@
             </li>
           @endif
 
-          {{-- CONSTANCIA DE FINALIZACION --}}
+          <!-- {{-- CONSTANCIA DE FINALIZACION --}}
           @if($estadoConstancia === 'proceso' || $estadoConstancia === 'realizado')
             <li>
               <a class="dropdown-item"
@@ -174,7 +174,7 @@
                 Constancia de Finalización
               </a>
             </li>
-          @endif
+          @endif -->
 
         </ul>
       </li>

@@ -189,12 +189,12 @@ class LoginController extends Controller
                     'rpe' => $rpe,
                     'nombre' => 'CESAR AUGUSTO PUENTE MONTEJANO',
                     'cargo' => 'Catedrático',
-                    'correo_electronico' => 'cambiar',
-                    'telefono' => 'cambiar',
-                    'clave_area' => 'cambiar',
-                    'area' => 'cambiar',
-                    'clave_carrera' => 'cambiar',
-                    'carrera' => 'cambiar',
+                    'correo_electronico' => 'cesar.augusto@uaslp.mx',
+                    'telefono' => '4446494863',
+                    'clave_area' => "NULL",
+                    'area' => "NULL",
+                    'clave_carrera' => "NULL",
+                    'carrera' => "NULL",
                 ],
             ];
             session(['empleado' => $empleado]);
@@ -209,10 +209,10 @@ class LoginController extends Controller
                 'cargo' => 'Catedrático',
                 'correo_electronico' => 'moi.alej@example.com',
                 'telefono' => '4446494863',
-                'clave_area' => NULL,
-                'area' => NULL,
-                'clave_carrera' => NULL,
-                'carrera' => NULL,
+                'clave_area' => "NULL",
+                'area' => "NULL",
+                'clave_carrera' => "NULL",
+                'carrera' => "NULL",
                 ],
             ];
             session(['empleado' => $empleado]);
@@ -227,10 +227,10 @@ class LoginController extends Controller
                 'cargo' => 'Catedrático',
                 'correo_electronico' => 'edgar.ivan@example.com',
                 'telefono' => '4447412536',
-                'clave_area' => NULL,
-                'area' => NULL,
-                'clave_carrera' => NULL,
-                'carrera' => NULL,
+                'clave_area' => "NULL",
+                'area' => "NULL",
+                'clave_carrera' => "NULL",
+                'carrera' => "NULL",
                 ],
             ];
             session(['empleado' => $empleado]);
